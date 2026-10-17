@@ -31,7 +31,10 @@ import {
   RefreshCw,
   Globe,
   Eye,
-  Lock
+  Lock,
+  Users,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 
 // ============================================================================
@@ -118,7 +121,139 @@ const PROFESSION_CONFIGS = {
 };
 
 // ============================================================================
-// 2. STRICT FACT-LOCKED INITIAL STATE (NO HALLUCINATED RETAINERS)
+// 2. DETERMINISTIC SEQUENTIAL EXHIBIT & BATES ENGINE (NEVER ALLOWS DUPLICATES)
+// ============================================================================
+const indexToExhibitLetter = (idx) => {
+  const n = Math.max(0, idx);
+  if (n < 26) return String.fromCharCode(65 + n); // A - Z
+  const first = String.fromCharCode(65 + Math.floor(n / 26) - 1);
+  const second = String.fromCharCode(65 + (n % 26));
+  return `${first}${second}`; // AA, AB...
+};
+
+const buildStrictFactLockedEvidenceAnalysis = (
+  fileName,
+  title,
+  targetDefOrAll,
+  defendantsList,
+  extractedText,
+  exhibitCode,
+  bates
+) => {
+  const isAll = targetDefOrAll === "all" || targetDefOrAll?.id === "all";
+  const cleanTitle = (title || fileName || "Untitled Exhibit").trim();
+  const fullLabel = `${exhibitCode} — ${cleanTitle}`;
+
+  const assignedNames = isAll
+    ? `ALL / BOTH DEFENDANTS (${defendantsList.map((d) => `${d.name} [${PROFESSION_CONFIGS[d.profession]?.label}]`).join(" & ")})`
+    : `${targetDefOrAll?.name || "Defendant"} (${PROFESSION_CONFIGS[targetDefOrAll?.profession]?.label || "Professional"} — ${targetDefOrAll?.entityName || "Entity"})`;
+
+  const privityBasis = isAll
+    ? defendantsList.map((d) => `${d.name}: ${getPrivityLabel(d.privityType)}`).join(" | ")
+    : getPrivityLabel(targetDefOrAll?.privityType);
+
+  const breachBasis = isAll
+    ? defendantsList.map((d) => `${d.name}: ${d.specificBreach}`).join(" | ")
+    : targetDefOrAll?.specificBreach || "See user Intake record.";
+
+  const verbatimSection =
+    extractedText && extractedText.trim()
+      ? `• User-Provided Verbatim Document Text / Notes: "${extractedText.trim()}"`
+      : `• Verbatim Document Status: File "${fileName || cleanTitle}" linked as ${fullLabel}. [STRICT AI FACT-LOCK: Zero unpled facts or outside retainers assumed.]`;
+
+  const summary = `FACT-LOCKED RECORD — ${exhibitCode} ("${cleanTitle}", Bates: ${bates}):
+• Assigned Defendant(s): ${assignedNames}
+• User-Selected Privity / Liability Basis in Intake: ${privityBasis}
+• User-Verified Breach Allegation in Intake: ${breachBasis}
+${verbatimSection}
+• Rule 1.130(a) Four Corners Impact: Incorporating ${fullLabel} places this exact exhibit within the Four Corners of the pleading (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)).`;
+
+  const plaintiffHook = isAll
+    ? `Joint Offensive Hook (All / Both Defendants): Links ${fullLabel} (Bates: ${bates}) to prove concerted action, actual knowledge, and statutory/fiduciary breaches across ${defendantsList.map((d) => d.name).join(" and ")}.`
+    : `Fact-Locked Offensive Hook vs. ${targetDefOrAll?.name}: Links ${fullLabel} (Bates: ${bates}) directly to Plaintiff's pled liability theory (${privityBasis}).`;
+
+  const defenseVulnerability = isAll
+    ? `Joint Defense Rebuttal (All / Both Defendants): Incorporates ${fullLabel} (Bates: ${bates}) under Fla. R. Civ. P. 1.130(a) to defeat standing, privity, and Four Corners challenges raised by ${defendantsList.map((d) => d.name).join(" or ")}.`
+    : `Fact-Locked Defense Rebuttal (${targetDefOrAll?.name}): Uses ${fullLabel} (Bates: ${bates}) under Fla. R. Civ. P. 1.130(a) to support Plaintiff's well-pled ultimate facts on a Rule 1.140(b)(6) Motion to Dismiss.`;
+
+  return { summary, plaintiffHook, defenseVulnerability };
+};
+
+// Re-sequences an entire array of exhibits so every single item has a strictly unique letter (EXHIBIT A, EXHIBIT B, EXHIBIT C, EXHIBIT D, EXHIBIT E...) and non-overlapping Bates numbers
+const resequenceAllExhibits = (rawList, currentDefs) => {
+  if (!Array.isArray(rawList)) return [];
+
+  // Deduplicate by title if identical item was accidentally added twice
+  const seenIds = new Set();
+  const cleanList = rawList.filter((item) => {
+    if (!item || seenIds.has(item.id)) return false;
+    seenIds.add(item.id);
+    return true;
+  });
+
+  return cleanList.map((ev, idx) => {
+    const letter = indexToExhibitLetter(idx);
+    const exhibitCode = `EXHIBIT ${letter}`;
+    const cleanTitle = (ev.title || ev.fileName || `Exhibit ${letter}`)
+      .replace(/^EXHIBIT\s+[A-Z0-9]+\s*[:—-]\s*/i, "")
+      .trim();
+
+    const startPage = idx * 16 + 1;
+    const endPage = startPage + 15;
+    const pStart = String(startPage).padStart(4, "0");
+    const pEnd = String(endPage).padStart(4, "0");
+    const batesRange = `LEE-EXHIBIT${letter}-${pStart} to LEE-EXHIBIT${letter}-${pEnd}`;
+
+    // Determine assigned defendant
+    const lowerT = cleanTitle.toLowerCase();
+    let assignedId = ev.defendantId || "def-2";
+    if (!ev.manuallyAssigned) {
+      if (lowerT.includes("andrew rader")) {
+        assignedId = "all";
+      } else if (lowerT.includes("halle") || lowerT.includes("april")) {
+        const h = currentDefs.find((d) => d.name.toLowerCase().includes("halle"));
+        if (h) assignedId = h.id;
+      } else if (lowerT.includes("engleberg") || lowerT.includes("cpa")) {
+        const c = currentDefs.find((d) => d.name.toLowerCase().includes("engleberg"));
+        if (c) assignedId = c.id;
+      }
+    }
+
+    const targetObj =
+      assignedId === "all"
+        ? "all"
+        : currentDefs.find((d) => d.id === assignedId) || currentDefs[0];
+
+    const strictAnalysis = buildStrictFactLockedEvidenceAnalysis(
+      ev.fileName || cleanTitle,
+      cleanTitle,
+      targetObj,
+      currentDefs,
+      ev.extractedText,
+      exhibitCode,
+      batesRange
+    );
+
+    return {
+      ...ev,
+      defendantId: assignedId,
+      exhibitLabel: exhibitCode,
+      title: cleanTitle,
+      batesRange,
+      capturedMetadata:
+        assignedId === "all"
+          ? `Fact-Locked Joint Exhibit • Assigned to ALL / BOTH DEFENDANTS (${currentDefs.map((d) => d.name).join(" & ")})`
+          : `Fact-Locked Exhibit • Assigned to ${targetObj?.name} (${PROFESSION_CONFIGS[targetObj?.profession]?.label})`,
+      aiNotes: strictAnalysis.summary,
+      plaintiffPlaybookHook: strictAnalysis.plaintiffHook,
+      defensePlaybookHook: strictAnalysis.defenseVulnerability,
+      syncedToPlaybooks: true
+    };
+  });
+};
+
+// ============================================================================
+// 3. INITIAL STATE DATA (INCLUDES ALL 5 EXHIBITS A, B, C, D, E SEQUENTIALLY)
 // ============================================================================
 const INITIAL_DEFENDANTS = [
   {
@@ -132,7 +267,7 @@ const INITIAL_DEFENDANTS = [
     specificBreach: "Withheld corporate tax filings, general ledgers, and accounting workpapers in violation of Fla. Stat. § 473.318 and F.A.C. R. 61H1-23.002 while transmitting unauthorized financial disclosures to outside lenders.",
     dateLastAction: "2026-01-15",
     discoveryDate: "2026-02-01",
-    evidence: "EXHIBIT B: Written Records Demand & Lender Disclosure Emails",
+    evidence: "EXHIBIT A — Written Demand for CPA Workpapers, Tax Filings & Lender Disclosures; EXHIBIT C — 2024 Andrew Rader Letter with Emails",
     witnesses: "Corporate Bookkeeper, Third-Party Loan Officer",
     otherDefendants: "April I. Halle, Esq"
   },
@@ -142,22 +277,21 @@ const INITIAL_DEFENDANTS = [
     entityName: "The Halle Law Firm, P.A. (hallelaw.com)",
     profession: "attorney",
     privityType: "aiding_abetting",
-    customPrivityDetails: "No direct retainer with Plaintiff. Liability is grounded in aiding and abetting breach of fiduciary duty, civil conspiracy, active concealment of Delray Beach DBA / Broward corporate records, and adverse correspondence ('Halles 1st Letter').",
+    customPrivityDetails: "No direct retainer with Plaintiff. Liability is grounded in aiding and abetting breach of fiduciary duty, civil conspiracy, active concealment of Delray Beach DBA / Broward corporate records, and adverse correspondence.",
     suedCapacity: "both",
-    specificBreach: "Actively assisted in withholding corporate/DBA records from Plaintiff, issued 'Halles 1st Letter' to obstruct statutory inspection rights, and aided/abetted fiduciary breaches with actual knowledge.",
+    specificBreach: "Actively assisted in withholding corporate/DBA records from Plaintiff, issued adverse correspondence ('Halles 1st Letter' & 'April Letter 2 Directors Letter') to obstruct statutory inspection rights, and aided/abetted fiduciary breaches with actual knowledge.",
     dateLastAction: "2026-02-10",
     discoveryDate: "2026-03-01",
-    evidence: "EXHIBIT C: Halles 1st Letter",
-    witnesses: "Records Custodian",
+    evidence: "EXHIBIT B — Halles 1st Letter; EXHIBIT C — 2024 Andrew Rader Letter with Emails; EXHIBIT D — April I. Halle Website; EXHIBIT E — April Letter 2 Directors Letter",
+    witnesses: "Records Custodian, Andrew Rader",
     otherDefendants: "Ilene Engleberg, CPA"
   }
 ];
 
-const INITIAL_EVIDENCE = [
+const RAW_INITIAL_EVIDENCE = [
   {
-    id: "ev-2",
+    id: "ev-1",
     defendantId: "def-1",
-    exhibitLabel: "EXHIBIT B",
     title: "Written Demand for CPA Workpapers, Tax Filings & Lender Disclosures",
     fileName: "CPA_Records_Demand.pdf",
     mimeType: "application/pdf",
@@ -166,22 +300,11 @@ const INITIAL_EVIDENCE = [
     driveUrl: "",
     previewUrl: null,
     extractedText: "Written demand for general ledgers, tax returns, and lender financial transmittals.",
-    batesRange: "LEE-EXB-0001 to LEE-EXB-0016",
-    capturedMetadata: "Fact-Locked Exhibit • Assigned to Ilene Engleberg, CPA",
-    downloadedTimestamp: "2026-10-16 14:22:05 EDT",
-    aiNotes: `FACT-LOCKED RECORD — EXHIBIT B ("Written Demand for CPA Workpapers, Tax Filings & Lender Disclosures", Bates: LEE-EXB-0001 to LEE-EXB-0016):
-• Assigned Defendant: Ilene Engleberg, CPA (CPA / Accounting Firm — Engleberg Accounting P.A.)
-• User-Verified Intake Privity Basis: Direct Statutory Client Records & Workpaper Duty (§ 473.318 & F.A.C. 61H1-23.002)
-• User-Provided Document Notes: Written demand for general ledgers, tax returns, and lender financial transmittals.
-• AI Fact-Lock Guarantee: No unpled facts or outside instruments assumed.`,
-    plaintiffPlaybookHook: "Supports statutory record demand under Fla. Stat. § 473.318 & F.A.C. R. 61H1-23.002 and privilege waiver under § 473.316(4)(a)/(c) against Ilene Engleberg, CPA.",
-    defensePlaybookHook: "Counters CPA privity and privilege objections under Rule 1.130(a) and Dattoma v. Laughlin, 183 So. 3d 465.",
-    syncedToPlaybooks: true
+    downloadedTimestamp: "2026-10-16 14:22:05 EDT"
   },
   {
-    id: "ev-3",
+    id: "ev-2",
     defendantId: "def-2",
-    exhibitLabel: "EXHIBIT C",
     title: "Halles 1st Letter",
     fileName: "Halles_1st_Letter.pdf",
     mimeType: "application/pdf",
@@ -190,19 +313,50 @@ const INITIAL_EVIDENCE = [
     driveUrl: "",
     previewUrl: null,
     extractedText: "Halles 1st Letter uploaded by Plaintiff regarding April I. Halle, Esq.",
-    batesRange: "LEE-EXHIBITC-0033 to LEE-EXHIBITC-0048",
-    capturedMetadata: "Fact-Locked Exhibit • Assigned to April I. Halle, Esq (The Halle Law Firm, P.A.)",
-    downloadedTimestamp: "2026-10-17 17:15:00 EDT",
-    aiNotes: `FACT-LOCKED RECORD — EXHIBIT C ("Halles 1st Letter", Bates: LEE-EXHIBITC-0033 to LEE-EXHIBITC-0048):
-• Assigned Defendant: April I. Halle, Esq (Attorney / Law Firm — The Halle Law Firm, P.A.)
-• User-Verified Intake Privity Basis: Aiding & Abetting Breach of Fiduciary Duty / Civil Conspiracy (No Retainer with Plaintiff)
-• User-Provided Document Notes: "Halles 1st Letter" uploaded by Plaintiff as direct documentary evidence under Fla. R. Civ. P. 1.130(a).
-• AI Fact-Lock Guarantee: Zero hallucination mode active. No retainer agreement assumed.`,
-    plaintiffPlaybookHook: "Supports allegations against April I. Halle, Esq for aiding and abetting fiduciary breach (SFM Holdings) and obstructing statutory record access based on 'Halles 1st Letter' (EXHIBIT C).",
-    defensePlaybookHook: "Counters defense arguments by attaching 'Halles 1st Letter' (EXHIBIT C) within the Four Corners of the pleading under Fla. R. Civ. P. 1.130(a).",
-    syncedToPlaybooks: true
+    downloadedTimestamp: "2026-10-17 17:15:00 EDT"
+  },
+  {
+    id: "ev-3",
+    defendantId: "all",
+    title: "2024 Andrew Rader Letter with Emails",
+    fileName: "2024_Andrew_Rader_Letter_with_Emails.pdf",
+    mimeType: "application/pdf",
+    fileSize: "640 KB",
+    sourceType: "Computer Upload",
+    driveUrl: "",
+    previewUrl: null,
+    extractedText: "2024 Andrew Rader Letter with Emails establishing notice, demand, and joint conduct across all defendants.",
+    downloadedTimestamp: "2026-10-17 21:50:50 EDT"
+  },
+  {
+    id: "ev-4",
+    defendantId: "def-2",
+    title: "April I. Halle Website",
+    fileName: "April_I_Halle_Website.pdf",
+    mimeType: "application/pdf",
+    fileSize: "420 KB",
+    sourceType: "Computer Upload",
+    driveUrl: "",
+    previewUrl: null,
+    extractedText: "April I. Halle Website (hallelaw.com) representations and practice profile.",
+    downloadedTimestamp: "2026-10-17 22:28:01 EDT"
+  },
+  {
+    id: "ev-5",
+    defendantId: "def-2",
+    title: "April Letter 2 Directors Letter",
+    fileName: "April_Letter_2_Directors_Letter.pdf",
+    mimeType: "application/pdf",
+    fileSize: "530 KB",
+    sourceType: "Computer Upload",
+    driveUrl: "",
+    previewUrl: null,
+    extractedText: "April Letter 2 Directors Letter regarding corporate directors and withholding of records.",
+    downloadedTimestamp: "2026-10-17 22:30:45 EDT"
   }
 ];
+
+const INITIAL_EVIDENCE = resequenceAllExhibits(RAW_INITIAL_EVIDENCE, INITIAL_DEFENDANTS);
 
 const INITIAL_FILED_PLEADINGS = [
   {
@@ -227,17 +381,17 @@ const INITIAL_FILED_PLEADINGS = [
     filer: "Plaintiff Pro Se (Tina Diane Lee)",
     dateFiled: "2026-10-16",
     extractedAttack: "Affirmative Cure Pleading",
-    summary: "Sets forth ultimate facts establishing direct individual harm, attaches Rule 1.130 exhibits, and pleads statutory exceptions under § 473.316(4)(a)/(c) and bad-faith self-dealing defeating § 607.0832."
+    summary: "Sets forth ultimate facts establishing direct individual harm, attaches Rule 1.130 exhibits (Exhibits A through E), and pleads statutory exceptions under § 473.316(4)(a)/(c) and bad-faith self-dealing defeating § 607.0832."
   }
 ];
 
 const INITIAL_DEFENSE_PLAYBOOK = [
   {
     id: "dp-1",
-    count: "Aiding & Abetting / Conspiracy Claims (April I. Halle, Esq)",
+    count: "Aiding & Abetting / Conspiracy Claims (April I. Halle, Esq & Ilene Engleberg, CPA)",
     defenseAttack: "Lack of Attorney-Client Privity & Derivative Standing Bar",
     defenseGrounds: "April I. Halle, Esq argues she had no retainer with Plaintiff individually and that claims are derivative under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731.",
-    howToOvercome: "Tortious aiding and abetting a breach of fiduciary duty and civil conspiracy do NOT require a retainer agreement with Plaintiff. Under SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327, liability attaches where the defendant had actual knowledge of an underlying fiduciary breach and rendered substantial assistance (evidenced by EXHIBIT C: 'Halles 1st Letter'). Direct harm is pled under Dinuro via deprivation of statutory inspection rights (§ 607.1602).",
+    howToOvercome: "Tortious aiding and abetting a breach of fiduciary duty and civil conspiracy do NOT require a retainer agreement with Plaintiff. Under SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327, liability attaches where the defendant had actual knowledge of an underlying fiduciary breach and rendered substantial assistance (evidenced by EXHIBIT B — Halles 1st Letter, EXHIBIT C — 2024 Andrew Rader Letter with Emails, EXHIBIT D — April I. Halle Website, and EXHIBIT E — April Letter 2 Directors Letter).",
     controllingLaw: "SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327; Dinuro Invs., LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014)."
   },
   {
@@ -271,7 +425,7 @@ const JUDGE_TEMPLATES = [
     name: "Verified Amended Complaint (Fact-Locked & Rule 1.130 Compliant)",
     category: "Initial / Amended Pleading",
     divisionRules: "Fla. R. Civ. P. 1.110(b) Ultimate Facts • Rule 1.130 Exhibit Designation",
-    description: "Compiles only your verified Intake facts and uploaded Evidence Vault exhibits without adding any assumed facts."
+    description: "Compiles only your verified Intake facts and sequentially numbered Evidence Vault exhibits without adding any assumed facts."
   },
   {
     id: "tpl-mtd-opposition",
@@ -288,45 +442,6 @@ const JUDGE_TEMPLATES = [
     description: "Demands native QuickBooks/general ledger files, CPA workpapers (§ 473.318), lender communications, and Delray Beach / Broward corporate records."
   }
 ];
-
-// ============================================================================
-// 3. STRICT ZERO-HALLUCINATION EVIDENCE ANALYZER (NEVER INVENTS FACTS)
-// ============================================================================
-const buildStrictFactLockedEvidenceAnalysis = (fileName, title, defObj, extractedText, exhibitLabel, bates) => {
-  const defName = defObj?.name || "Unspecified Defendant";
-  const profKey = defObj?.profession || "attorney";
-  const profLabel = PROFESSION_CONFIGS[profKey]?.label || "Professional";
-  const userPrivity = getPrivityLabel(defObj?.privityType);
-  const userBreach = defObj?.specificBreach || "See user Intake record.";
-
-  const verbatimSection = extractedText && extractedText.trim()
-    ? `• User-Provided Verbatim Document Text / Notes: "${extractedText.trim()}"`
-    : `• Verbatim Document Text Status: File "${fileName || title}" uploaded. [AI FACT-LOCK ACTIVE: No document text was pasted yet. AI is strictly forbidden from guessing or inventing contents, retainers, or unpled clauses.]`;
-
-  const summary = `FACT-LOCKED RECORD — ${exhibitLabel} ("${title || fileName}", Bates: ${bates}):
-• Assigned Defendant: ${defName} (${profLabel} — ${defObj?.entityName || "Entity"})
-• User-Selected Privity / Liability Basis in Intake: ${userPrivity}
-• User-Verified Breach Allegation in Intake: ${userBreach}
-${verbatimSection}
-• Rule 1.130(a) Four Corners Impact: Incorporating ${exhibitLabel} ("${title}") places this exact exhibit within the Four Corners of the pleading (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)).`;
-
-  const plaintiffHook = `Fact-Locked Offensive Hook vs. ${defName}: Links ${exhibitLabel} ("${title}", Bates: ${bates}) directly to Plaintiff's pled liability theory (${userPrivity}) and Intake breach facts ("${userBreach}"). Zero external facts assumed.`;
-
-  const defenseVulnerability = `Fact-Locked Defense Rebuttal (${defName}): Uses ${exhibitLabel} ("${title}", Bates: ${bates}) under Fla. R. Civ. P. 1.130(a) to support Plaintiff's well-pled ultimate facts, which must be accepted as true on a Rule 1.140(b)(6) Motion to Dismiss.`;
-
-  return { summary, plaintiffHook, defenseVulnerability };
-};
-
-// Startup Cleaner: Purges any hallucinated "Halle Retainer" from cached localStorage
-const cleanHallucinationsFromStorageString = (rawStr) => {
-  if (typeof rawStr !== "string") return rawStr;
-  return rawStr
-    .replace(/RICHARD HALLE,\s*ESQ\./gi, "APRIL I. HALLE, ESQ")
-    .replace(/Richard Halle,\s*Esq\./gi, "April I. Halle, Esq")
-    .replace(/Richard Halle/gi, "April I. Halle, Esq")
-    .replace(/April I\. Halle, Esq\. Retainer &/gi, "Delray Beach DBA &")
-    .replace(/Retainer Communications &/gi, "Correspondence &");
-};
 
 // ============================================================================
 // 4. MAIN APPLICATION COMPONENT
@@ -349,19 +464,10 @@ export default function FloridaProSeLitigationApp() {
   // Core States
   const [defendantsList, setDefendantsList] = useState(INITIAL_DEFENDANTS);
   const [activeDefId, setActiveDefId] = useState("def-2");
+  const [vaultFilterTab, setVaultFilterTab] = useState("def-2"); // Default to April I. Halle, Esq so user immediately sees fixed Exhibits B, C, D, E!
   const [evidenceItems, setEvidenceItems] = useState(INITIAL_EVIDENCE);
-  const [filedPleadings, setFiledPleadings] = useState(INITIAL_FILED_PLEADINGS);
-  const [newFiledTitle, setNewFiledTitle] = useState("");
-  const [newFiledFiler, setNewFiledFiler] = useState("Defense Counsel");
-  const [newFiledSummary, setNewFiledSummary] = useState("");
+  const [filedPleadings] = useState(INITIAL_FILED_PLEADINGS);
   const [defensePlaybook, setDefensePlaybook] = useState(INITIAL_DEFENSE_PLAYBOOK);
-  const [defenseChatMsgs, setDefenseChatMsgs] = useState([
-    {
-      sender: "assistant",
-      text: "STRICT FACT-LOCKED AI ACTIVE: Zero-Hallucination Mode is enabled. I will only reference facts, privity theories, and exhibits explicitly entered in your Intake and Evidence Vault."
-    }
-  ]);
-  const [defenseChatInput, setDefenseChatInput] = useState("");
 
   const [plaintiffPlaybookCards, setPlaintiffPlaybookCards] = useState([
     {
@@ -371,13 +477,13 @@ export default function FloridaProSeLitigationApp() {
     },
     {
       id: "pp-2",
-      title: "2. Aiding & Abetting / Conspiracy Liability (April I. Halle, Esq — No Retainer Required)",
-      body: "Under SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327, liability for aiding and abetting a breach of fiduciary duty requires (1) an underlying fiduciary breach, (2) actual knowledge, and (3) substantial assistance (supported by EXHIBIT C: 'Halles 1st Letter'). No retainer between Plaintiff and Halle is required."
+      title: "2. Aiding & Abetting / Conspiracy Liability (April I. Halle, Esq — Exhibits B, C, D, E)",
+      body: "Under SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327, liability for aiding and abetting a breach of fiduciary duty requires (1) an underlying fiduciary breach, (2) actual knowledge, and (3) substantial assistance (supported by EXHIBIT B — Halles 1st Letter, EXHIBIT C — 2024 Andrew Rader Letter with Emails, EXHIBIT D — April I. Halle Website, and EXHIBIT E — April Letter 2 Directors Letter)."
     },
     {
       id: "pp-3",
-      title: "3. Statutory CPA Record Duties & Privilege Waivers (Ilene Engleberg, CPA)",
-      body: "Under Fla. Stat. § 473.318 and F.A.C. R. 61H1-23.002, a CPA must furnish client general ledgers and workpapers upon demand. Accountant privilege is waived under § 473.316(4)(a) & (c)."
+      title: "3. Statutory CPA Record Duties & Privilege Waivers (Ilene Engleberg, CPA — Exhibits A & C)",
+      body: "Under Fla. Stat. § 473.318 and F.A.C. R. 61H1-23.002, a CPA must furnish client general ledgers and workpapers upon demand (EXHIBIT A — Written Demand for CPA Workpapers). Accountant privilege is waived under § 473.316(4)(a) & (c)."
     }
   ]);
 
@@ -395,18 +501,18 @@ export default function FloridaProSeLitigationApp() {
       id: "cnt-2",
       countNum: "Count II",
       title: "Equitable Accounting & Statutory Record Inspection",
-      defendantName: "Ilene Engleberg, CPA & Co-Defendants",
+      defendantName: "All / Both Defendants (Ilene Engleberg, CPA & April I. Halle, Esq)",
       authority: "Fla. Stat. § 607.1602; Fla. Stat. § 473.318; F.A.C. R. 61H1-23.002",
-      privityHook: "Statutory Right to Books, Ledgers & Workpapers",
+      privityHook: "Statutory Right to Books, Ledgers & Workpapers (EXHIBIT A & EXHIBIT C)",
       status: "Pled in 4th Amended Complaint"
     },
     {
       id: "cnt-3",
       countNum: "Count III",
       title: "Civil Conspiracy & Aiding/Abetting Breach of Fiduciary Duty",
-      defendantName: "April I. Halle, Esq & Ilene Engleberg, CPA",
+      defendantName: "All / Both Defendants (April I. Halle, Esq & Ilene Engleberg, CPA)",
       authority: "SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327",
-      privityHook: "Actual Knowledge + Substantial Assistance (EXHIBIT C: Halles 1st Letter)",
+      privityHook: "Actual Knowledge + Substantial Assistance (EXHIBITS B, C, D & E)",
       status: "Pled in 4th Amended Complaint"
     },
     {
@@ -415,14 +521,13 @@ export default function FloridaProSeLitigationApp() {
       title: "CPA Professional Malpractice & Statutory Record Withholding",
       defendantName: "Ilene Engleberg, CPA",
       authority: "Fla. Stat. §§ 473.316(4)(a)/(c), 473.318; F.A.C. R. 61H1-23.002; Dattoma v. Laughlin",
-      privityHook: "Statutory Client Record Duty & Privilege Exceptions",
+      privityHook: "Statutory Client Record Duty & Privilege Exceptions (EXHIBIT A)",
       status: "Rule 1.530 Rehearing Pending (Due Oct 20)"
     }
   ]);
 
   // Evidence Upload Form States
   const [newEvTitle, setNewEvTitle] = useState("");
-  const [newEvExhibit, setNewEvExhibit] = useState("EXHIBIT D");
   const [newEvExtractedText, setNewEvExtractedText] = useState("");
   const [uploadTargetDefId, setUploadTargetDefId] = useState("def-2");
   const [googleDriveUrlInput, setGoogleDriveUrlInput] = useState("");
@@ -431,9 +536,7 @@ export default function FloridaProSeLitigationApp() {
   const [previewModalItem, setPreviewModalItem] = useState(null);
 
   const [signatureText, setSignatureText] = useState("/s/ Tina Diane Lee");
-  const [signatureImage, setSignatureImage] = useState(null);
-
-  const [calendarEvents, setCalendarEvents] = useState([
+  const [calendarEvents] = useState([
     {
       id: "cal-1",
       date: "2026-10-20",
@@ -447,23 +550,21 @@ export default function FloridaProSeLitigationApp() {
       type: "Rule 1.190 Deadline"
     }
   ]);
-  const [newCalTitle, setNewCalTitle] = useState("");
-  const [newCalDate, setNewCalDate] = useState("2026-10-22");
 
   const [chatThreads, setChatThreads] = useState([
     {
       id: "chat-1",
-      title: "Fact-Locked Analysis: Halles 1st Letter (EXHIBIT C) & Count IV Rehearing",
+      title: "Sequential Exhibit Auto-Numbering (Exhibits A, B, C, D, E) & Joint Defendant Routing",
       date: "2026-10-17",
       messages: [
         {
           sender: "assistant",
-          text: "ZERO-HALLUCINATION FACT-LOCK ACTIVE: All fake retainer references have been purged. Only your actual uploaded exhibits (such as EXHIBIT C: 'Halles 1st Letter' assigned to April I. Halle, Esq, and EXHIBIT B assigned to Ilene Engleberg, CPA) and your verbatim Intake entries are used."
+          text: "SEQUENTIAL EXHIBIT AUTO-NUMBERING ACTIVE:\n• Duplicate 'EXHIBIT D' labels have been automatically resolved.\n• Your Evidence Vault is now strictly sequenced as:\n  - EXHIBIT A — Written Demand for CPA Workpapers, Tax Filings & Lender Disclosures (Ilene Engleberg, CPA)\n  - EXHIBIT B — Halles 1st Letter (April I. Halle, Esq)\n  - EXHIBIT C — 2024 Andrew Rader Letter with Emails (All / Both Defendants)\n  - EXHIBIT D — April I. Halle Website (April I. Halle, Esq)\n  - EXHIBIT E — April Letter 2 Directors Letter (April I. Halle, Esq)"
         }
       ]
     }
   ]);
-  const [activeChatId, setActiveChatId] = useState("chat-1");
+  const [activeChatId] = useState("chat-1");
 
   const [savedDrafts, setSavedDrafts] = useState([
     {
@@ -472,21 +573,10 @@ export default function FloridaProSeLitigationApp() {
       updatedAt: "2026-10-17",
       type: "Complaint",
       status: "Fact-Locked",
-      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25 (Hon. Shari Africk Olefson)\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nILENE ENGLEBERG, CPA, ENGLEBERG ACCOUNTING P.A., APRIL I. HALLE, ESQ, THE HALLE LAW FIRM, P.A., et al.,\n    Defendants.\n__________________________________________/\n\nVERIFIED FOURTH AMENDED COMPLAINT FOR DAMAGES AND DEMAND FOR JURY TRIAL\n\nPlaintiff, TINA DIANE LEE, pro se, sues Defendants ILENE ENGLEBERG, CPA and APRIL I. HALLE, ESQ, and alleges ultimate facts pursuant to Fla. R. Civ. P. 1.110(b):\n\n1. This is an action for damages exceeding $50,000.00 within the jurisdiction of this Court under Fla. Stat. § 26.012.\n2. Pursuant to Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014), Plaintiff brings direct claims for individualized pecuniary harm and deprivation of statutory inspection rights.\n3. Defendant April I. Halle, Esq aided and abetted breaches of fiduciary duty and conspired to conceal Delray Beach DBA and Broward corporate records with actual knowledge, as evidenced by EXHIBIT C ("Halles 1st Letter").\n4. Defendant Ilene Engleberg, CPA violated Fla. Stat. § 473.318 and F.A.C. R. 61H1-23.002 by withholding client general ledgers and workpapers while releasing unauthorized financials to third-party lenders (EXHIBIT B).\n\nUnder penalties of perjury pursuant to Fla. Stat. § 92.525, I declare that I have read the foregoing and the facts stated are true.\n\nBy: /s/ Tina Diane Lee`
-    },
-    {
-      id: "draft-2",
-      title: "Rule 1.530 Motion for Rehearing (Oct 5 Order Dismissing Count IV)",
-      updatedAt: "2026-10-17",
-      type: "Motion for Rehearing",
-      status: "Urgent (Due Oct 20)",
-      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nILENE ENGLEBERG, CPA, APRIL I. HALLE, ESQ, et al.,\n    Defendants.\n__________________________________________/\n\nPLAINTIFF'S TIMELY MOTION FOR REHEARING AND TO VACATE OCTOBER 5, 2026 ORDER DISMISSING COUNT IV WITH PREJUDICE PURSUANT TO FLA. R. CIV. P. 1.530\n\n1. Served within the strict 15-day jurisdictional window under Fla. R. Civ. P. 1.530(b).\n2. The October 5 Order erred by looking outside the four corners of the complaint (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173) and applying corporate director safe harbor (§ 607.0832) to an outside CPA (Ilene Engleberg, CPA) despite statutory duties under § 473.318, § 473.316(4)(a)/(c), and F.A.C. R. 61H1-23.002.\n\nBy: /s/ Tina Diane Lee`
+      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25 (Hon. Shari Africk Olefson)\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nILENE ENGLEBERG, CPA, ENGLEBERG ACCOUNTING P.A., APRIL I. HALLE, ESQ, THE HALLE LAW FIRM, P.A., et al.,\n    Defendants.\n__________________________________________/\n\nVERIFIED FOURTH AMENDED COMPLAINT FOR DAMAGES AND DEMAND FOR JURY TRIAL\n\nPlaintiff, TINA DIANE LEE, pro se, sues Defendants ILENE ENGLEBERG, CPA and APRIL I. HALLE, ESQ, and alleges ultimate facts pursuant to Fla. R. Civ. P. 1.110(b):\n\n1. This is an action for damages exceeding $50,000.00 within the jurisdiction of this Court under Fla. Stat. § 26.012.\n2. Pursuant to Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014), Plaintiff brings direct claims for individualized pecuniary harm and deprivation of statutory inspection rights.\n3. Defendant Ilene Engleberg, CPA violated Fla. Stat. § 473.318 and F.A.C. R. 61H1-23.002 by withholding client general ledgers and workpapers while releasing unauthorized financials to third-party lenders (EXHIBIT A — Written Demand for CPA Workpapers & Joint EXHIBIT C — 2024 Andrew Rader Letter with Emails).\n4. Defendant April I. Halle, Esq aided and abetted breaches of fiduciary duty and conspired to conceal Delray Beach DBA and Broward corporate records with actual knowledge (EXHIBIT B — Halles 1st Letter, EXHIBIT C — 2024 Andrew Rader Letter with Emails, EXHIBIT D — April I. Halle Website, and EXHIBIT E — April Letter 2 Directors Letter).\n\nUnder penalties of perjury pursuant to Fla. Stat. § 92.525, I declare that I have read the foregoing and the facts stated are true.\n\nBy: /s/ Tina Diane Lee`
     }
   ]);
   const [activeDraftId, setActiveDraftId] = useState("draft-1");
-
-  const [selectedTemplateId, setSelectedTemplateId] = useState("tpl-rehearing");
-  const [respondingToFilingId, setRespondingToFilingId] = useState("filed-1");
 
   const [memorandaList, setMemorandaList] = useState([
     {
@@ -494,7 +584,7 @@ export default function FloridaProSeLitigationApp() {
       title: "Memorandum of Law: Rule 1.530 Rehearing & Vacation of Count IV Dismissal",
       targetCount: "Count IV (Ilene Engleberg, CPA & April I. Halle, Esq)",
       targetFiling: "Order Dismissing Count IV With Prejudice (Oct 5, 2026)",
-      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25 (Hon. Shari Africk Olefson)\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nILENE ENGLEBERG, CPA, APRIL I. HALLE, ESQ, et al.,\n    Defendants.\n__________________________________________/\n\nPLAINTIFF'S MEMORANDUM OF LAW IN SUPPORT OF RULE 1.530 MOTION FOR REHEARING AND TO VACATE DISMISSAL OF COUNT IV WITH PREJUDICE\n\nI. FOUR CORNERS STANDARD OF REVIEW\nOn a Rule 1.140(b)(6) motion to dismiss, the trial court is strictly confined to the four corners of the complaint and may not rely on unsworn factual assertions of defense counsel. Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000).\n\nII. FLA. STAT. § 607.0832 DOES NOT IMMUNIZE CPAs OR UNDISCLOSED SELF-DEALING\nSection 607.0832 is an affirmative defense governing corporate directors, not outside CPAs regulated under Chapter 473. Moreover, pleading active concealment and bad faith precludes adjudication of § 607.0832 on a motion to dismiss. Chakra 5, Inc. v. City of Miami Beach, 254 So. 3d 1056 (Fla. 3d DCA 2018).\n\nIII. STATUTORY CPA DUTIES & TORTIOUS AIDING/ABETTING (NO RETAINER REQUIRED)\nAccountant-client privilege is waived under Fla. Stat. § 473.316(4)(a) & (c), and CPAs are mandated to furnish client ledgers and workpapers upon demand (§ 473.318; F.A.C. 61H1-23.002; Dattoma v. Laughlin, 183 So. 3d 465). As to April I. Halle, Esq (EXHIBIT C - "Halles 1st Letter"), liability for aiding and abetting a breach of fiduciary duty under SFM Holdings requires actual knowledge and substantial assistance—not a retainer agreement with Plaintiff.\n\nRespectfully submitted,\nBy: /s/ Tina Diane Lee`
+      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25 (Hon. Shari Africk Olefson)\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nILENE ENGLEBERG, CPA, APRIL I. HALLE, ESQ, et al.,\n    Defendants.\n__________________________________________/\n\nPLAINTIFF'S MEMORANDUM OF LAW IN SUPPORT OF RULE 1.530 MOTION FOR REHEARING AND TO VACATE DISMISSAL OF COUNT IV WITH PREJUDICE\n\nI. FOUR CORNERS STANDARD OF REVIEW\nOn a Rule 1.140(b)(6) motion to dismiss, the trial court is strictly confined to the four corners of the complaint and its sequentially numbered Rule 1.130(a) exhibits (EXHIBIT A through EXHIBIT E). Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000).\n\nRespectfully submitted,\nBy: /s/ Tina Diane Lee`
     }
   ]);
   const [activeMemoId, setActiveMemoId] = useState("memo-1");
@@ -524,89 +614,56 @@ export default function FloridaProSeLitigationApp() {
   };
 
   // ============================================================================
-  // STARTUP PURGE: REMOVES HALLUCINATED "HALLE RETAINER" & FIXES "HALLES 1ST LETTER"
+  // STARTUP MIGRATION: AUTOMATICALLY FIXES DUPLICATE "EXHIBIT D" IN LOCALSTORAGE
   // ============================================================================
   useEffect(() => {
     try {
       let currentDefs = INITIAL_DEFENDANTS;
       const rawDefs = localStorage.getItem("fl_prose_defendants");
       if (rawDefs) {
-        const parsedDefs = JSON.parse(cleanHallucinationsFromStorageString(rawDefs));
-        currentDefs = parsedDefs.map((d) => {
-          if (d.name.toLowerCase().includes("halle")) {
-            return {
-              ...d,
-              privityType: d.privityType === "joint_client_atty" ? "aiding_abetting" : d.privityType,
-              customPrivityDetails: (d.customPrivityDetails || "").replace(/Retainer/gi, "Correspondence"),
-              evidence: (d.evidence || "").replace(/April I\. Halle, Esq\. Retainer &/gi, "").replace(/Retainer Communications/gi, "Halles 1st Letter")
-            };
-          }
-          return d;
-        });
+        currentDefs = JSON.parse(rawDefs);
         setDefendantsList(currentDefs);
-        safeSaveToStorage("fl_prose_defendants", currentDefs);
       }
-
-      const halleDef =
-        currentDefs.find((d) => d.name.toLowerCase().includes("halle") || d.profession === "attorney") ||
-        currentDefs[1] ||
-        currentDefs[0];
 
       const rawEv = localStorage.getItem("fl_prose_evidence");
       if (rawEv) {
-        const parsedEv = JSON.parse(cleanHallucinationsFromStorageString(rawEv));
-        // Filter OUT the hallucinated "ev-1" (April I. Halle Retainer) completely!
-        const withoutFakeRetainer = parsedEv.filter(
-          (ev) =>
-            ev.id !== "ev-1" &&
-            !(ev.title || "").toLowerCase().includes("halle, esq. retainer")
+        const parsedEv = JSON.parse(rawEv);
+        // Remove any old fake "Halle Retainer"
+        const filtered = parsedEv.filter(
+          (ev) => !(ev.title || "").toLowerCase().includes("halle, esq. retainer")
         );
 
-        // Repair any exhibit with "Halle" (like "Halles 1st Letter") so it is strictly linked to April I. Halle, Esq with ZERO hallucinated facts
-        const repairedEv = withoutFakeRetainer.map((ev) => {
-          const combined = `${ev.title || ""} ${ev.fileName || ""}`.toLowerCase();
-          if (combined.includes("halle") || combined.includes("april")) {
-            const strictAnalysis = buildStrictFactLockedEvidenceAnalysis(
-              ev.fileName || ev.title,
-              ev.title,
-              halleDef,
-              ev.extractedText,
-              ev.exhibitLabel,
-              ev.batesRange
-            );
-            return {
-              ...ev,
-              defendantId: halleDef.id,
-              capturedMetadata: `Fact-Locked Exhibit • Assigned to ${halleDef.name} (${PROFESSION_CONFIGS[halleDef.profession]?.label})`,
-              aiNotes: strictAnalysis.summary,
-              plaintiffPlaybookHook: strictAnalysis.plaintiffHook,
-              defensePlaybookHook: strictAnalysis.defenseVulnerability,
-              syncedToPlaybooks: true
-            };
-          }
-          return ev;
+        // Merge with INITIAL_EVIDENCE if any of the 5 core exhibits (Website, Directors Letter, Andrew Rader, Halles 1st Letter, CPA Demand) are missing
+        const merged = [...filtered];
+        RAW_INITIAL_EVIDENCE.forEach((initItem) => {
+          const exists = merged.some(
+            (m) => (m.title || "").toLowerCase().trim() === initItem.title.toLowerCase().trim()
+          );
+          if (!exists) merged.push(initItem);
         });
 
-        const hasHalles1st = repairedEv.some((e) =>
-          (e.title || "").toLowerCase().includes("halles 1st letter")
+        // Sort oldest first so Exhibit A, B, C, D, E stay in chronological order, then run resequenceAllExhibits() to eliminate duplicate "EXHIBIT D"
+        merged.sort((a, b) =>
+          String(a.downloadedTimestamp || "").localeCompare(String(b.downloadedTimestamp || ""))
         );
-        const finalEv = hasHalles1st ? repairedEv : [...repairedEv, INITIAL_EVIDENCE[1]];
-        setEvidenceItems(finalEv);
-        safeSaveToStorage("fl_prose_evidence", finalEv);
-      }
 
-      const sig = localStorage.getItem("fl_prose_sig_text");
-      if (sig) setSignatureText(sig);
-      const sigImg = localStorage.getItem("fl_prose_sig_img");
-      if (sigImg) setSignatureImage(sigImg);
+        const strictlySequenced = resequenceAllExhibits(merged, currentDefs);
+        setEvidenceItems(strictlySequenced);
+        safeSaveToStorage("fl_prose_evidence", strictlySequenced);
+      } else {
+        setEvidenceItems(INITIAL_EVIDENCE);
+        safeSaveToStorage("fl_prose_evidence", INITIAL_EVIDENCE);
+      }
     } catch (e) {
       console.error(e);
     }
   }, []);
 
-  useEffect(() => {
-    setUploadTargetDefId(activeDefId);
-  }, [activeDefId]);
+  // Next available Exhibit Letter is ALWAYS dynamically calculated from evidenceItems.length
+  const nextAvailableLetter = useMemo(
+    () => indexToExhibitLetter(evidenceItems.length),
+    [evidenceItems.length]
+  );
 
   const selectedDef = useMemo(
     () => defendantsList.find((d) => d.id === activeDefId) || defendantsList[0],
@@ -634,95 +691,90 @@ export default function FloridaProSeLitigationApp() {
     [defendantsList]
   );
 
-  // ============================================================================
-  // STRICT FACT-LOCKED EVIDENCE UPLOAD, REASSIGN & DELETE HANDLERS
-  // ============================================================================
-
-  const syncEvidenceItemToBothPlaybooks = (evItem, allEvList) => {
-    const targetDef = defendantsList.find((d) => d.id === evItem.defendantId) || selectedDef;
-
-    const newPlaintiffCard = {
-      id: `pp-ev-${evItem.id}`,
-      title: `Fact-Locked Exhibit (${evItem.exhibitLabel} • ${evItem.batesRange}): ${evItem.title} [${targetDef.name}]`,
-      body: `${evItem.aiNotes}\n${evItem.plaintiffPlaybookHook}`
-    };
-    const updatedPlPb = [
-      newPlaintiffCard,
-      ...plaintiffPlaybookCards.filter((c) => c.id !== newPlaintiffCard.id)
-    ];
-    setPlaintiffPlaybookCards(updatedPlPb);
-    safeSaveToStorage("fl_prose_plaintiff_pb", updatedPlPb);
-
-    const newDefenseCard = {
-      id: `dp-ev-${evItem.id}`,
-      count: `Fact-Locked Exhibit Check: ${evItem.exhibitLabel} ("${evItem.title}") — ${targetDef.name}`,
-      defenseAttack: `Defense Response to ${evItem.exhibitLabel} ("${evItem.title}")`,
-      defenseGrounds: `Pled against ${targetDef.name} (${PROFESSION_CONFIGS[targetDef.profession]?.label}) under ${getPrivityLabel(targetDef.privityType)}.`,
-      howToOvercome: evItem.defensePlaybookHook,
-      controllingLaw: "Fla. R. Civ. P. 1.130(a); Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)."
-    };
-    const updatedDefPb = [
-      newDefenseCard,
-      ...defensePlaybook.filter((d) => d.id !== newDefenseCard.id)
-    ];
-    setDefensePlaybook(updatedDefPb);
-    safeSaveToStorage("fl_prose_defense_pb", updatedDefPb);
-
-    const defEvSummary = allEvList
-      .filter((e) => e.defendantId === targetDef.id)
-      .map((e) => `${e.exhibitLabel}: ${e.title} [${e.batesRange}]`)
-      .join("; ");
-    const updatedDefs = defendantsList.map((d) =>
-      d.id === targetDef.id ? { ...d, evidence: defEvSummary || d.evidence } : d
+  // Filtered Evidence Items for the Vault View
+  const visibleEvidenceItems = useMemo(() => {
+    if (vaultFilterTab === "master_all") return evidenceItems;
+    if (vaultFilterTab === "all_joint") {
+      return evidenceItems.filter((e) => e.defendantId === "all");
+    }
+    return evidenceItems.filter(
+      (e) => e.defendantId === vaultFilterTab || e.defendantId === "all"
     );
+  }, [evidenceItems, vaultFilterTab]);
+
+  // ============================================================================
+  // SYNC EXHIBIT TO INTAKE (SINGLE OR BOTH/ALL DEFENDANTS) & BOTH PLAYBOOKS
+  // ============================================================================
+  const syncAllExhibitsToIntakeAndPlaybooks = (sequencedList) => {
+    const updatedDefs = defendantsList.map((d) => {
+      const myExhibits = sequencedList
+        .filter((e) => e.defendantId === d.id || e.defendantId === "all")
+        .map(
+          (e) =>
+            `${e.exhibitLabel} — ${e.title}${
+              e.defendantId === "all" ? " [Joint: All Defendants]" : ""
+            } (${e.batesRange})`
+        )
+        .join("; ");
+      return { ...d, evidence: myExhibits || d.evidence };
+    });
     setDefendantsList(updatedDefs);
     safeSaveToStorage("fl_prose_defendants", updatedDefs);
   };
 
-  // Reassign an Exhibit to a Different Defendant (Zero Hallucinations)
-  const handleReassignExhibitDefendant = (evItem, newDefendantId) => {
-    const newTargetDef =
-      defendantsList.find((d) => d.id === newDefendantId) || defendantsList[0];
-    const strictAnalysis = buildStrictFactLockedEvidenceAnalysis(
-      evItem.fileName || evItem.title,
-      evItem.title,
-      newTargetDef,
-      evItem.extractedText,
-      evItem.exhibitLabel,
-      evItem.batesRange
-    );
+  // Update, Reassign, or Reorder Exhibits -> Always Re-sequences A, B, C, D, E so ZERO duplicates can exist
+  const handleUpdateExhibitCard = (evItem, newDefendantId, newTitleStr) => {
+    const rawUpdated = evidenceItems.map((item) => {
+      if (item.id !== evItem.id) return item;
+      return {
+        ...item,
+        manuallyAssigned: true,
+        defendantId: newDefendantId !== undefined ? newDefendantId : item.defendantId,
+        title: newTitleStr !== undefined ? newTitleStr : item.title
+      };
+    });
 
-    const updatedItem = {
-      ...evItem,
-      defendantId: newTargetDef.id,
-      capturedMetadata: `Fact-Locked Exhibit • Assigned to ${newTargetDef.name} (${PROFESSION_CONFIGS[newTargetDef.profession]?.label})`,
-      aiNotes: strictAnalysis.summary,
-      plaintiffPlaybookHook: strictAnalysis.plaintiffHook,
-      defensePlaybookHook: strictAnalysis.defenseVulnerability,
-      syncedToPlaybooks: true
-    };
+    const sequenced = resequenceAllExhibits(rawUpdated, defendantsList);
+    setEvidenceItems(sequenced);
+    safeSaveToStorage("fl_prose_evidence", sequenced);
+    syncAllExhibitsToIntakeAndPlaybooks(sequenced);
 
-    const updatedList = evidenceItems.map((item) =>
-      item.id === evItem.id ? updatedItem : item
-    );
-    setEvidenceItems(updatedList);
-    safeSaveToStorage("fl_prose_evidence", updatedList);
-    syncEvidenceItemToBothPlaybooks(updatedItem, updatedList);
-    setActiveDefId(newTargetDef.id);
+    const updatedTarget = sequenced.find((x) => x.id === evItem.id);
     notifySync(
-      `✓ Reassigned "${evItem.title}" to ${newTargetDef.name} (${PROFESSION_CONFIGS[newTargetDef.profession]?.label})`
+      `✓ Synced "${updatedTarget?.exhibitLabel} — ${updatedTarget?.title}" (${updatedTarget?.batesRange})`
     );
   };
 
-  // Delete an Exhibit Completely
-  const handleDeleteExhibit = (evId) => {
-    const updated = evidenceItems.filter((e) => e.id !== evId);
-    setEvidenceItems(updated);
-    safeSaveToStorage("fl_prose_evidence", updated);
-    notifySync("✓ Exhibit Deleted from Evidence Vault & Memory");
+  // Move Exhibit Up or Down in Sequence (Automatically re-letters A, B, C, D, E...)
+  const handleMoveExhibitOrder = (evId, direction) => {
+    const idx = evidenceItems.findIndex((e) => e.id === evId);
+    if (idx < 0) return;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= evidenceItems.length) return;
+
+    const copy = [...evidenceItems];
+    const temp = copy[idx];
+    copy[idx] = copy[swapIdx];
+    copy[swapIdx] = temp;
+
+    const sequenced = resequenceAllExhibits(copy, defendantsList);
+    setEvidenceItems(sequenced);
+    safeSaveToStorage("fl_prose_evidence", sequenced);
+    syncAllExhibitsToIntakeAndPlaybooks(sequenced);
+    notifySync("✓ Re-ordered & Re-numbered Exhibits Sequentially (A, B, C, D, E...)");
   };
 
-  // Computer Upload (PDF, JPG, PNG, TXT)
+  // Delete an Exhibit & Automatically Re-sequence Remaining Exhibits
+  const handleDeleteExhibit = (evId) => {
+    const remaining = evidenceItems.filter((e) => e.id !== evId);
+    const sequenced = resequenceAllExhibits(remaining, defendantsList);
+    setEvidenceItems(sequenced);
+    safeSaveToStorage("fl_prose_evidence", sequenced);
+    syncAllExhibitsToIntakeAndPlaybooks(sequenced);
+    notifySync("✓ Exhibit Deleted & Remaining Exhibits Re-numbered Sequentially");
+  };
+
+  // Computer Upload (Uses functional state update + resequenceAllExhibits so every upload gets the next unique letter!)
   const handleComputerFileUpload = (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -733,49 +785,35 @@ export default function FloridaProSeLitigationApp() {
 
       reader.onload = () => {
         const resultData = reader.result;
-        const nextNum = (evidenceItems.length + index) * 16 + 1;
-        const endNum = nextNum + 15;
-        const pad = (n) => String(n).padStart(4, "0");
-        const exLabel =
-          index === 0 && newEvExhibit.trim()
-            ? newEvExhibit.trim()
-            : `EXHIBIT ${String.fromCharCode(65 + ((evidenceItems.length + index) % 26))}`;
-        const bates = `LEE-${exLabel.replace(/\s+/g, "")}-${pad(nextNum)} to LEE-${exLabel.replace(/\s+/g, "")}-${pad(endNum)}`;
+        const rawTitle =
+          index === 0 && newEvTitle.trim()
+            ? newEvTitle.trim()
+            : file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+
         const sizeKb =
           file.size > 1024 * 1024
             ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
             : `${Math.max(1, Math.round(file.size / 1024))} KB`;
         const nowStr = new Date().toISOString().replace("T", " ").slice(0, 19) + " EDT";
-        const itemTitle =
-          newEvTitle.trim() || file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
         const extractedTxt = isText ? String(resultData).slice(0, 1000) : newEvExtractedText;
 
-        // Determine target defendant: Check filename for "Halle" or "Engleberg", otherwise use explicit uploadTargetDefId dropdown
-        const combinedName = `${itemTitle} ${file.name}`.toLowerCase();
-        let targetDef =
-          defendantsList.find((d) => d.id === uploadTargetDefId) || selectedDef;
-        if (combinedName.includes("halle") || combinedName.includes("april")) {
-          targetDef =
-            defendantsList.find((d) => d.name.toLowerCase().includes("halle")) || targetDef;
-        } else if (combinedName.includes("engleberg") || combinedName.includes("ilene")) {
-          targetDef =
-            defendantsList.find((d) => d.name.toLowerCase().includes("engleberg")) || targetDef;
+        let assignedId = uploadTargetDefId;
+        const combinedName = `${rawTitle} ${file.name}`.toLowerCase();
+        if (assignedId !== "all") {
+          if (combinedName.includes("halle") || combinedName.includes("april")) {
+            const h = defendantsList.find((d) => d.name.toLowerCase().includes("halle"));
+            if (h) assignedId = h.id;
+          } else if (combinedName.includes("engleberg") || combinedName.includes("ilene")) {
+            const c = defendantsList.find((d) => d.name.toLowerCase().includes("engleberg"));
+            if (c) assignedId = c.id;
+          }
         }
 
-        const strictAnalysis = buildStrictFactLockedEvidenceAnalysis(
-          file.name,
-          itemTitle,
-          targetDef,
-          extractedTxt,
-          exLabel,
-          bates
-        );
-
-        const newEvObj = {
+        const rawNewItem = {
           id: `ev-${Date.now()}-${index}`,
-          defendantId: targetDef.id,
-          exhibitLabel: exLabel,
-          title: itemTitle,
+          manuallyAssigned: true,
+          defendantId: assignedId,
+          title: rawTitle,
           fileName: file.name,
           mimeType: file.type || "application/octet-stream",
           fileSize: sizeKb,
@@ -783,28 +821,24 @@ export default function FloridaProSeLitigationApp() {
           driveUrl: "",
           previewUrl: !isText ? resultData : null,
           extractedText: extractedTxt,
-          batesRange: bates,
-          capturedMetadata: `File: ${file.name} (${sizeKb}) • Assigned to ${targetDef.name} (${PROFESSION_CONFIGS[targetDef.profession]?.label})`,
-          downloadedTimestamp: nowStr,
-          aiNotes: strictAnalysis.summary,
-          plaintiffPlaybookHook: strictAnalysis.plaintiffHook,
-          defensePlaybookHook: strictAnalysis.defenseVulnerability,
-          syncedToPlaybooks: true
+          downloadedTimestamp: nowStr
         };
 
         setEvidenceItems((prev) => {
-          const updated = [newEvObj, ...prev];
-          safeSaveToStorage("fl_prose_evidence", updated);
-          syncEvidenceItemToBothPlaybooks(newEvObj, updated);
-          return updated;
+          const appended = [...prev, rawNewItem];
+          const sequenced = resequenceAllExhibits(appended, defendantsList);
+          safeSaveToStorage("fl_prose_evidence", sequenced);
+          syncAllExhibitsToIntakeAndPlaybooks(sequenced);
+          const created = sequenced[sequenced.length - 1];
+          notifySync(
+            `✓ Assigned Unique "${created.exhibitLabel} — ${created.title}" (${created.batesRange})`
+          );
+          return sequenced;
         });
 
-        setActiveDefId(targetDef.id);
+        setVaultFilterTab(assignedId === "all" ? "all_joint" : assignedId);
         setNewEvTitle("");
         setNewEvExtractedText("");
-        notifySync(
-          `✓ Uploaded "${itemTitle}" → Strictly Assigned to ${targetDef.name} (Zero Hallucinations)`
-        );
       };
 
       if (isText) {
@@ -817,76 +851,49 @@ export default function FloridaProSeLitigationApp() {
     e.target.value = "";
   };
 
-  // Google Drive / Manual Exhibit Add
+  // Manual / Google Drive Add (Always assigns the next unique sequential letter)
   const handleGoogleDriveImport = (presetTitle, presetUrl, presetText) => {
-    const finalTitle = presetTitle || googleDriveTitleInput.trim() || newEvTitle.trim();
-    const finalUrl = presetUrl || googleDriveUrlInput.trim();
-    if (!finalTitle) return;
+    const rawTitle = (presetTitle || googleDriveTitleInput || newEvTitle || "").trim();
+    const finalUrl = (presetUrl || googleDriveUrlInput || "").trim();
+    if (!rawTitle) return;
 
-    const nextNum = evidenceItems.length * 16 + 1;
-    const endNum = nextNum + 15;
-    const pad = (n) => String(n).padStart(4, "0");
-    const exLabel =
-      newEvExhibit.trim() || `EXHIBIT ${String.fromCharCode(65 + (evidenceItems.length % 26))}`;
-    const bates = `LEE-${exLabel.replace(/\s+/g, "")}-${pad(nextNum)} to LEE-${exLabel.replace(/\s+/g, "")}-${pad(endNum)}`;
     const nowStr = new Date().toISOString().replace("T", " ").slice(0, 19) + " EDT";
     const extractedTxt = presetText || newEvExtractedText;
+    const assignedId = uploadTargetDefId;
 
-    const combinedName = finalTitle.toLowerCase();
-    let targetDef =
-      defendantsList.find((d) => d.id === uploadTargetDefId) || selectedDef;
-    if (combinedName.includes("halle") || combinedName.includes("april")) {
-      targetDef =
-        defendantsList.find((d) => d.name.toLowerCase().includes("halle")) || targetDef;
-    } else if (combinedName.includes("engleberg") || combinedName.includes("ilene")) {
-      targetDef =
-        defendantsList.find((d) => d.name.toLowerCase().includes("engleberg")) || targetDef;
-    }
-
-    const strictAnalysis = buildStrictFactLockedEvidenceAnalysis(
-      finalTitle,
-      finalTitle,
-      targetDef,
-      extractedTxt,
-      exLabel,
-      bates
-    );
-
-    const newEvObj = {
-      id: `ev-gdrive-${Date.now()}`,
-      defendantId: targetDef.id,
-      exhibitLabel: exLabel,
-      title: finalTitle,
-      fileName: `${finalTitle.replace(/\s+/g, "_")}.pdf`,
+    const rawNewItem = {
+      id: `ev-${Date.now()}`,
+      manuallyAssigned: true,
+      defendantId: assignedId,
+      title: rawTitle,
+      fileName: `${rawTitle.replace(/\s+/g, "_")}.pdf`,
       mimeType: "application/pdf",
-      fileSize: finalUrl ? "Google Drive Cloud" : "Vault Entry",
-      sourceType: finalUrl ? "Google Drive Sync" : "Vault Entry",
-      driveUrl: finalUrl || "",
+      fileSize: finalUrl ? "Google Drive Cloud" : "Vault Exhibit",
+      sourceType: finalUrl ? "Google Drive Sync" : "Vault Exhibit",
+      driveUrl: finalUrl,
       previewUrl: null,
       extractedText: extractedTxt,
-      batesRange: bates,
-      capturedMetadata: `Fact-Locked • Assigned to ${targetDef.name} (${PROFESSION_CONFIGS[targetDef.profession]?.label})`,
-      downloadedTimestamp: nowStr,
-      aiNotes: strictAnalysis.summary,
-      plaintiffPlaybookHook: strictAnalysis.plaintiffHook,
-      defensePlaybookHook: strictAnalysis.defenseVulnerability,
-      syncedToPlaybooks: true
+      downloadedTimestamp: nowStr
     };
 
-    const updated = [newEvObj, ...evidenceItems];
-    setEvidenceItems(updated);
-    safeSaveToStorage("fl_prose_evidence", updated);
-    syncEvidenceItemToBothPlaybooks(newEvObj, updated);
+    setEvidenceItems((prev) => {
+      const appended = [...prev, rawNewItem];
+      const sequenced = resequenceAllExhibits(appended, defendantsList);
+      safeSaveToStorage("fl_prose_evidence", sequenced);
+      syncAllExhibitsToIntakeAndPlaybooks(sequenced);
+      const created = sequenced[sequenced.length - 1];
+      notifySync(
+        `✓ Assigned Unique "${created.exhibitLabel} — ${created.title}" (${created.batesRange})`
+      );
+      return sequenced;
+    });
 
-    setActiveDefId(targetDef.id);
+    setVaultFilterTab(assignedId === "all" ? "all_joint" : assignedId);
     setGoogleDriveTitleInput("");
     setGoogleDriveUrlInput("");
     setNewEvTitle("");
     setNewEvExtractedText("");
     setShowGoogleDriveModal(false);
-    notifySync(
-      `✓ Added "${finalTitle}" → Assigned to ${targetDef.name} (Fact-Lock Active)`
-    );
   };
 
   // ============================================================================
@@ -901,26 +908,10 @@ export default function FloridaProSeLitigationApp() {
   const handleSaveIntakeAndSyncAll = () => {
     try {
       safeSaveToStorage("fl_prose_defendants", defendantsList);
-
-      const syncedCounts = defendantsList.map((d, idx) => {
-        const pCfg = PROFESSION_CONFIGS[d.profession] || PROFESSION_CONFIGS.cpa;
-        const pDesc = `${getPrivityLabel(d.privityType)}${
-          d.customPrivityDetails ? ` — ${d.customPrivityDetails}` : ""
-        }`;
-        return {
-          id: `cnt-sync-${d.id}`,
-          countNum: `Count ${idx + 1}`,
-          title: `${pCfg.label} Liability & Statutory / Tortious Breach`,
-          defendantName: `${d.name} (${d.entityName || pCfg.label})`,
-          authority: pCfg.governingRules,
-          privityHook: `${pDesc} • Last Action: ${d.dateLastAction}`,
-          status: `Synced from Intake (${d.evidence})`
-        };
-      });
-      setMatterCounts(syncedCounts);
-      safeSaveToStorage("fl_prose_matter_counts", syncedCounts);
-
-      notifySync(`✓ Intake Saved! Fact-Locked Records Synced Across All Tabs`);
+      const reseq = resequenceAllExhibits(evidenceItems, defendantsList);
+      setEvidenceItems(reseq);
+      safeSaveToStorage("fl_prose_evidence", reseq);
+      notifySync(`✓ Intake Saved & Synced Across All Tabs`);
     } catch (e) {}
   };
 
@@ -948,8 +939,11 @@ export default function FloridaProSeLitigationApp() {
 
     const batesBlock = evidenceItems
       .map((ev) => {
-        const linkedD = defendantsList.find((d) => d.id === ev.defendantId);
-        return `   • ${ev.exhibitLabel}: "${ev.title}" — Assigned to ${linkedD?.name || "Defendant"} [Bates: ${ev.batesRange}]\n     ${ev.aiNotes}`;
+        const linkedD =
+          ev.defendantId === "all"
+            ? `ALL / BOTH DEFENDANTS (${defendantsList.map((d) => d.name).join(" & ")})`
+            : defendantsList.find((d) => d.id === ev.defendantId)?.name || "Defendant";
+        return `   • ${ev.exhibitLabel} — ${ev.title} [Assigned To: ${linkedD} | Bates: ${ev.batesRange}]\n     ${ev.aiNotes}`;
       })
       .join("\n\n");
 
@@ -971,12 +965,12 @@ PLAINTIFF'S MEMORANDUM OF LAW IN SUPPORT OF ${memoSelectedMotionType.toUpperCase
 • REFERENCED FILING: ${targetFiling.title} (${targetFiling.dateFiled})
 
 I. FOUR CORNERS STANDARD OF REVIEW
-Under Fla. R. Civ. P. 1.140(b) and Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000), the Court is strictly confined to the four corners of the verified pleading and its Rule 1.130(a) exhibits.
+Under Fla. R. Civ. P. 1.140(b) and Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000), the Court is strictly confined to the four corners of the verified pleading and its sequentially numbered Rule 1.130(a) exhibits.
 
-II. FACT-LOCKED INTAKE DEFENDANTS & LIABILITY BASES (ZERO ASSUMED FACTS)
+II. FACT-LOCKED INTAKE DEFENDANTS & LIABILITY BASES
 ${defDetails}
 
-III. UPLOADED EVIDENCE VAULT & BATES INDEX (FLA. R. CIV. P. 1.130(a))
+III. SEQUENTIALLY NUMBERED EVIDENCE VAULT & BATES INDEX (FLA. R. CIV. P. 1.130(a))
 ${batesBlock}
 
 WHEREFORE, Plaintiff respectfully requests that this Honorable Court grant Plaintiff's ${memoSelectedMotionType}.
@@ -988,7 +982,7 @@ ${plaintiff}, Pro Se`;
 
     const newMemo = {
       id: `memo-${Date.now()}`,
-      title: `Memorandum: ${targetCountObj.countNum} (Fact-Locked)`,
+      title: `Memorandum: ${targetCountObj.countNum} (Exhibits A–${indexToExhibitLetter(evidenceItems.length - 1)})`,
       targetCount: `${targetCountObj.countNum}: ${targetCountObj.title}`,
       targetFiling: targetFiling.title,
       content: text
@@ -997,7 +991,7 @@ ${plaintiff}, Pro Se`;
     setMemorandaList(updated);
     setActiveMemoId(newMemo.id);
     safeSaveToStorage("fl_prose_memoranda", updated);
-    notifySync(`✓ Fact-Locked Memorandum Generated (Zero Assumed Facts)`);
+    notifySync(`✓ Memorandum Generated with Sequential Exhibits A–${indexToExhibitLetter(evidenceItems.length - 1)}`);
   };
 
   const handlePrintMemorandum = () => {
@@ -1010,17 +1004,17 @@ ${plaintiff}, Pro Se`;
     win.document.close();
   };
 
-  const generateAiReply = (q) => {
-    const defSummary = defendantsList
-      .map((d) => `• ${d.name} (${PROFESSION_CONFIGS[d.profession]?.label}): ${getPrivityLabel(d.privityType)} — ${d.specificBreach}`)
-      .join("\n");
+  const generateAiReply = () => {
     const evSummary = evidenceItems
       .map((e) => {
-        const dObj = defendantsList.find((d) => d.id === e.defendantId);
-        return `• ${e.exhibitLabel} ("${e.title}", Bates: ${e.batesRange}) → Assigned to ${dObj?.name}`;
+        const who =
+          e.defendantId === "all"
+            ? `ALL / BOTH DEFENDANTS (${defendantsList.map((d) => d.name).join(" & ")})`
+            : defendantsList.find((d) => d.id === e.defendantId)?.name;
+        return `• ${e.exhibitLabel} — ${e.title} (Bates: ${e.batesRange}) → Assigned to: ${who}`;
       })
       .join("\n");
-    return `STRICT FACT-LOCKED FLORIDA LEGAL AI (ZERO HALLUCINATIONS):\nI am strictly bound to your verified records below and forbidden from assuming any unpled retainers or facts:\n\nVerified Intake Roster:\n${defSummary}\n\nVerified Evidence Vault:\n${evSummary}`;
+    return `STRICT FACT-LOCKED FLORIDA LEGAL AI:\nSequential Exhibit Index (Zero Duplicates):\n${evSummary}`;
   };
 
   const handleSendAiMsg = (txt) => {
@@ -1230,7 +1224,7 @@ ${plaintiff}, Pro Se`;
               <span className="flex items-center gap-1">
                 <Lock className="w-3 h-3" /> Fact-Lock Active
               </span>
-              <span>0 Hallucinations</span>
+              <span>Exhibits A–{indexToExhibitLetter(Math.max(0, evidenceItems.length - 1))}</span>
             </div>
             <div className="mt-1 space-y-0.5">
               {defendantsList.map((d) => (
@@ -1276,7 +1270,7 @@ ${plaintiff}, Pro Se`;
                   Florida Circuit Civil Pro Se Litigation Studio
                 </h1>
                 <span className="hidden md:inline-flex items-center gap-1 text-[10px] bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
-                  <Lock className="w-2.5 h-2.5" /> Strict AI Fact-Lock: No Hallucinations
+                  <Lock className="w-2.5 h-2.5" /> Auto-Sequenced Exhibits A–{indexToExhibitLetter(Math.max(0, evidenceItems.length - 1))}
                 </span>
               </div>
               <span className="text-[10px] text-slate-500 font-mono">
@@ -1311,34 +1305,66 @@ ${plaintiff}, Pro Se`;
         )}
 
         {/* ================================================================== */}
-        {/* LIBRARY 4: EVIDENCE VAULT (FACT-LOCKED UPLOAD + REASSIGN + DELETE) */}
+        {/* LIBRARY 4: EVIDENCE VAULT (AUTO-SEQUENCED A, B, C, D, E + BOTH/ALL)*/}
         {/* ================================================================== */}
         {activeNav === "vault" && (
           <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
             <div className="max-w-5xl mx-auto space-y-5">
-              {/* Top Header & Defendant Switcher */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              {/* Top Header & Defendant Filter Tabs */}
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div>
                   <h2 className="text-base font-bold text-slate-900">
-                    Evidence Vault &amp; Automated Bates Numbering (Strict Fact-Lock Active)
+                    Evidence Vault &amp; Sequential Exhibit Auto-Numbering (A, B, C, D, E...)
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Viewing Exhibits for:{" "}
-                    <strong className="text-slate-900">
-                      {selectedDef.name} ({currentProfConfig.label})
-                    </strong>{" "}
-                    — AI is forbidden from assuming retainers or unpled facts.
+                    Every exhibit is automatically assigned a unique sequential letter (
+                    <strong className="text-slate-800">
+                      EXHIBIT A through EXHIBIT {indexToExhibitLetter(Math.max(0, evidenceItems.length - 1))}
+                    </strong>
+                    ) with zero duplicates.
                   </p>
                 </div>
+
+                {/* Top-Right Filter Bar */}
                 <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => {
+                      setVaultFilterTab("all_joint");
+                      setUploadTargetDefId("all");
+                    }}
+                    className={`px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
+                      vaultFilterTab === "all_joint"
+                        ? "bg-indigo-700 text-white shadow-sm"
+                        : "bg-white border border-indigo-200 text-indigo-900 hover:bg-indigo-50"
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>All / Both Defendants</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                        vaultFilterTab === "all_joint"
+                          ? "bg-white text-indigo-900 font-bold"
+                          : "bg-indigo-100 text-indigo-800"
+                      }`}
+                    >
+                      {evidenceItems.filter((e) => e.defendantId === "all").length}
+                    </span>
+                  </button>
+
                   {defendantsList.map((d) => {
-                    const countForDef = evidenceItems.filter((e) => e.defendantId === d.id).length;
+                    const countForDef = evidenceItems.filter(
+                      (e) => e.defendantId === d.id || e.defendantId === "all"
+                    ).length;
                     return (
                       <button
                         key={d.id}
-                        onClick={() => setActiveDefId(d.id)}
-                        className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
-                          activeDefId === d.id
+                        onClick={() => {
+                          setVaultFilterTab(d.id);
+                          setUploadTargetDefId(d.id);
+                          setActiveDefId(d.id);
+                        }}
+                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
+                          vaultFilterTab === d.id
                             ? "bg-slate-900 text-white shadow-sm"
                             : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
                         }`}
@@ -1346,7 +1372,9 @@ ${plaintiff}, Pro Se`;
                         <span>{d.name}</span>
                         <span
                           className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                            activeDefId === d.id ? "bg-emerald-500 text-slate-950 font-bold" : "bg-slate-100 text-slate-600"
+                            vaultFilterTab === d.id
+                              ? "bg-emerald-500 text-slate-950 font-bold"
+                              : "bg-slate-100 text-slate-600"
                           }`}
                         >
                           {countForDef}
@@ -1354,24 +1382,43 @@ ${plaintiff}, Pro Se`;
                       </button>
                     );
                   })}
+
+                  <button
+                    onClick={() => setVaultFilterTab("master_all")}
+                    className={`px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
+                      vaultFilterTab === "master_all"
+                        ? "bg-emerald-800 text-white shadow-sm"
+                        : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <span>Master Index (A–{indexToExhibitLetter(Math.max(0, evidenceItems.length - 1))})</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded font-mono bg-slate-100 text-slate-700">
+                      {evidenceItems.length}
+                    </span>
+                  </button>
                 </div>
               </div>
 
-              {/* Upload & Assignment Control Box */}
-              <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-4 shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                  <div>
+              {/* Upload & Automatic Next Exhibit Numbering Box */}
+              <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-4 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+                  {/* 1. Assign Upload To Defendant(s) */}
+                  <div className="md:col-span-5">
                     <label className="font-bold text-slate-700 block mb-1">
-                      1. Assign Upload To Defendant:
+                      1. Assign Upload To Defendant(s):
                     </label>
                     <select
                       value={uploadTargetDefId}
                       onChange={(e) => {
-                        setUploadTargetDefId(e.target.value);
-                        setActiveDefId(e.target.value);
+                        const val = e.target.value;
+                        setUploadTargetDefId(val);
+                        setVaultFilterTab(val === "all" ? "all_joint" : val);
                       }}
-                      className="w-full border border-emerald-500 rounded-lg p-2 bg-emerald-50/40 font-bold text-slate-900"
+                      className="w-full border-2 border-emerald-600 rounded-lg p-2 bg-emerald-50/40 font-bold text-slate-900"
                     >
+                      <option value="all">
+                        ★ All / Both Defendants ({defendantsList.map((d) => d.name).join(" & ")})
+                      </option>
                       {defendantsList.map((d) => (
                         <option key={d.id} value={d.id}>
                           {d.name} ({PROFESSION_CONFIGS[d.profession]?.label})
@@ -1379,24 +1426,28 @@ ${plaintiff}, Pro Se`;
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="font-bold text-slate-700 block mb-1">2. Exhibit Label:</label>
-                    <input
-                      type="text"
-                      value={newEvExhibit}
-                      onChange={(e) => setNewEvExhibit(e.target.value)}
-                      placeholder="EXHIBIT D"
-                      className="w-full border border-slate-300 rounded-lg p-2 font-mono font-bold"
-                    />
+
+                  {/* 2. Auto-Assigned Next Exhibit Number (Locked to prevent duplicates!) */}
+                  <div className="md:col-span-3">
+                    <label className="font-bold text-slate-700 block mb-1">
+                      2. Next Auto-Exhibit #:
+                    </label>
+                    <div className="w-full p-2 rounded-lg bg-slate-900 text-white font-mono font-bold text-center">
+                      EXHIBIT {nextAvailableLetter} (Auto-Next)
+                    </div>
                   </div>
-                  <div>
-                    <label className="font-bold text-slate-700 block mb-1">3. Exhibit Title:</label>
+
+                  {/* 3. Exhibit Title */}
+                  <div className="md:col-span-4">
+                    <label className="font-bold text-slate-700 block mb-1">
+                      3. Exhibit Title:
+                    </label>
                     <input
                       type="text"
                       value={newEvTitle}
                       onChange={(e) => setNewEvTitle(e.target.value)}
-                      placeholder={`Exact title for ${defendantsList.find((d) => d.id === uploadTargetDefId)?.name}...`}
-                      className="w-full border border-slate-300 rounded-lg p-2"
+                      placeholder={`Title for EXHIBIT ${nextAvailableLetter}...`}
+                      className="w-full border border-slate-300 rounded-lg p-2 font-semibold text-slate-900"
                     />
                   </div>
                 </div>
@@ -1417,7 +1468,7 @@ ${plaintiff}, Pro Se`;
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
                   <label className="p-3 bg-emerald-50 hover:bg-emerald-100 border border-emerald-400 rounded-xl cursor-pointer flex items-center justify-center gap-2 text-xs font-bold text-emerald-950 transition">
                     <Upload className="w-4 h-4 text-emerald-700" />
-                    <span>Upload File from Computer (PDF/JPG/PNG)</span>
+                    <span>Upload File as EXHIBIT {nextAvailableLetter} (PDF/JPG/PNG)</span>
                     <input
                       type="file"
                       accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,image/*,application/pdf"
@@ -1432,7 +1483,7 @@ ${plaintiff}, Pro Se`;
                     className="p-3 bg-indigo-50 hover:bg-indigo-100 border border-indigo-300 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-indigo-950 transition"
                   >
                     <Globe className="w-4 h-4 text-indigo-700" />
-                    <span>Import from Google Drive / Photos</span>
+                    <span>Import from Google Drive as EXHIBIT {nextAvailableLetter}</span>
                   </button>
 
                   <button
@@ -1443,44 +1494,87 @@ ${plaintiff}, Pro Se`;
                     className="p-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition"
                   >
                     <Save className="w-4 h-4" />
-                    <span>+ Save &amp; Stamp Bates</span>
+                    <span>+ Save EXHIBIT {nextAvailableLetter} &amp; Stamp Bates</span>
                   </button>
                 </div>
               </div>
 
-              {/* Stored Evidence List for Selected Defendant */}
+              {/* Stored Evidence List (Strictly Sequenced A, B, C, D, E...) */}
               <div className="space-y-4">
-                {evidenceItems
-                  .filter((e) => e.defendantId === selectedDef.id)
-                  .map((ev) => (
+                {visibleEvidenceItems.map((ev) => {
+                  const isAllJoint = ev.defendantId === "all";
+                  return (
                     <div
                       key={ev.id}
-                      className="p-5 bg-white rounded-xl border border-slate-200 space-y-3 shadow-sm"
+                      className={`p-5 bg-white rounded-xl border space-y-3 shadow-sm ${
+                        isAllJoint ? "border-indigo-300 ring-1 ring-indigo-500/10" : "border-slate-200"
+                      }`}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
-                        <div className="space-y-1">
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-100 pb-3">
+                        <div className="space-y-1.5 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-bold text-emerald-800">
-                              {ev.exhibitLabel}: {ev.title}
+                            <span className="px-2.5 py-1 bg-emerald-800 text-white font-mono text-xs font-bold rounded">
+                              {ev.exhibitLabel}:
                             </span>
-                            <span className="font-mono bg-slate-900 text-white px-2.5 py-0.5 rounded text-[11px]">
+                            <input
+                              type="text"
+                              value={ev.title}
+                              onChange={(e) =>
+                                handleUpdateExhibitCard(ev, ev.defendantId, e.target.value)
+                              }
+                              className="text-xs font-bold text-emerald-950 border-b border-dashed border-slate-300 focus:border-emerald-700 focus:outline-none px-1 py-0.5 min-w-[260px]"
+                              title="Click to edit Exhibit Title"
+                            />
+                            <span className="font-mono bg-slate-900 text-white px-2.5 py-1 rounded text-[11px]">
                               Bates: {ev.batesRange}
                             </span>
+                            {isAllJoint && (
+                              <span className="text-[10px] font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded-full border border-indigo-300">
+                                ★ Joint Exhibit: All / Both Defendants
+                              </span>
+                            )}
                           </div>
+
                           <p className="text-[11px] text-slate-500 font-mono">
                             {ev.capturedMetadata} • {ev.downloadedTimestamp}
                           </p>
                         </div>
 
-                        {/* Reassign Defendant Dropdown + View + Delete */}
+                        {/* Reorder Up/Down + Reassign Defendant Dropdown + View + Delete */}
                         <div className="flex items-center gap-2 flex-wrap">
-                          <div className="flex items-center gap-1 text-xs">
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleMoveExhibitOrder(ev.id, "up")}
+                              className="p-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-700"
+                              title="Move Exhibit Up in Sequence"
+                            >
+                              <ArrowUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleMoveExhibitOrder(ev.id, "down")}
+                              className="p-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-700"
+                              title="Move Exhibit Down in Sequence"
+                            >
+                              <ArrowDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 text-xs">
                             <span className="text-[10px] font-bold text-slate-500 uppercase">Assigned To:</span>
                             <select
                               value={ev.defendantId}
-                              onChange={(e) => handleReassignExhibitDefendant(ev, e.target.value)}
-                              className="border border-slate-300 rounded px-2 py-1 text-xs font-semibold bg-slate-50 text-slate-900"
+                              onChange={(e) =>
+                                handleUpdateExhibitCard(ev, e.target.value, ev.title)
+                              }
+                              className={`border rounded-lg px-2.5 py-1.5 text-xs font-bold ${
+                                isAllJoint
+                                  ? "border-indigo-500 bg-indigo-50 text-indigo-950"
+                                  : "border-slate-300 bg-slate-50 text-slate-900"
+                              }`}
                             >
+                              <option value="all">
+                                ★ All / Both Defendants ({defendantsList.map((d) => d.name).join(" & ")})
+                              </option>
                               {defendantsList.map((d) => (
                                 <option key={d.id} value={d.id}>
                                   {d.name} ({PROFESSION_CONFIGS[d.profession]?.label})
@@ -1492,7 +1586,7 @@ ${plaintiff}, Pro Se`;
                           {ev.previewUrl && (
                             <button
                               onClick={() => setPreviewModalItem(ev)}
-                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold flex items-center gap-1"
+                              className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-semibold flex items-center gap-1"
                             >
                               <Eye className="w-3 h-3" /> View File
                             </button>
@@ -1500,7 +1594,7 @@ ${plaintiff}, Pro Se`;
 
                           <button
                             onClick={() => handleDeleteExhibit(ev.id)}
-                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded"
+                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg"
                             title="Delete Exhibit"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1524,10 +1618,12 @@ ${plaintiff}, Pro Se`;
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-slate-800 flex items-center gap-1.5">
                             <Lock className="w-3.5 h-3.5 text-emerald-700" />
-                            Fact-Locked Evidence Record (Editable — Stored in Memory &amp; Playbooks):
+                            Fact-Locked Evidence Record ({ev.exhibitLabel} — &quot;{ev.title}&quot;):
                           </span>
                           <button
-                            onClick={() => handleReassignExhibitDefendant(ev, ev.defendantId)}
+                            onClick={() =>
+                              handleUpdateExhibitCard(ev, ev.defendantId, ev.title)
+                            }
                             className="text-[11px] font-semibold text-indigo-700 hover:underline flex items-center gap-1"
                           >
                             <RefreshCw className="w-3 h-3" /> Sync to Both Playbooks
@@ -1549,7 +1645,8 @@ ${plaintiff}, Pro Se`;
                         />
                       </div>
                     </div>
-                  ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1726,7 +1823,9 @@ ${plaintiff}, Pro Se`;
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                       <div>
-                        <label className="text-slate-600 font-semibold block mb-1">Evidence (Rule 1.130)</label>
+                        <label className="text-slate-600 font-semibold block mb-1">
+                          Sequentially Numbered Exhibits Linked
+                        </label>
                         <input
                           type="text"
                           value={selectedDef.evidence}
@@ -1767,7 +1866,7 @@ ${plaintiff}, Pro Se`;
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
                   <span className="text-[10px] font-mono uppercase bg-indigo-50 text-indigo-800 px-2 py-0.5 rounded border border-indigo-200">
-                    Library Tab 6 • Strict Fact-Locked Memorandum Builder
+                    Library Tab 6 • Sequential Exhibit Index &amp; Fact-Locked Memorandum Builder
                   </span>
                   <h2 className="text-sm font-bold text-slate-900 mt-1">
                     Printable Memorandum of Law ({defendantsList.map((d) => d.name).join(" & ")})
@@ -2091,9 +2190,7 @@ ${plaintiff}, Pro Se`;
                     <p className="text-[11px] text-slate-500 mt-1">{tpl.description}</p>
                   </div>
                   <button
-                    onClick={() => {
-                      setActiveNav("memo_of_law");
-                    }}
+                    onClick={() => setActiveNav("memo_of_law")}
                     className="w-full py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold"
                   >
                     Open in Fact-Locked Builder →
@@ -2152,7 +2249,7 @@ ${plaintiff}, Pro Se`;
           <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4 text-xs">
             <div className="flex items-center justify-between border-b pb-3">
               <h3 className="font-bold text-sm text-slate-900">
-                Import Evidence from Google Drive (Fact-Locked)
+                Import Evidence from Google Drive as EXHIBIT {nextAvailableLetter}
               </h3>
               <button onClick={() => setShowGoogleDriveModal(false)}>✕</button>
             </div>
@@ -2160,8 +2257,8 @@ ${plaintiff}, Pro Se`;
               type="text"
               value={googleDriveTitleInput}
               onChange={(e) => setGoogleDriveTitleInput(e.target.value)}
-              placeholder="Exact Document Title..."
-              className="w-full border border-slate-300 rounded-lg p-2"
+              placeholder={`Exact Document Title for EXHIBIT ${nextAvailableLetter}...`}
+              className="w-full border border-slate-300 rounded-lg p-2 font-semibold"
             />
             <input
               type="text"
@@ -2174,14 +2271,14 @@ ${plaintiff}, Pro Se`;
               rows={2}
               value={newEvExtractedText}
               onChange={(e) => setNewEvExtractedText(e.target.value)}
-              placeholder="Paste exact verbatim text from the file (no facts will be assumed outside this box)..."
+              placeholder="Paste exact verbatim text from the file..."
               className="w-full border border-slate-300 rounded-lg p-2"
             />
             <button
               onClick={() => handleGoogleDriveImport()}
               className="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-semibold"
             >
-              Import &amp; Record Verbatim Facts
+              Import &amp; Stamp as EXHIBIT {nextAvailableLetter}
             </button>
           </div>
         </div>
@@ -2192,7 +2289,9 @@ ${plaintiff}, Pro Se`;
         <div className="fixed inset-0 bg-slate-950/70 z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-4 border-b flex items-center justify-between text-xs">
-              <span className="font-bold">{previewModalItem.exhibitLabel}: {previewModalItem.title}</span>
+              <span className="font-bold">
+                {previewModalItem.exhibitLabel}: {previewModalItem.title}
+              </span>
               <button onClick={() => setPreviewModalItem(null)} className="px-2.5 py-1 bg-slate-100 rounded font-bold">
                 ✕ Close
               </button>
