@@ -82,3 +82,59 @@ export const FLORIDA_AFFIRMATIVE_DEFENSES = [
     counterStrategy: "Plead specific facts showing self-dealing, intentional nondisclosure, or personal benefit, which strips away statutory safe harbor protections."
   }
 ];
+{
+    id: "cpa_professional_negligence",
+    title: "CPA Professional Negligence & Record Non-Disclosure",
+    dcaCitation: "Dattoma v. Laughlin, 183 So. 3d 465 (Fla. 4th DCA 2016); Fla. Stat. § 473.318; F.A.C. R. 61H1-23.002",
+    sol: "2 Years from Discovery (Fla. Stat. § 95.11(4)(a))",
+    elements: [
+      { 
+        id: "e1", 
+        label: "Professional Duty & Standards", 
+        prompt: "Defendant CPA owed Plaintiff a professional standard of care under Fla. Stat. Chapter 473 and F.A.C. 61H1-21/23 to accurately report and deliver accounting records." 
+      },
+      { 
+        id: "e2", 
+        label: "Breach of Standard / Record Withholding", 
+        prompt: "Defendant breached that standard by withholding general ledger workpapers/tax filings (Rule 61H1-23.002) or disseminating unauthorized financial disclosures." 
+      },
+      { 
+        id: "e3", 
+        label: "Direct Injury & Consequential Damages", 
+        prompt: "Plaintiff suffered distinct commercial injury, financial loss, tax liability, or lost business valuation directly caused by Defendant's breach." 
+      }
+    ],
+    commonDefenses: [
+      "Accountant-Client Privilege (§ 473.316)",
+      "Lack of Privity / Ultramares Doctrine",
+      "Safe Harbor Under Fla. Stat. § 607.0832"
+    ]
+  },
+  {
+    id: "civil_aiding_abetting",
+    title: "Aiding and Abetting Breach of Fiduciary Duty",
+    dcaCitation: "AmeriFirst Bank v. Bomar, 757 F. Supp. 1365 (S.D. Fla. 1991); Halberstam v. Welch, 705 F.2d 472 (D.C. Cir. 1983)",
+    sol: "4 Years (Fla. Stat. § 95.11(3)(p))",
+    elements: [
+      { 
+        id: "e1", 
+        label: "Underlying Fiduciary Breach", 
+        prompt: "A primary fiduciary committed an underlying breach of fiduciary duty or self-dealing." 
+      },
+      { 
+        id: "e2", 
+        label: "Substantial Knowledge", 
+        prompt: "Defendant (e.g., CPA or outside professional) had actual knowledge of the primary actor's wrongful conduct." 
+      },
+      { 
+        id: "e3", 
+        label: "Substantial Assistance", 
+        prompt: "Defendant rendered substantial assistance, encouragement, or concealment that facilitated the breach." 
+      }
+    ],
+    commonDefenses: [
+      "No Underlying Actionable Breach Established",
+      "Absence of Actual Knowledge (Constructive Knowledge Insufficient)",
+      "Routine Professional Services Safe Harbor"
+    ]
+  },
