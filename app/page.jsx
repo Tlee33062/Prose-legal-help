@@ -6,7 +6,6 @@ import {
   FileText,
   Download,
   BookOpen,
-  Gavel,
   Plus,
   MessageSquare,
   Clock,
@@ -25,101 +24,13 @@ import {
   CheckCircle2,
   FileCode,
   ShieldCheck,
+  Calendar,
   Upload,
   ExternalLink,
   ArrowRight,
   ArrowLeft,
-  Mail,
-  MapPin
+  Mail
 } from "lucide-react";
-
-// ============================================================================
-// 1. STATEWIDE FLORIDA CIRCUITS, DCAs & DEFAULT DIVISION PROCEDURES
-// ============================================================================
-
-const FLORIDA_CIRCUITS = [
-  {
-    id: "17th",
-    circuit: "17th Judicial Circuit",
-    counties: ["Broward"],
-    dca: "4th DCA",
-    portal: "17th Cir. CMS (Case Management System)",
-    defaultConferral: "17th Cir. Local Rule 10A Mandatory Good-Faith Conferral Certificate required prior to hearing.",
-    defaultFormatting: "12pt Times New Roman, Double-Spaced, 1-inch margins, Page Numbers bottom center, E-Filing Portal watermark top right."
-  },
-  {
-    id: "15th",
-    circuit: "15th Judicial Circuit",
-    counties: ["Palm Beach"],
-    dca: "4th DCA",
-    portal: "15th Cir. OLS (Online Scheduling System)",
-    defaultConferral: "15th Cir. Local Rule 4 Mandatory Conferral Certification (must speak in person or by phone before noticing hearing).",
-    defaultFormatting: "12pt Times New Roman or Arial, Double-Spaced, strict 10-page limit on UMC/special set memoranda unless leave granted."
-  },
-  {
-    id: "11th",
-    circuit: "11th Judicial Circuit",
-    counties: ["Miami-Dade"],
-    dca: "3rd DCA",
-    portal: "11th Cir. courtMAP",
-    defaultConferral: "11th Cir. Administrative Order Mandatory Meet-and-Confer Certificate required on all non-dispositive motions.",
-    defaultFormatting: "12pt searchable PDF/A via Florida Courts E-Filing Portal, double-spaced, hyperlinked authority bookmarks."
-  },
-  {
-    id: "9th",
-    circuit: "9th Judicial Circuit",
-    counties: ["Orange", "Osceola"],
-    dca: "6th DCA",
-    portal: "9th Cir. JACS",
-    defaultConferral: "9th Cir. Admin Order 2012-03 Mandatory Meet-and-Confer Conference in person or by telephone.",
-    defaultFormatting: "12pt font, double-spaced, proposed orders submitted in Word format via E-Portal."
-  },
-  {
-    id: "13th",
-    circuit: "13th Judicial Circuit",
-    counties: ["Hillsborough"],
-    dca: "2nd DCA",
-    portal: "13th Cir. JAWS",
-    defaultConferral: "13th Cir. Admin Order S-2021-014 Good Faith Conferral Certification required.",
-    defaultFormatting: "12pt Times New Roman, double-spaced, searchable PDF via E-Filing Portal."
-  },
-  {
-    id: "6th",
-    circuit: "6th Judicial Circuit",
-    counties: ["Pinellas", "Pasco"],
-    dca: "2nd DCA",
-    portal: "6th Cir. JAWS",
-    defaultConferral: "6th Cir. Admin Order Good Faith Conferral required prior to scheduling.",
-    defaultFormatting: "12pt font, double-spaced, 1-inch margins."
-  },
-  {
-    id: "4th",
-    circuit: "4th Judicial Circuit",
-    counties: ["Duval", "Clay", "Nassau"],
-    dca: "1st / 5th DCA",
-    portal: "4th Cir. Ex Parte / Judicial Portal",
-    defaultConferral: "4th Cir. Admin Order Conferral Certificate required on all motions.",
-    defaultFormatting: "12pt font, double-spaced, numbered paragraphs."
-  },
-  {
-    id: "20th",
-    circuit: "20th Judicial Circuit",
-    counties: ["Lee", "Collier", "Charlotte", "Hendry", "Glades"],
-    dca: "2nd / 6th DCA",
-    portal: "20th Cir. JACS",
-    defaultConferral: "20th Cir. Standards of Professionalism Good-Faith Conferral required.",
-    defaultFormatting: "12pt font, double-spaced, compliant with Fla. R. Gen. Prac. & Jud. Admin. 2.520."
-  },
-  {
-    id: "custom",
-    circuit: "Custom Florida Circuit (1st–20th Cir.)",
-    counties: ["Any Florida County"],
-    dca: "Applicable Florida DCA (1st–6th DCA)",
-    portal: "Florida Courts E-Filing Portal",
-    defaultConferral: "Certificate of Good-Faith Conferral with opposing counsel/party prior to hearing.",
-    defaultFormatting: "Fla. R. Gen. Prac. & Jud. Admin. 2.520 (12pt font, double-spaced, 1-inch margins)."
-  }
-];
 
 const PROFESSION_CONFIGS = {
   attorney: {
@@ -132,7 +43,7 @@ const PROFESSION_CONFIGS = {
       { id: "intended_beneficiary", label: "Intended Third-Party Beneficiary (Espinosa Standard)" },
       { id: "conspiracy_aid", label: "Extrajudicial Conspiracy / Aiding & Abetting Tort" }
     ],
-    breachExamples: "Undisclosed conflict of interest (Rule 4-1.7), collusion with adverse managers, unauthorized record disclosures, or active concealment."
+    breachExamples: "Undisclosed conflict of interest (Rule 4-1.7), collusion with adverse managers, or active concealment of corporate transactions."
   },
   cpa: {
     label: "CPA / Accounting Firm",
@@ -144,7 +55,7 @@ const PROFESSION_CONFIGS = {
       { id: "crime_fraud_waiver", label: "Crime/Fraud Privilege Exception (§ 473.316(4)(a))" },
       { id: "audit_reliance", label: "Known Third-Party Reliance (Restatement § 552)" }
     ],
-    breachExamples: "Refusal to furnish client general ledgers and tax workpapers upon demand (F.A.C. 61H1-23.002; § 473.318) and unauthorized lender disclosures."
+    breachExamples: "Refusal to furnish client general ledgers and tax workpapers upon demand (F.A.C. 61H1-23.002; § 473.318) and unverified disclosures to lenders."
   },
   director: {
     label: "Managing Member / Corporate Director",
@@ -155,7 +66,7 @@ const PROFESSION_CONFIGS = {
       { id: "fiduciary_relationship", label: "Statutory Fiduciary Duty Owed to Equity Member" },
       { id: "dinuro_direct", label: "Direct Harm & Special Duty (Dinuro Two-Prong Test)" }
     ],
-    breachExamples: "Self-dealing transfers, commingling funds, withholding statutory inspection records (§ 607.1602), stripping § 607.0832 safe harbor immunity."
+    breachExamples: "Self-dealing transfers, commingling funds, withholding statutory inspection records (§ 607.1602), and bad-faith nondisclosure stripping § 607.0832 safe harbor."
   },
   vendor: {
     label: "Commercial Vendor / Counterparty",
@@ -163,7 +74,7 @@ const PROFESSION_CONFIGS = {
     sol: "5 Years Written / 4 Years Oral",
     privityTypes: [
       { id: "written_contract", label: "Executed Written Contract (Rule 1.130 Attached)" },
-      { id: "oral_agreement", label: "Oral Contract / Implied-in-Fact Course of Dealing" }
+      { id: "oral_agreement", label: "Oral Contract / Implied Course of Dealing" }
     ],
     breachExamples: "Material breach of express performance covenants, wrongful retention of funds, or failure to indemnify."
   },
@@ -175,7 +86,7 @@ const PROFESSION_CONFIGS = {
       { id: "loan_agreement", label: "Executed Loan / Security Agreement" },
       { id: "escrow_duty", label: "Special Fiduciary / Escrow Relationship" }
     ],
-    breachExamples: "Unauthorized release of collateral, improper reliance on unverified third-party CPA statements, or wrongful default acceleration."
+    breachExamples: "Unauthorized release of collateral, improper reliance on unverified CPA statements, or wrongful default acceleration."
   }
 };
 
@@ -214,7 +125,7 @@ const INITIAL_FILED_PLEADINGS = [
   {
     id: "filed-1",
     title: "Order Dismissing Count IV With Prejudice (Oct 5, 2026)",
-    filer: "Presiding Judge / Division 25",
+    filer: "Court / Judge Olefson (Div. 25)",
     dateFiled: "2026-10-05",
     type: "Court Order",
     targetCounts: ["Count IV: CPA Malpractice / Aiding & Abetting"],
@@ -248,32 +159,32 @@ const INITIAL_DEFENSE_PLAYBOOK = [
     id: "dp-1",
     count: "Count I & II: Breach of Fiduciary Duty & Corporate Mismanagement",
     defenseAttack: "Dinuro Derivative Standing Bar & Business Judgment Rule",
-    defenseGrounds: "Defense argues injury flowed to the entity first and Plaintiff only suffered indirect shareholder/member diminution in value under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731.",
-    howToOvercome: "Plead BOTH prongs of Dinuro with surgical ultimate facts: (1) Direct harm unique to Plaintiff individually (freezing out of distributions, personal tax liability, deprivation of statutory inspection rights under § 607.1602 / § 605.0410), and (2) Separate statutory or contractual duty owed directly to Plaintiff under the Operating/Shareholder Agreement.",
+    defenseGrounds: "Defense argues injury flowed to the entity first and Plaintiff only suffered indirect member diminution in value under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014).",
+    howToOvercome: "Plead BOTH prongs of Dinuro with surgical ultimate facts: (1) Direct harm unique to Plaintiff individually (freeze-out of distributions, personal tax liability, deprivation of statutory inspection rights under § 607.1602 / § 605.0410), and (2) Separate statutory or contractual duty owed directly to Plaintiff.",
     controllingLaw: "Dinuro Invs., LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014); Strazzulla v. Riverside Banking Co., 175 So. 3d 879 (Fla. 4th DCA 2015)."
   },
   {
     id: "dp-2",
     count: "Count III: Director / Manager Conflict Transactions",
     defenseAttack: "Statutory Director Safe Harbor Immunity (Fla. Stat. § 607.0832)",
-    defenseGrounds: "Defense asserts that corporate conflict transactions are immunized under § 607.0832 and cannot be challenged by an individual litigant.",
-    howToOvercome: "Section 607.0832 is an affirmative defense requiring proof that material facts were fully disclosed OR that the transaction was fair to the corporation. On a Motion to Dismiss, the court is confined to the Four Corners of the Complaint (Rule 1.140). Plead ultimate facts of secret self-dealing, active concealment, and lack of disinterested approval.",
+    defenseGrounds: "Defense asserts that corporate conflict transactions are immunized under § 607.0832 and cannot be challenged individually.",
+    howToOvercome: "Section 607.0832 is an affirmative defense requiring proof that material facts were fully disclosed OR that the transaction was fair at the time authorized. On a Motion to Dismiss, the court is confined to the Four Corners of the Complaint (Rule 1.140). Plead ultimate facts of secret self-dealing, active concealment, and lack of disinterested approval.",
     controllingLaw: "Fla. Stat. § 607.0832; Chakra 5, Inc. v. City of Miami Beach, 254 So. 3d 1056 (Fla. 3d DCA 2018)."
   },
   {
     id: "dp-3",
     count: "Count IV: CPA Malpractice, Aiding & Abetting & Record Withholding",
     defenseAttack: "Ultramares Privity Bar & Accountant-Client Privilege (§ 473.316)",
-    defenseGrounds: "CPA argues he was retained solely by the corporate entity, owes no duty to Plaintiff individually, and communications/ledgers are privileged under Fla. Stat. § 473.316.",
-    howToOvercome: "Invoke three statutory hooks: (1) F.A.C. R. 61H1-23.002 & Fla. Stat. § 473.318 mandate return of client records upon request; (2) Fla. Stat. § 473.316(4)(c) abolishes accountant privilege in disputes between parties claiming through the same joint client/entity; (3) § 473.316(4)(a) abolishes privilege when accounting services were sought to aid or enable a fraud or tort.",
-    controllingLaw: "Fla. Stat. §§ 473.316(4)(a), (4)(c), 473.318; F.A.C. R. 61H1-23.002; Dattoma v. Laughlin, 183 So. 3d 465 (Fla. 4th DCA 2016)."
+    defenseGrounds: "CPA argues he was retained solely by the entity, owes no duty to Plaintiff individually, and communications/ledgers are privileged under Fla. Stat. § 473.316.",
+    howToOvercome: "Invoke three statutory hooks: (1) F.A.C. R. 61H1-23.002 & Fla. Stat. § 473.318 mandate return of client records upon request; (2) Fla. Stat. § 473.316(4)(c) abolishes accountant privilege in disputes between parties claiming through the same joint client/entity; (3) § 473.316(4)(a) abolishes privilege when services were sought to aid a fraud or tort. For Aiding & Abetting, plead underlying breach, actual knowledge, and substantial assistance.",
+    controllingLaw: "Fla. Stat. §§ 473.316(4)(a), (4)(c), 473.318; F.A.C. R. 61H1-23.002; Dattoma v. Laughlin, 183 So. 3d 465 (Fla. 4th DCA 2016); SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327."
   },
   {
     id: "dp-4",
     count: "All Counts: Procedural & Four Corners Attacks",
     defenseAttack: "Rule 1.130 Missing Exhibits & Unsworn Factual Proffers at MTD Hearing",
     defenseGrounds: "Defense counsel introduces outside factual assertions at the hearing not found in the complaint, or claims a referenced instrument was not attached under Rule 1.130(a).",
-    howToOvercome: "Enforce the strict Four Corners Rule: a trial court commits reversible error when it relies on unsworn statements of defense counsel or extrinsic facts outside the complaint on a Motion to Dismiss. Where records are withheld, plead the Sachse exclusive possession exception.",
+    howToOvercome: "Enforce the strict Four Corners Rule: a trial court commits reversible error when it relies on unsworn statements of defense counsel or extrinsic facts outside the complaint on a Motion to Dismiss. Attach core instruments as EXHIBIT A/B, or plead that withheld records are in Defendants' exclusive possession (Sachse exception).",
     controllingLaw: "Fla. R. Civ. P. 1.130(a), 1.140(b); Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000); Sachse v. Tampa Music Co., 262 So. 2d 17 (Fla. 2d DCA 1972)."
   }
 ];
@@ -283,68 +194,48 @@ const JUDGE_TEMPLATES = [
     id: "tpl-rehearing",
     name: "Rule 1.530 Motion for Rehearing & To Vacate Dismissal",
     category: "Post-Order Relief (15-Day Jurisdictional Deadline)",
+    divisionRules: "17th Cir. Div. 25 (Judge Olefson) • 12pt Times New Roman • Double-Spaced • Mandatory Submit to JA / CMS",
     description: "Challenges an order of dismissal with prejudice where the court relied on defense factual assertions outside the four corners of the complaint or denied leave to amend under Rule 1.190(a)."
   },
   {
     id: "tpl-4th-amended",
     name: "Verified Amended Complaint (Fact-Pleading & Rule 1.130 Compliant)",
     category: "Initial / Amended Pleading",
+    divisionRules: "Fla. R. Civ. P. 1.110(b) Ultimate Facts • Rule 1.130 Exhibit Designation • Fla. Stat. § 92.525 Verification",
     description: "Full multi-count Circuit Civil complaint separating each defendant by count, pleading Dinuro direct harm, § 473.316(4) privilege waivers, and § 607.0832 bad-faith facts."
   },
   {
     id: "tpl-mtd-opposition",
     name: "Memorandum of Law in Opposition to Motion to Dismiss",
     category: "Defensive Response",
-    description: "Point-by-point response refuting defense privity, safe harbor, and derivative standing arguments with binding Florida DCA precedent."
+    divisionRules: "17th Cir. Local Rule 10A • 10-Page Limit • Case Law Citator • Four Corners Standard",
+    description: "Point-by-point response refuting defense privity, safe harbor, and derivative standing arguments with binding 4th DCA precedent."
   },
   {
     id: "tpl-rfp",
     name: "Plaintiff's First Request for Production of Documents (Rule 1.350)",
     category: "Formal Discovery",
-    description: "Demands native QuickBooks/general ledger files, CPA workpapers (§ 473.318), lender communications, and corporate records."
+    divisionRules: "Fla. R. Civ. P. 1.280 & 1.350 • 30-Day Response Deadline • ESI & Native Ledger Metadata",
+    description: "Demands native QuickBooks/general ledger files, CPA workpapers (§ 473.318), lender communications, and Delray Beach / Broward corporate records."
   },
   {
     id: "tpl-proposed-order",
-    name: "Divisional Proposed Order (Portal Format)",
+    name: "Division 25 Proposed Order (CMS Format)",
     category: "Judicial Order",
-    description: "Formatted proposed order compliant with circuit portal rules, judicial signature blocks, and complete e-service lists."
+    divisionRules: "17th Cir. CMS Standards • No Blank Signature Pages • Complete E-Service List",
+    description: "Formatted proposed order ready for upload to the 17th Judicial Circuit Case Management System (CMS)."
   }
 ];
 
-// ============================================================================
-// MAIN APPLICATION COMPONENT
-// ============================================================================
-
 export default function FloridaProSeLitigationApp() {
-  // Navigation State: 11 distinct screens + full-screen editor
   const [activeNav, setActiveNav] = useState("today");
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [recentExpanded, setRecentExpanded] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [intakeSubTab, setIntakeSubTab] = useState("defendants");
+  const [plaintiff, setPlaintiff] = useState("Tina Diane Lee");
 
-  // Statewide Florida Court & Division Procedures Configuration
-  const [selectedCircuitId, setSelectedCircuitId] = useState("17th");
-  const [customCircuitName, setCustomCircuitName] = useState("17th Judicial Circuit");
-  const [countyName, setCountyName] = useState("Broward");
-  const [dcaName, setDcaName] = useState("4th DCA");
-  const [divisionNumber, setDivisionNumber] = useState("25");
-  const [judgeName, setJudgeName] = useState("Hon. Shari Africk Olefson");
-  const [caseNumber, setCaseNumber] = useState("CACE-26-XXXXXX");
-  const [plaintiffName, setPlaintiffName] = useState("Tina Diane Lee");
-  const [portalName, setPortalName] = useState("17th Cir. CMS (Case Management System)");
-  const [judgeConferralRule, setJudgeConferralRule] = useState(
-    "17th Cir. Local Rule 10A Mandatory Good-Faith Conferral Certificate required prior to hearing."
-  );
-  const [judgeFormattingRule, setJudgeFormattingRule] = useState(
-    "12pt Times New Roman, Double-Spaced, 1-inch margins, Page Numbers bottom center, E-Filing Portal watermark top right, AI Review & Verification Certificate included."
-  );
-  const [judgeUrlSource, setJudgeUrlSource] = useState("https://www.17th.flcourts.org/division-25/");
-
-  // Sub-navigation states
-  const [intakeSubTab, setIntakeSubTab] = useState("defendants"); // 'defendants' | 'cases' | 'mail'
-  const [intakeQueueFilter, setIntakeQueueFilter] = useState("all");
-
-  // 1. Tab One: AI Conversation History
+  // 1. History Threads
   const [chatThreads, setChatThreads] = useState([
     {
       id: "chat-1",
@@ -357,7 +248,7 @@ export default function FloridaProSeLitigationApp() {
         },
         {
           sender: "assistant",
-          text: "Under binding Florida DCA precedent (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)), a trial court is strictly confined to the four corners of the complaint on a Motion to Dismiss. Relying on unsworn defense factual proffers or resolving an unpled affirmative defense like Fla. Stat. § 607.0832 outside the complaint is reversible error. Under Fla. R. Civ. P. 1.530(b), you have a strict 15-day jurisdictional window from October 5 (until October 20, 2026) to serve a Motion for Rehearing and to Vacate."
+          text: "Under 4th DCA precedent (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173), a trial court is strictly confined to the four corners of the complaint on a Motion to Dismiss. Relying on unsworn defense factual proffers or resolving an unpled affirmative defense like Fla. Stat. § 607.0832 outside the complaint is reversible error. Under Fla. R. Civ. P. 1.530(b), you have a strict 15-day jurisdictional window from October 5 (until October 20, 2026) to serve a Motion for Rehearing and to Vacate."
         }
       ]
     },
@@ -372,14 +263,14 @@ export default function FloridaProSeLitigationApp() {
         },
         {
           sender: "assistant",
-          text: "Under Sachse v. Tampa Music Co., 262 So. 2d 17 (Fla. 2d DCA 1972) and Parkway General Hospital, Inc. v. Allstate Ins. Co., 393 So. 2d 1171 (Fla. 3d DCA 1981), if an instrument sued upon is in the exclusive possession of the defendant, a complaint is not subject to dismissal under Rule 1.130(a) where the plaintiff alleges that the document is in the defendant's possession and will be produced through discovery."
+          text: "Under Sachse v. Tampa Music Co., 262 So. 2d 17 (Fla. 2d DCA 1972), if an instrument sued upon is in the exclusive possession of the defendant, a complaint is not subject to dismissal under Rule 1.130(a) where the plaintiff alleges that the document is in the defendant's possession and will be produced through discovery."
         }
       ]
     }
   ]);
   const [activeChatId, setActiveChatId] = useState("chat-1");
 
-  // 2. Tab Two: Recent Drafts
+  // 2. Saved Drafts
   const [savedDrafts, setSavedDrafts] = useState([
     {
       id: "draft-1",
@@ -397,7 +288,7 @@ export default function FloridaProSeLitigationApp() {
       caseNo: "CACE-26-XXXXXX",
       type: "Motion for Rehearing",
       status: "Urgent (Due Oct 20)",
-      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nRICHARD HALLE, ESQ., ENGLEBERG, CPA, et al.,\n    Defendants.\n__________________________________________/\n\nPLAINTIFF'S TIMELY MOTION FOR REHEARING AND TO VACATE OCTOBER 5, 2026 ORDER DISMISSING COUNT IV WITH PREJUDICE PURSUANT TO FLA. R. CIV. P. 1.530\n\nPlaintiff, TINA DIANE LEE, pro se, timely moves for rehearing of the Court's October 5, 2026 Order Dismissing Count IV With Prejudice, and states:\n\n1. TIMELINESS: Pursuant to Fla. R. Civ. P. 1.530(b), this Motion is served within 15 days of the October 5, 2026 Order.\n2. FOUR CORNERS VIOLATION: On a motion to dismiss, the Court is strictly confined to the four corners of the complaint (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)). The October 5 Order improperly adopted unsworn factual assertions of defense counsel regarding lender communications and corporate safe harbors (§ 607.0832) that do not appear on the face of the pleading.\n3. STATUTORY PRIVILEGE WAIVER & PRIVITY: Under Fla. Stat. § 473.316(4)(a) & (c) and F.A.C. R. 61H1-23.002, accountant-client privilege does not apply to joint clients or fraud, and CPAs are statutorily required to return client records.\n\nWHEREFORE, Plaintiff respectfully requests that this Court grant rehearing, vacate the dismissal with prejudice of Count IV, and permit the action to proceed on the Fourth Amended Complaint.\n\nCERTIFICATE OF CONFERRAL & SERVICE\nI HEREBY CERTIFY that a true copy was served via the Florida Courts E-Filing Portal on October 17, 2026.\n\nBy: /s/ Tina Diane Lee`
+      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nRICHARD HALLE, ESQ., ENGLEBERG, CPA, et al.,\n    Defendants.\n__________________________________________/\n\nPLAINTIFF'S TIMELY MOTION FOR REHEARING AND TO VACATE OCTOBER 5, 2026 ORDER DISMISSING COUNT IV WITH PREJUDICE PURSUANT TO FLA. R. CIV. P. 1.530\n\nPlaintiff, TINA DIANE LEE, pro se, timely moves for rehearing of the Court's October 5, 2026 Order Dismissing Count IV With Prejudice, and states:\n\n1. TIMELINESS: Pursuant to Fla. R. Civ. P. 1.530(b), this Motion is served within 15 days of the October 5, 2026 Order.\n2. FOUR CORNERS VIOLATION: On a motion to dismiss, the Court is strictly confined to the four corners of the complaint (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)). The October 5 Order improperly adopted unsworn factual assertions of defense counsel regarding lender communications and corporate safe harbors (§ 607.0832) that do not appear on the face of the pleading.\n3. STATUTORY PRIVILEGE WAIVER & PRIVITY: Under Fla. Stat. § 473.316(4)(a) & (c) and F.A.C. R. 61H1-23.002, accountant-client privilege does not apply to joint clients or fraud, and CPAs are statutorily required to return client records.\n\nWHEREFORE, Plaintiff respectfully requests that this Court grant rehearing, vacate the dismissal with prejudice of Count IV, and permit the action to proceed on the Fourth Amended Complaint.\n\nBy: /s/ Tina Diane Lee`
     },
     {
       id: "draft-3",
@@ -411,7 +302,7 @@ export default function FloridaProSeLitigationApp() {
   ]);
   const [activeDraftId, setActiveDraftId] = useState("draft-1");
 
-  // 3. Tab Three: Calendar & Google Integration State
+  // 3. Calendar & Google Sync
   const [calendarEvents, setCalendarEvents] = useState([
     {
       id: "cal-1",
@@ -424,7 +315,7 @@ export default function FloridaProSeLitigationApp() {
       id: "cal-2",
       date: "2026-10-26",
       day: 26,
-      title: "Defendants' Response Due to 4th Amended Complaint (Rule 1.190(a) - 10 Days)",
+      title: "Defendants' Response Due to 4th Amended Complaint (Rule 1.190(a))",
       type: "Rule 1.190 Deadline"
     },
     {
@@ -438,17 +329,19 @@ export default function FloridaProSeLitigationApp() {
   const [newCalTitle, setNewCalTitle] = useState("");
   const [newCalDate, setNewCalDate] = useState("2026-10-22");
 
-  // 4. Tab Four: Defendants Intake State
+  // 4. Defendants Intake
   const [defendantsList, setDefendantsList] = useState(INITIAL_DEFENDANTS);
   const [activeDefId, setActiveDefId] = useState("def-1");
   const [intakeSaveBanner, setIntakeSaveBanner] = useState(false);
 
-  // 5. Tab Five: Matters & Count Mapping State
+  // 5. Matters
   const [mattersList] = useState([
     {
       id: "matter-1",
       title: "CACE Lee vs Halle, Engleberg",
       caseNumber: "CACE-26-XXXXXX",
+      court: "17th Judicial Circuit • Broward County Division 25",
+      judge: "Hon. Shari Africk Olefson",
       updated: "Today",
       counts: [
         {
@@ -486,30 +379,29 @@ export default function FloridaProSeLitigationApp() {
       ]
     }
   ]);
-  const [matterDetailOpen, setMatterDetailOpen] = useState(false);
 
-  // 6. Tab Six: Saved Signatures State
+  // 6. Signatures
   const [signatureText, setSignatureText] = useState("/s/ Tina Diane Lee");
   const [signatureImage, setSignatureImage] = useState(null);
   const [signatureSavedMsg, setSignatureSavedMsg] = useState(false);
 
-  // 7. Library 1: Filed Pleadings State
+  // 7. Filed Pleadings
   const [filedPleadings, setFiledPleadings] = useState(INITIAL_FILED_PLEADINGS);
   const [newFiledTitle, setNewFiledTitle] = useState("");
   const [newFiledFiler, setNewFiledFiler] = useState("Defense Counsel");
   const [newFiledSummary, setNewFiledSummary] = useState("");
 
-  // 8. Library 2: Defense Playbook & Defense AI Chat
+  // 8. Defense Playbook
   const [defensePlaybook, setDefensePlaybook] = useState(INITIAL_DEFENSE_PLAYBOOK);
   const [defenseChatMsgs, setDefenseChatMsgs] = useState([
     {
       sender: "assistant",
-      text: "Defense Playbook AI ready. I have analyzed the October 5, 2026 Order dismissing Count IV and Defendants' Motions to Dismiss. Ask me how to dismantle any defense objection (§ 607.0832 Safe Harbor, Ultramares Privity, Dinuro, or the Four Corners Rule)."
+      text: "Defense Playbook AI ready. I have analyzed the October 5, 2026 Order dismissing Count IV and Defendants' Motions to Dismiss. Ask me how to dismantle any defense objection (e.g., § 607.0832 Safe Harbor, Ultramares Privity, Dinuro, or the Four Corners Rule)."
     }
   ]);
   const [defenseChatInput, setDefenseChatInput] = useState("");
 
-  // 10. Library 4: Evidence Vault State (Per Defendant with Bates & Metadata)
+  // 10. Evidence Vault
   const [evidenceItems, setEvidenceItems] = useState([
     {
       id: "ev-1",
@@ -545,98 +437,37 @@ export default function FloridaProSeLitigationApp() {
   const [newEvTitle, setNewEvTitle] = useState("");
   const [newEvExhibit, setNewEvExhibit] = useState("EXHIBIT D");
 
-  // 11. Library 5: Templates & Procedures Builder State
+  // 11. Templates
   const [selectedTemplateId, setSelectedTemplateId] = useState("tpl-rehearing");
   const [respondingToFilingId, setRespondingToFilingId] = useState("filed-1");
 
-  // Global Floating AI Drawer
+  // Floating AI
   const [aiOpen, setAiOpen] = useState(false);
   const [aiInput, setAiInput] = useState("");
 
-  // ============================================================================
-  // PERSISTENT MEMORY SYNC (localStorage)
-  // ============================================================================
   useEffect(() => {
     try {
       const savedDefs = localStorage.getItem("fl_prose_defendants");
       if (savedDefs) setDefendantsList(JSON.parse(savedDefs));
-
       const savedDr = localStorage.getItem("fl_prose_drafts");
       if (savedDr) setSavedDrafts(JSON.parse(savedDr));
-
       const savedSig = localStorage.getItem("fl_prose_sig_text");
       if (savedSig) setSignatureText(savedSig);
-
       const savedSigImg = localStorage.getItem("fl_prose_sig_img");
       if (savedSigImg) setSignatureImage(savedSigImg);
-
       const savedEv = localStorage.getItem("fl_prose_evidence");
       if (savedEv) setEvidenceItems(JSON.parse(savedEv));
-
-      const savedCourt = localStorage.getItem("fl_prose_court_config");
-      if (savedCourt) {
-        const parsed = JSON.parse(savedCourt);
-        if (parsed.selectedCircuitId) setSelectedCircuitId(parsed.selectedCircuitId);
-        if (parsed.customCircuitName) setCustomCircuitName(parsed.customCircuitName);
-        if (parsed.countyName) setCountyName(parsed.countyName);
-        if (parsed.dcaName) setDcaName(parsed.dcaName);
-        if (parsed.divisionNumber) setDivisionNumber(parsed.divisionNumber);
-        if (parsed.judgeName) setJudgeName(parsed.judgeName);
-        if (parsed.caseNumber) setCaseNumber(parsed.caseNumber);
-        if (parsed.portalName) setPortalName(parsed.portalName);
-        if (parsed.judgeConferralRule) setJudgeConferralRule(parsed.judgeConferralRule);
-        if (parsed.judgeFormattingRule) setJudgeFormattingRule(parsed.judgeFormattingRule);
-      }
     } catch (e) {
-      console.error("Memory load error:", e);
+      console.error(e);
     }
   }, []);
-
-  const saveCourtConfigToMemory = (overrides = {}) => {
-    const configToSave = {
-      selectedCircuitId,
-      customCircuitName,
-      countyName,
-      dcaName,
-      divisionNumber,
-      judgeName,
-      caseNumber,
-      portalName,
-      judgeConferralRule,
-      judgeFormattingRule,
-      ...overrides
-    };
-    try {
-      localStorage.setItem("fl_prose_court_config", JSON.stringify(configToSave));
-    } catch (e) {}
-  };
-
-  const handleSelectFloridaCircuit = (circuitId) => {
-    const found = FLORIDA_CIRCUITS.find((c) => c.id === circuitId) || FLORIDA_CIRCUITS[0];
-    setSelectedCircuitId(found.id);
-    setCustomCircuitName(found.circuit);
-    setCountyName(found.counties[0]);
-    setDcaName(found.dca);
-    setPortalName(found.portal);
-    setJudgeConferralRule(found.defaultConferral);
-    setJudgeFormattingRule(found.defaultFormatting);
-    saveCourtConfigToMemory({
-      selectedCircuitId: found.id,
-      customCircuitName: found.circuit,
-      countyName: found.counties[0],
-      dcaName: found.dca,
-      portalName: found.portal,
-      judgeConferralRule: found.defaultConferral,
-      judgeFormattingRule: found.defaultFormatting
-    });
-  };
 
   const saveDefendantsToMemory = (updatedList) => {
     setDefendantsList(updatedList);
     try {
       localStorage.setItem("fl_prose_defendants", JSON.stringify(updatedList));
       setIntakeSaveBanner(true);
-      setTimeout(() => setIntakeSaveBanner(false), 2500);
+      setTimeout(() => setIntakeSaveBanner(false), 2000);
     } catch (e) {}
   };
 
@@ -645,20 +476,14 @@ export default function FloridaProSeLitigationApp() {
     [defendantsList, activeDefId]
   );
   const currentProfConfig = PROFESSION_CONFIGS[selectedDef?.profession] || PROFESSION_CONFIGS.cpa;
-
   const activeDraft = useMemo(
     () => savedDrafts.find((d) => d.id === activeDraftId) || savedDrafts[0],
     [savedDrafts, activeDraftId]
   );
-
   const activeChatThread = useMemo(
     () => chatThreads.find((c) => c.id === activeChatId) || chatThreads[0],
     [chatThreads, activeChatId]
   );
-
-  // ============================================================================
-  // ACTION HANDLERS
-  // ============================================================================
 
   const handleUpdateDef = (field, val) => {
     const updated = defendantsList.map((d) =>
@@ -691,15 +516,15 @@ export default function FloridaProSeLitigationApp() {
   const generateFloridaLegalAiResponse = (queryText) => {
     const lower = queryText.toLowerCase();
     if (lower.includes("count iv") || lower.includes("olefson") || lower.includes("oct 5") || lower.includes("rehearing") || lower.includes("1.530")) {
-      return `CRITICAL FLORIDA PROCEDURAL ANALYSIS (${customCircuitName} • ${dcaName}):\n1. Jurisdictional 15-Day Deadline: Under Fla. R. Civ. P. 1.530(b), a Motion for Rehearing must be served within 15 days of the Oct 5, 2026 Order (Deadline: Tuesday, October 20, 2026).\n2. Reversible Error on the Four Corners: Under Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000), a trial court may not consider unsworn factual assertions of defense counsel or resolve unpled affirmative defenses like Fla. Stat. § 607.0832 on a Motion to Dismiss.\n3. Statutory CPA Hooks: Cite Fla. Stat. § 473.316(4)(a) (crime/fraud exception), § 473.316(4)(c) (joint-client exception), and F.A.C. R. 61H1-23.002 (mandatory return of client records).`;
+      return "CRITICAL FLORIDA PROCEDURAL ANALYSIS (Count IV Dismissal & Rule 1.530):\n1. Jurisdictional Deadline: Under Fla. R. Civ. P. 1.530(b), a Motion for Rehearing must be served within 15 days of the Oct 5, 2026 Order (Deadline: Tuesday, October 20, 2026). Filing a timely Rule 1.530 motion directed to an order dismissing a claim/party with prejudice tolls the 30-day appellate window under Fla. R. App. P. 9.020(h).\n2. Reversible Error on the Four Corners: Under Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000), a trial court may not consider unsworn factual assertions of defense counsel or resolve unpled affirmative defenses like Fla. Stat. § 607.0832 on a Motion to Dismiss.\n3. Statutory CPA Hooks: Cite Fla. Stat. § 473.316(4)(a) (crime/fraud exception to accountant privilege), § 473.316(4)(c) (joint-client exception), and F.A.C. R. 61H1-23.002 (mandatory return of client records).";
     }
     if (lower.includes("dinuro") || lower.includes("direct") || lower.includes("derivative")) {
-      return `FLORIDA DIRECT VS. DERIVATIVE STANDING (${dcaName} Standard):\nUnder Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014) and Strazzulla v. Riverside Banking Co., 175 So. 3d 879 (Fla. 4th DCA 2015), a member/shareholder may bring a DIRECT action if:\n(1) There is direct harm to the plaintiff that does not flow subsequently from initial harm to the company; AND\n(2) There is a special injury distinct from other members OR a separate statutory/contractual duty owed directly to the plaintiff (e.g., § 607.1602 inspection rights or disproportionate distributions).`;
+      return "FLORIDA DIRECT VS. DERIVATIVE STANDING (Dinuro Test):\nUnder Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014) and Strazzulla v. Riverside Banking Co., 175 So. 3d 879 (Fla. 4th DCA 2015), a member/shareholder may bring a DIRECT action if:\n(1) There is a direct harm to the plaintiff such that the alleged injury does not flow subsequently from an initial harm to the company; AND\n(2) There is a special injury distinct from other members OR a separate duty owed directly to the plaintiff by statute or contract (such as deprivation of individual inspection rights under § 607.1602).";
     }
     if (lower.includes("607.0832") || lower.includes("safe harbor")) {
-      return `DEFEATING FLA. STAT. § 607.0832 DIRECTOR SAFE HARBOR:\nSection 607.0832 is a fact-intensive affirmative defense, NOT an absolute bar on a Motion to Dismiss. By pleading ultimate facts of secret self-dealing, active concealment, and lack of disinterested approval, § 607.0832 cannot be resolved on a Rule 1.140(b)(6) motion (Chakra 5, Inc. v. City of Miami Beach, 254 So. 3d 1056).`;
+      return "DEFEATING FLA. STAT. § 607.0832 DIRECTOR SAFE HARBOR:\nSection 607.0832 is a fact-intensive affirmative defense, NOT an absolute bar on a Motion to Dismiss. It requires that material facts of the conflict relationship were disclosed to disinterested directors/shareholders who approved it in good faith, OR that the transaction was fair to the corporation. By pleading ultimate facts of secret self-dealing, active concealment, and bad faith in your Fourth Amended Complaint, § 607.0832 cannot be resolved on a Rule 1.140(b)(6) motion.";
     }
-    return `FLORIDA CIRCUIT CIVIL ANALYSIS (${customCircuitName} • ${countyName} County Div. ${divisionNumber}):\nUnder Fla. R. Civ. P. 1.110(b), ensure every count separates each defendant's specific acts (who, what, when, and statutory duty breached) and complies with ${judgeConferralRule}`;
+    return `FLORIDA CIRCUIT CIVIL ANALYSIS (17th Judicial Circuit Division 25):\nUnder Fla. R. Civ. P. 1.110(b), ensure every count separates each defendant's specific acts (who, what, when, and statutory duty breached). Active defendants (${defendantsList.map((d) => d.name).join(", ")}) are synced into your Playbook and Matter matrices.`;
   };
 
   const handleSendChatThreadMessage = (textToSend) => {
@@ -747,37 +572,33 @@ export default function FloridaProSeLitigationApp() {
       extractedAttack: "Rule 1.140(b)(6) Fact-Pleading / Privity Challenge"
     };
     setFiledPleadings((prev) => [newDoc, ...prev]);
-
     setDefensePlaybook((prev) => [
       {
         id: `dp-${Date.now()}`,
         count: `Analyzed from: ${newFiledTitle}`,
         defenseAttack: `Objection raised by ${newFiledFiler}`,
         defenseGrounds: newFiledSummary || "Defense challenges standing, privity, or sufficiency of ultimate facts.",
-        howToOvercome: `Counter with specific ultimate facts under Fla. R. Civ. P. 1.110(b), invoke the Four Corners Rule, and cite binding ${dcaName} authority.`,
-        controllingLaw: `Fla. R. Civ. P. 1.110(b), 1.130(a), 1.140(b); ${dcaName} Precedent.`
+        howToOvercome: "Counter with specific ultimate facts under Fla. R. Civ. P. 1.110(b), invoke the Four Corners Rule (Barbado v. Green & Murphy, P.A.), and attach supporting exhibits under Rule 1.130(a).",
+        controllingLaw: "Fla. R. Civ. P. 1.110(b), 1.130(a), 1.140(b); 4th DCA Precedent."
       },
       ...prev
     ]);
-
     setNewFiledTitle("");
     setNewFiledSummary("");
   };
 
-  // Build Template using Active Florida Court, Division Procedures & Referenced Pleading
   const handleGenerateTemplateIntoDraft = () => {
     const tpl = JUDGE_TEMPLATES.find((t) => t.id === selectedTemplateId) || JUDGE_TEMPLATES[0];
     const refDoc = filedPleadings.find((f) => f.id === respondingToFilingId) || filedPleadings[0];
     const defNames = defendantsList.map((d) => d.name.toUpperCase()).join(", ");
 
-    const generatedContent = `IN THE CIRCUIT COURT OF THE ${customCircuitName.toUpperCase()}
-IN AND FOR ${countyName.toUpperCase()} COUNTY, FLORIDA
+    const generatedContent = `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT
+IN AND FOR BROWARD COUNTY, FLORIDA
 
-CASE NO.: ${caseNumber}
-DIVISION: ${divisionNumber} (${judgeName})
-APPELLATE DISTRICT: ${dcaName}
+CASE NO.: CACE-26-XXXXXX
+DIVISION: 25 (Hon. Shari Africk Olefson)
 
-${plaintiffName.toUpperCase()},
+TINA DIANE LEE,
     Plaintiff,
 v.
 ${defNames},
@@ -787,52 +608,48 @@ __________________________________________/
 ${tpl.name.toUpperCase()}
 (Responding to: ${refDoc.title})
 
-Plaintiff, ${plaintiffName.toUpperCase()}, pro se, files this ${tpl.name} in accordance with ${customCircuitName} Division ${divisionNumber} Procedures (${judgeName}) and the Florida Rules of Civil Procedure, and states:
+Plaintiff, TINA DIANE LEE, pro se, files this ${tpl.name} in accordance with 17th Judicial Circuit Division 25 Procedures and Florida Rules of Civil Procedure, and states:
 
-I. PROCEDURAL POSTURE & DIVISIONAL COMPLIANCE
-1. Referenced Filing: This pleading responds directly to "${refDoc.title}" (${refDoc.dateFiled}) by ${refDoc.filer}.
-2. Divisional & Formatting Compliance: Prepared in strict compliance with ${judgeName}'s divisional rules (${judgeFormattingRule}) and scheduled via ${portalName}.
+I. PROCEDURAL POSTURE & REFERENCED FILING
+1. This pleading directly addresses and responds to "${refDoc.title}" filed on ${refDoc.dateFiled} by ${refDoc.filer}.
+2. Divisional Compliance: Formatted in 12-point Times New Roman, double-spaced, with mandatory Local Rule 10A conferral certification.
 
-II. STATEMENT OF ULTIMATE FACTS & FLORIDA LEGAL AUTHORITY (${dcaName})
+II. STATEMENT OF ULTIMATE FACTS & FLORIDA LEGAL AUTHORITY
 3. Under Florida's strict fact-pleading standard (Fla. R. Civ. P. 1.110(b)) and the Four Corners Rule (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)), the Court's review is strictly confined to the verified allegations and Rule 1.130(a) exhibits.
 ${defendantsList
   .map(
     (d, i) =>
-      `${i + 4}. As to Defendant ${d.name} (${PROFESSION_CONFIGS[d.profession]?.label}): Privity is established via ${d.privityType}. On ${d.dateLastAction} (discovered ${d.discoveryDate}), Defendant committed the following breach:${d.specificBreach} (Supported by ${d.evidence}; Witnesses:${d.witnesses || "Custodians of Record"}).`
+      `${i + 4}. As to Defendant ${d.name} (${PROFESSION_CONFIGS[d.profession]?.label}): Privity is established via ${d.privityType}. Specifically, on ${d.dateLastAction} (discovered ${d.discoveryDate}), Defendant committed the following breach: ${d.specificBreach} (Supported by ${d.evidence}).`
   )
   .join("\n")}
 
 III. MEMORANDUM OF LAW OVERCOMING DEFENSE OBJECTIONS
-• Rehearing & Vacation of Dismissal (Fla. R. Civ. P. 1.530): Resolving unpled affirmative defenses such as Fla. Stat. § 607.0832 or adopting unsworn defense factual assertions outside the four corners constitutes reversible error in the ${dcaName}.
+• Rehearing & Vacation of Dismissal With Prejudice (Fla. R. Civ. P. 1.530): Served within the strict 15-day jurisdictional window from October 5, 2026. Resolving unpled affirmative defenses such as Fla. Stat. § 607.0832 or adopting unsworn defense factual assertions outside the four corners constitutes reversible error.
 • Statutory CPA Duties & Privilege Exceptions: Under Fla. Stat. §§ 473.316(4)(a), (4)(c), and 473.318, and F.A.C. R. 61H1-23.002, accountant-client privilege is waived in joint-client disputes and crime/fraud contexts, and client records/workpapers must be furnished upon demand.
-• Direct Action Standing (Dinuro Two-Prong Test): Plaintiff alleges individualized pecuniary injury and violation of statutory inspection rights distinct from general corporate harm under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731.
+• Direct Action Standing (Dinuro Test): Plaintiff alleges individualized pecuniary injury and violation of statutory inspection rights distinct from general corporate harm under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014).
 
 WHEREFORE, Plaintiff respectfully requests that this Honorable Court enter an Order granting the relief requested herein, together with taxable costs under Fla. Stat. § 57.041, reciprocal fees under § 57.105(7), and such further relief as is just and proper.
 
-MANDATORY DIVISIONAL CERTIFICATE OF GOOD-FAITH CONFERRAL
-Pursuant to ${judgeConferralRule}, I HEREBY CERTIFY that Plaintiff has conferred or attempted to confer in good faith with opposing counsel prior to noticing any hearing on this matter.
-
-PRO SE VERIFICATION & AI RULE 2.515 DISCLOSURE
-Under penalties of perjury pursuant to Fla. Stat. § 92.525, I declare that I have read the foregoing document, verified all Florida statutory and ${dcaName} citations, and that the facts stated herein are true.
+LOCAL RULE 10A CERTIFICATE OF GOOD FAITH CONFERRAL
+I HEREBY CERTIFY that Plaintiff has conferred or attempted to confer in good faith with opposing counsel to resolve the issues raised herein.
 
 CERTIFICATE OF SERVICE (FLA. R. GEN. PRAC. & JUD. ADMIN. 2.516)
-I HEREBY CERTIFY that a true and correct copy of the foregoing was furnished via the Florida Courts E-Filing Portal and ${portalName} on October 17, 2026 to all counsel of record.
+I HEREBY CERTIFY that a true and correct copy of the foregoing was furnished via the Florida Courts E-Filing Portal on October 17, 2026.
 
 Respectfully submitted,
 
 By: ${signatureText}
-${plaintiffName}, Pro Se
-${countyName} County, Florida
+${plaintiff}, Pro Se
 Email: service@allegedlylegal.com`;
 
     const newDraftId = `draft-${Date.now()}`;
     const newDraftObj = {
       id: newDraftId,
-      title: `${tpl.name} (${countyName} Div ${divisionNumber})`,
+      title: `${tpl.name} (Re: ${refDoc.title.slice(0, 26)}...)`,
       updatedAt: "2026-10-17",
-      caseNo: caseNumber,
+      caseNo: "CACE-26-XXXXXX",
       type: tpl.category,
-      status: `${customCircuitName} Ready`,
+      status: "Division 25 Ready",
       content: generatedContent
     };
 
@@ -841,7 +658,6 @@ Email: service@allegedlylegal.com`;
     try {
       localStorage.setItem("fl_prose_drafts", JSON.stringify(updatedDrafts));
     } catch (e) {}
-
     setActiveDraftId(newDraftId);
     setActiveNav("editor");
   };
@@ -883,7 +699,7 @@ Email: service@allegedlylegal.com`;
       title: newEvTitle,
       fileType: "PDF / Exhibit Package",
       batesRange: `LEE-${newEvExhibit.replace(/\s+/g, "")}-${pad(nextNum)} to ${pad(endNum)}`,
-      capturedMetadata: `Authenticated Pro Se Metadata • Custodian: ${plaintiffName} • Linked to ${selectedDef.name}`,
+      capturedMetadata: `Authenticated Metadata • Custodian: Plaintiff • Linked to ${selectedDef.name}`,
       downloadedTimestamp: nowStr
     };
 
@@ -897,18 +713,14 @@ Email: service@allegedlylegal.com`;
 
   const createGoogleCalendarUrl = (ev) => {
     const dateClean = ev.date.replace(/-/g, "");
-    const titleEnc = encodeURIComponent(`[${customCircuitName}] ${ev.title}`);
-    const detailsEnc = encodeURIComponent(
-      `Case: ${caseNumber} (${countyName} County Div ${divisionNumber} - ${judgeName})\nPortal: ${portalName}\nCategory: ${ev.type}`
-    );
+    const titleEnc = encodeURIComponent(`[FL 17th Cir] ${ev.title}`);
+    const detailsEnc = encodeURIComponent(`Case: CACE Lee vs Halle, Engleberg (Broward Div 25)\nCategory: ${ev.type}`);
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${titleEnc}&dates=${dateClean}/${dateClean}&details=${detailsEnc}`;
   };
 
   return (
     <div className="flex h-screen w-full bg-[#FDFDFD] text-[#1E293B] font-sans antialiased overflow-hidden">
-      {/* ==================================================================== */}
-      {/* LEFT SIDEBAR NAVIGATION (All 11 Modules + Recent Drafts Tree)        */}
-      {/* ==================================================================== */}
+      {/* LEFT SIDEBAR NAVIGATION */}
       <aside
         className={`${
           sidebarOpenMobile
@@ -917,8 +729,7 @@ Email: service@allegedlylegal.com`;
         } bg-[#FAFAFA] border-r border-slate-200 flex-col justify-between shrink-0 select-none overflow-y-auto`}
       >
         <div className="p-3 space-y-4">
-          {/* Workspace Header */}
-          <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer border border-transparent hover:border-slate-200 transition">
+          <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer">
             <div className="flex items-center gap-2 overflow-hidden">
               <div className="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
                 TB
@@ -927,16 +738,12 @@ Email: service@allegedlylegal.com`;
                 Tina Bulger&apos;s Workspace
               </span>
             </div>
-            <button
-              onClick={() => setSidebarOpenMobile(false)}
-              className="lg:hidden text-slate-400 hover:text-slate-700"
-            >
+            <button onClick={() => setSidebarOpenMobile(false)} className="lg:hidden text-slate-400">
               <X className="w-4 h-4" />
             </button>
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden lg:block shrink-0" />
           </div>
 
-          {/* + New Chat / New Pleading Split Button */}
           <div className="flex items-center rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
             <button
               onClick={() => {
@@ -944,12 +751,12 @@ Email: service@allegedlylegal.com`;
                 setChatThreads((prev) => [
                   {
                     id: newThreadId,
-                    title: `Legal Research (${countyName} Div ${divisionNumber})`,
+                    title: `Legal Research (${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})`,
                     date: "Just now",
                     messages: [
                       {
                         sender: "assistant",
-                        text: `New Florida Legal AI session started for ${customCircuitName} (${countyName} County, ${dcaName}). Ask about division rules, rehearing grounds, or Rule 1.110(b) fact-pleading.`
+                        text: "New Florida Legal AI session started. Ask about 17th Judicial Circuit rules, Count IV rehearing grounds, or Rule 1.110(b) fact-pleading."
                       }
                     ]
                   },
@@ -959,7 +766,7 @@ Email: service@allegedlylegal.com`;
                 setActiveNav("history");
                 setSidebarOpenMobile(false);
               }}
-              className="flex-1 flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition"
+              className="flex-1 flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
             >
               <Plus className="w-3.5 h-3.5 text-emerald-700" />
               New chat
@@ -970,14 +777,13 @@ Email: service@allegedlylegal.com`;
                 setActiveNav("templates");
                 setSidebarOpenMobile(false);
               }}
-              title="Build Pleading from Judge Template"
-              className="px-2 py-1.5 hover:bg-slate-50 text-slate-500 transition"
+              className="px-2 py-1.5 hover:bg-slate-50 text-slate-500"
             >
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          {/* SECTION I: CHATS (Tab 1: History & Tab 2: Recent Drafts) */}
+          {/* CHATS & DRAFTS */}
           <div>
             <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">
               Chats & Drafts
@@ -988,15 +794,15 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("history");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "history"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <MessageSquare className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                  <span>History (AI Chats)</span>
+                  <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Tab 1: History</span>
                 </span>
                 <span className="text-[10px] font-mono bg-slate-200 text-slate-700 px-1.5 rounded">
                   {chatThreads.length}
@@ -1004,16 +810,14 @@ Email: service@allegedlylegal.com`;
               </button>
 
               <div className="space-y-0.5">
-                <div className="flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-100 transition">
+                <div className="flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs text-slate-700 hover:bg-slate-100">
                   <button
                     onClick={() => {
                       setActiveNav("recent");
                       setSidebarOpenMobile(false);
                     }}
                     className={`flex items-center gap-2 flex-1 text-left ${
-                      activeNav === "recent" || activeNav === "editor"
-                        ? "font-semibold text-slate-900"
-                        : ""
+                      activeNav === "recent" || activeNav === "editor" ? "font-semibold text-slate-900" : ""
                     }`}
                   >
                     <ChevronDown
@@ -1025,17 +829,12 @@ Email: service@allegedlylegal.com`;
                         !recentExpanded ? "-rotate-90" : ""
                       }`}
                     />
-                    <span>Recent Drafts</span>
+                    <span>Tab 2: Recent Drafts</span>
                   </button>
-                  <button
-                    onClick={() => {
-                      setActiveNav("recent");
-                      setSidebarOpenMobile(false);
-                    }}
-                    className="text-slate-400 hover:text-slate-800"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
+                  <Plus
+                    onClick={() => setActiveNav("recent")}
+                    className="w-3.5 h-3.5 text-slate-400 cursor-pointer"
+                  />
                 </div>
 
                 {recentExpanded && (
@@ -1048,10 +847,10 @@ Email: service@allegedlylegal.com`;
                           setActiveNav("editor");
                           setSidebarOpenMobile(false);
                         }}
-                        className={`w-full flex items-center gap-2 px-2 py-1 rounded text-xs truncate transition ${
+                        className={`w-full flex items-center gap-2 px-2 py-1 rounded text-xs truncate ${
                           activeNav === "editor" && activeDraftId === dr.id
                             ? "bg-emerald-50 text-emerald-900 font-semibold"
-                            : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                            : "text-slate-500 hover:bg-slate-100"
                         }`}
                       >
                         <MessageSquare className="w-3 h-3 text-slate-400 shrink-0" />
@@ -1064,7 +863,7 @@ Email: service@allegedlylegal.com`;
             </div>
           </div>
 
-          {/* SECTION: WORK (Tab 3: Today, Tab 4: Intake, Tab 5: Matters, Tab 6: Signatures) */}
+          {/* WORK SECTION */}
           <div>
             <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">
               Work
@@ -1075,15 +874,15 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("today");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "today"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                  <span>Today (Calendar & Mail)</span>
+                  <Clock className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Tab 3: Today (Google Sync)</span>
                 </span>
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
               </button>
@@ -1093,17 +892,17 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("intake");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "intake"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Inbox className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                  <span>Intake (Defendants)</span>
+                  <Inbox className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Tab 4: Intake</span>
                 </span>
-                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded font-mono font-bold">
+                <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 rounded font-mono font-bold">
                   {defendantsList.length}
                 </span>
               </button>
@@ -1113,15 +912,15 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("matters");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "matters"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Briefcase className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                  <span>Matters (Case Counts)</span>
+                  <Briefcase className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Tab 5: Matters</span>
                 </span>
                 <span className="text-[10px] bg-slate-200 text-slate-700 px-1.5 rounded font-mono">
                   {mattersList.length}
@@ -1133,22 +932,22 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("signatures");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "signatures"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <FileCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <span>Saved Signatures</span>
+                <FileCheck className="w-3.5 h-3.5 text-slate-500" />
+                <span>Tab 6: Saved Signatures</span>
               </button>
             </div>
           </div>
 
-          {/* SECTION II: LIBRARY (5 Specialized Legal Modules) */}
+          {/* II. LIBRARY SECTION */}
           <div>
             <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">
-              Library
+              II. Library
             </span>
             <div className="mt-1 space-y-0.5">
               <button
@@ -1156,14 +955,14 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("filed_drafts");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "filed_drafts"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <FileText className="w-3.5 h-3.5 text-slate-500" />
                   <span>1. Drafts (Filed Docs)</span>
                 </span>
                 <span className="text-[10px] font-mono bg-slate-200 text-slate-700 px-1.5 rounded">
@@ -1176,13 +975,13 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("defense_playbook");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "defense_playbook"
                     ? "bg-rose-50 text-rose-900 font-semibold border-l-2 border-rose-600"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                <ShieldCheck className="w-3.5 h-3.5 text-rose-600" />
                 <span>2. Defense Playbook</span>
               </button>
 
@@ -1191,13 +990,13 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("plaintiff_playbook");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "plaintiff_playbook"
                     ? "bg-emerald-50 text-emerald-900 font-semibold border-l-2 border-emerald-600"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <BookOpen className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                <BookOpen className="w-3.5 h-3.5 text-emerald-700" />
                 <span>3. Plaintiffs Playbook</span>
               </button>
 
@@ -1206,14 +1005,14 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("vault");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "vault"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <FolderLock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <FolderLock className="w-3.5 h-3.5 text-slate-500" />
                   <span>4. Evidence & Bates</span>
                 </span>
                 <span className="text-[10px] font-mono bg-slate-200 text-slate-700 px-1.5 rounded">
@@ -1226,44 +1025,40 @@ Email: service@allegedlylegal.com`;
                   setActiveNav("templates");
                   setSidebarOpenMobile(false);
                 }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs ${
                   activeNav === "templates"
                     ? "bg-slate-200/80 text-slate-900 font-semibold border-l-2 border-slate-900"
                     : "text-slate-600 hover:bg-slate-100"
                 }`}
               >
-                <FileCode className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <FileCode className="w-3.5 h-3.5 text-slate-500" />
                 <span>5. Templates / Rules</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Bottom Profile & Court Switcher Card */}
         <div className="p-3 border-t border-slate-200 space-y-2 bg-[#FAFAFA]">
-          <div
-            onClick={() => setActiveNav("templates")}
-            className="p-2.5 bg-white border border-slate-200 hover:border-emerald-600 rounded-lg text-xs cursor-pointer transition"
-          >
-            <div className="flex items-center justify-between text-emerald-700 text-[10px] font-bold uppercase">
-              <span>Active Florida Court</span>
-              <span>Change →</span>
+          <div className="p-2.5 bg-white border border-slate-200 rounded-lg text-xs">
+            <div className="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase">
+              <span>Getting Started</span>
+              <span>6/6 Active</span>
             </div>
-            <p className="text-xs font-semibold text-slate-900 mt-1 truncate">
-              {customCircuitName} ({countyName})
-            </p>
-            <p className="text-[10px] text-slate-500 truncate">
-              Div. {divisionNumber} • {dcaName}
+            <div className="w-full bg-slate-100 h-1 rounded-full mt-1.5 overflow-hidden">
+              <div className="bg-emerald-600 h-full w-full" />
+            </div>
+            <p className="text-[10px] text-slate-500 mt-1.5">
+              Memory Synced • {defendantsList.length} Defendants
             </p>
           </div>
 
           <button
             onClick={() => setShowSettingsModal(true)}
-            className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100 rounded-md transition"
+            className="w-full flex items-center justify-between px-2 py-1.5 text-xs text-slate-700 hover:bg-slate-100 rounded-md"
           >
             <span className="flex items-center gap-2">
               <Settings className="w-3.5 h-3.5 text-slate-500" />
-              <span className="font-medium">{plaintiffName}</span>
+              <span className="font-medium">Tina Bulger</span>
             </span>
             <span className="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-semibold border border-blue-200">
               Pro Se
@@ -1272,7 +1067,6 @@ Email: service@allegedlylegal.com`;
         </div>
       </aside>
 
-      {/* Mobile Drawer Backdrop */}
       {sidebarOpenMobile && (
         <div
           onClick={() => setSidebarOpenMobile(false)}
@@ -1280,11 +1074,8 @@ Email: service@allegedlylegal.com`;
         />
       )}
 
-      {/* ==================================================================== */}
-      {/* MAIN CONTENT STAGE                                                   */}
-      {/* ==================================================================== */}
+      {/* MAIN CONTENT STAGE */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Global Top Header with Statewide Court Selector Pill */}
         <header className="h-14 border-b border-slate-200 bg-white px-4 sm:px-6 flex items-center justify-between shrink-0 z-10">
           <div className="flex items-center gap-3">
             <button
@@ -1297,20 +1088,11 @@ Email: service@allegedlylegal.com`;
               <Scale className="w-4 h-4" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-semibold text-xs sm:text-sm text-slate-900 leading-tight">
-                  Florida Pro Se Litigation Studio
-                </h1>
-                <button
-                  onClick={() => setActiveNav("templates")}
-                  className="hidden md:inline-flex items-center gap-1 text-[10px] font-mono bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 px-2 py-0.5 rounded border border-slate-200 transition"
-                >
-                  <MapPin className="w-3 h-3 text-emerald-700" />
-                  {customCircuitName} • {countyName} Div {divisionNumber} ({dcaName}) ✎
-                </button>
-              </div>
-              <span className="text-[10px] text-slate-500 font-mono block">
-                {judgeName} • {portalName}
+              <h1 className="font-semibold text-xs sm:text-sm text-slate-900">
+                Florida Circuit Civil Pro Se Litigation Studio
+              </h1>
+              <span className="text-[10px] text-slate-500 font-mono">
+                17th Judicial Circuit • Broward County Division 25
               </span>
             </div>
           </div>
@@ -1318,14 +1100,14 @@ Email: service@allegedlylegal.com`;
           <div className="flex items-center gap-2">
             <button
               onClick={() => setAiOpen(!aiOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Florida Legal AI</span>
             </button>
             <button
               onClick={handleExportActiveDraft}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Export Pleading</span>
@@ -1333,9 +1115,7 @@ Email: service@allegedlylegal.com`;
           </div>
         </header>
 
-        {/* ================================================================== */}
-        {/* TAB 1: HISTORY (All AI Conversations)                              */}
-        {/* ================================================================== */}
+        {/* TAB 1: HISTORY */}
         {activeNav === "history" && (
           <div className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-50">
             <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white p-4 overflow-y-auto space-y-2 shrink-0">
@@ -1346,13 +1126,13 @@ Email: service@allegedlylegal.com`;
                 <button
                   key={th.id}
                   onClick={() => setActiveChatId(th.id)}
-                  className={`w-full text-left p-3 rounded-xl border transition ${
+                  className={`w-full text-left p-3 rounded-xl border ${
                     activeChatId === th.id
                       ? "bg-emerald-50/70 border-emerald-600 shadow-sm"
                       : "bg-slate-50 border-slate-200 hover:bg-slate-100"
                   }`}
                 >
-                  <p className="text-xs font-semibold text-slate-900 leading-snug">{th.title}</p>
+                  <p className="text-xs font-semibold text-slate-900">{th.title}</p>
                   <span className="text-[10px] text-slate-400 font-mono block mt-1">{th.date}</span>
                 </button>
               ))}
@@ -1362,7 +1142,7 @@ Email: service@allegedlylegal.com`;
               <div className="p-4 border-b border-slate-200">
                 <h2 className="text-sm font-bold text-slate-900">{activeChatThread.title}</h2>
                 <p className="text-[11px] text-slate-400">
-                  Configured for {customCircuitName} ({countyName} County) • {dcaName} Precedent
+                  Grounded in Florida Rules of Civil Procedure & 4th DCA Precedent
                 </p>
               </div>
 
@@ -1376,8 +1156,8 @@ Email: service@allegedlylegal.com`;
                         : "bg-slate-100 border border-slate-200 text-slate-800"
                     }`}
                   >
-                    <span className="text-[10px] font-bold uppercase tracking-wider block mb-1 opacity-70">
-                      {m.sender === "user" ? plaintiffName : `Florida Legal AI (${dcaName})`}
+                    <span className="text-[10px] font-bold uppercase block mb-1 opacity-70">
+                      {m.sender === "user" ? "Plaintiff Pro Se" : "Florida Legal AI"}
                     </span>
                     {m.text}
                   </div>
@@ -1395,15 +1175,15 @@ Email: service@allegedlylegal.com`;
                       setAiInput("");
                     }
                   }}
-                  placeholder={`Ask about ${customCircuitName} procedures, Count IV rehearing, Dinuro, or Rule 1.130...`}
-                  className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                  placeholder="Ask follow-up question on Count IV rehearing, Dinuro, or Rule 1.130..."
+                  className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900"
                 />
                 <button
                   onClick={() => {
                     handleSendChatThreadMessage(aiInput);
                     setAiInput("");
                   }}
-                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition"
+                  className="px-4 py-2 bg-emerald-700 text-white text-xs font-semibold rounded-lg"
                 >
                   Send
                 </button>
@@ -1412,29 +1192,27 @@ Email: service@allegedlylegal.com`;
           </div>
         )}
 
-        {/* ================================================================== */}
-        {/* TAB 2: RECENT DRAFTS DIRECTORY & FULL-SCREEN PLEADING EDITOR       */}
-        {/* ================================================================== */}
+        {/* TAB 2: RECENT DRAFTS */}
         {activeNav === "recent" && (
           <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
             <div className="max-w-5xl mx-auto space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-bold text-slate-900">All Recent Pleading Drafts</h2>
                   <p className="text-xs text-slate-500">
-                    Click any draft below to open it in the full-screen Pleading Editor.
+                    Click any draft below to open it in the full-screen Florida Pleading Editor.
                   </p>
                 </div>
                 <button
                   onClick={() => setActiveNav("templates")}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold self-start"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Build New Draft from Judge Template
+                  Build New Draft
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {savedDrafts.map((dr) => (
                   <div
                     key={dr.id}
@@ -1442,7 +1220,7 @@ Email: service@allegedlylegal.com`;
                       setActiveDraftId(dr.id);
                       setActiveNav("editor");
                     }}
-                    className="p-5 bg-white rounded-xl border border-slate-200 hover:border-emerald-600 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col justify-between space-y-4"
+                    className="p-5 bg-white rounded-xl border border-slate-200 hover:border-emerald-600 shadow-sm cursor-pointer flex flex-col justify-between space-y-4"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -1451,16 +1229,15 @@ Email: service@allegedlylegal.com`;
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono">{dr.updatedAt}</span>
                       </div>
-                      <h3 className="text-xs font-bold text-slate-900 leading-snug">{dr.title}</h3>
+                      <h3 className="text-xs font-bold text-slate-900">{dr.title}</h3>
                       <p className="text-[11px] text-slate-500 line-clamp-3 font-serif">
-                        {dr.content.slice(0, 160)}...
+                        {dr.content.slice(0, 150)}...
                       </p>
                     </div>
-
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                       <span className="text-[10px] font-semibold text-slate-500">{dr.status}</span>
                       <span className="text-emerald-700 font-semibold inline-flex items-center gap-1">
-                        Open Pleading <ArrowRight className="w-3 h-3" />
+                        Open Screen <ArrowRight className="w-3 h-3" />
                       </span>
                     </div>
                   </div>
@@ -1470,30 +1247,27 @@ Email: service@allegedlylegal.com`;
           </div>
         )}
 
+        {/* DEDICATED FULL-SCREEN DRAFT EDITOR */}
         {activeNav === "editor" && (
           <div className="flex-1 flex flex-col overflow-hidden bg-[#F1F3F5]">
-            <div className="bg-white border-b border-slate-200 px-6 py-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setActiveNav("recent")}
-                  className="flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900 font-semibold"
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900"
                 >
-                  <ArrowLeft className="w-3.5 h-3.5" /> Back to Drafts
+                  <ArrowLeft className="w-4 h-4" /> Back to Drafts
                 </button>
                 <span className="text-slate-300">|</span>
                 <span className="text-xs font-bold text-slate-900">{activeDraft.title}</span>
-                <span className="text-[10px] font-mono bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
-                  {customCircuitName} • Div {divisionNumber}
-                </span>
               </div>
               <button
                 onClick={handleExportActiveDraft}
-                className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5"
+                className="px-3 py-1.5 bg-emerald-700 text-white rounded-lg text-xs font-semibold"
               >
-                <Download className="w-3.5 h-3.5" /> Download Word / Text Pleading
+                Download Court Document (.txt)
               </button>
             </div>
-
             <div className="flex-1 p-4 sm:p-8 overflow-y-auto flex justify-center">
               <textarea
                 value={activeDraft.content}
@@ -1507,22 +1281,19 @@ Email: service@allegedlylegal.com`;
                     localStorage.setItem("fl_prose_drafts", JSON.stringify(updated));
                   } catch (err) {}
                 }}
-                className="w-full max-w-3xl bg-white border border-slate-200 rounded-lg shadow-md p-6 sm:p-12 min-h-[900px] font-serif text-xs leading-relaxed text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                className="w-full max-w-3xl bg-white border border-slate-200 rounded-lg shadow-sm p-6 sm:p-12 min-h-[900px] font-serif text-xs leading-relaxed text-slate-900 focus:outline-none"
               />
             </div>
           </div>
         )}
 
-        {/* ================================================================== */}
-        {/* TAB 3: WORK / TODAY (Google Calendar & Gmail E-Service Integration)*/}
-        {/* ================================================================== */}
+        {/* TAB 3: WORK / TODAY (Google Calendar & Gmail Sync) */}
         {activeNav === "today" && (
           <div className="flex-1 p-6 overflow-y-auto bg-slate-50 flex flex-col lg:flex-row gap-6">
-            {/* Left Calendar Widget */}
-            <div className="w-full lg:w-80 bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4 shrink-0">
+            <div className="w-full lg:w-80 bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4 shrink-0">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900">October 2026</span>
-                <span className="text-[10px] font-mono bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="text-xs font-bold text-slate-800">October 2026</span>
+                <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-semibold">
                   Google Calendar Synced
                 </span>
               </div>
@@ -1532,92 +1303,72 @@ Email: service@allegedlylegal.com`;
                     {d}
                   </span>
                 ))}
-                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
-                  const hasDeadline = calendarEvents.some((ev) => ev.day === day);
-                  return (
-                    <div
-                      key={day}
-                      className={`p-1.5 rounded text-xs relative ${
-                        day === 17
-                          ? "bg-slate-900 text-white font-bold"
-                          : hasDeadline
-                          ? "bg-rose-100 text-rose-900 font-bold border border-rose-300"
-                          : "text-slate-600 hover:bg-slate-100"
-                      }`}
-                    >
-                      {day}
-                    </div>
-                  );
-                })}
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                  <div
+                    key={day}
+                    className={`p-1.5 rounded text-xs ${
+                      day === 17
+                        ? "bg-slate-900 text-white font-bold"
+                        : day === 20 || day === 26
+                        ? "bg-rose-100 text-rose-800 font-bold"
+                        : "text-slate-600"
+                    }`}
+                  >
+                    {day}
+                  </div>
+                ))}
               </div>
 
-              {/* Add Deadline to Google Calendar */}
-              <div className="pt-3 border-t border-slate-200 space-y-2">
-                <span className="text-[10px] uppercase font-bold text-slate-500 block">
-                  Add Statutory Deadline to Google Calendar
+              <div className="pt-3 border-t border-slate-100 space-y-2">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Add Court Deadline to Google Calendar
                 </span>
                 <input
                   type="text"
                   value={newCalTitle}
                   onChange={(e) => setNewCalTitle(e.target.value)}
-                  placeholder="e.g. Rule 1.530 Rehearing Service"
-                  className="w-full border border-slate-300 rounded p-1.5 text-xs"
+                  placeholder="Hearing or Filing Deadline..."
+                  className="w-full border border-slate-200 rounded p-1.5 text-xs"
                 />
                 <input
                   type="date"
                   value={newCalDate}
                   onChange={(e) => setNewCalDate(e.target.value)}
-                  className="w-full border border-slate-300 rounded p-1.5 text-xs"
+                  className="w-full border border-slate-200 rounded p-1.5 text-xs"
                 />
                 <button
                   onClick={() => {
                     if (!newCalTitle.trim()) return;
-                    const dayNum = parseInt(newCalDate.split("-")[2] || "20", 10);
                     setCalendarEvents((prev) => [
                       ...prev,
                       {
                         id: `cal-${Date.now()}`,
                         date: newCalDate,
-                        day: dayNum,
+                        day: Number(newCalDate.split("-")[2]),
                         title: newCalTitle,
                         type: "Court Deadline"
                       }
                     ]);
                     setNewCalTitle("");
                   }}
-                  className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded text-xs font-semibold"
+                  className="w-full py-1.5 bg-slate-900 text-white rounded text-xs font-semibold"
                 >
-                  + Save & Sync to Google Calendar
+                  + Save & Sync Deadline
                 </button>
               </div>
             </div>
 
-            {/* Right Dashboard (Matches Screenshot 14) */}
             <div className="flex-1 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                  <h2 className="text-xl font-serif font-medium text-slate-900">
-                    Good afternoon, Tina.
-                  </h2>
-                  <p className="text-xs text-slate-500">
-                    Saturday, October 17, 2026 • {customCircuitName} ({countyName} County Division {divisionNumber})
-                  </p>
-                </div>
-                <a
-                  href="https://mail.google.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-xs font-semibold text-slate-700 shadow-sm"
-                >
-                  <Mail className="w-3.5 h-3.5 text-rose-600" />
-                  Gmail E-Service Connected (service@allegedlylegal.com) ↗
-                </a>
+              <div>
+                <h2 className="text-xl font-serif font-medium text-slate-900">Good afternoon, Tina.</h2>
+                <p className="text-xs text-slate-500">
+                  Saturday, October 17, 2026 • Connected to Gmail (service@allegedlylegal.com)
+                </p>
               </div>
 
-              {/* Upcoming Court & Statutory Deadlines */}
-              <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm space-y-3">
+              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-3">
                 <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Waiting on You • Active Statutory & Divisional Deadlines
+                  Statutory Deadlines & Google Calendar Events
                 </span>
                 {calendarEvents.map((ev) => (
                   <div
@@ -1626,17 +1377,17 @@ Email: service@allegedlylegal.com`;
                   >
                     <div>
                       <span className="text-xs font-bold text-slate-900 block">{ev.title}</span>
-                      <span className="text-[11px] text-slate-500 font-mono">
-                        Date: {ev.date} • {ev.type}
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        {ev.date} • {ev.type}
                       </span>
                     </div>
                     <a
                       href={createGoogleCalendarUrl(ev)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold inline-flex items-center gap-1 shrink-0"
+                      className="px-2.5 py-1 bg-white border border-slate-300 rounded text-[11px] font-semibold text-slate-700 hover:bg-slate-100 inline-flex items-center gap-1 self-start"
                     >
-                      Push to Google Calendar <ExternalLink className="w-3 h-3" />
+                      <Calendar className="w-3 h-3 text-emerald-700" /> Push to Google Calendar ↗
                     </a>
                   </div>
                 ))}
@@ -1645,9 +1396,783 @@ Email: service@allegedlylegal.com`;
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-2">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Around You • E-Filing Portal & Gmail Alerts
+                    Gmail E-Service Inbox (eservice@myflcourtaccess.com)
                   </span>
-                  <p className="text-xs text-slate-700 font-medium">
-                    • Fourth Amended Complaint E-Served (Oct 16, 2026)
+                  <div className="p-2.5 bg-slate-50 rounded border border-slate-200 text-xs">
+                    <span className="font-semibold text-slate-800 block">
+                      Filing Confirmation: 4th Amended Complaint
+                    </span>
+                    <span className="text-[10px] text-slate-400">Synced from Gmail • Oct 16, 2026</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-2">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Active Matters</span>
+                  <div
+                    onClick={() => setActiveNav("matters")}
+                    className="p-2.5 bg-slate-50 rounded border border-slate-200 flex items-center justify-between cursor-pointer hover:border-emerald-600"
+                  >
+                    <div>
+                      <span className="text-xs font-semibold text-slate-800">
+                        CACE Lee vs Halle, Engleberg
+                      </span>
+                      <p className="text-[10px] text-slate-400">
+                        4 Counts Mapped • {defendantsList.length} Defendants
+                      </p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: INTAKE (Multi-Defendant Profession Matrix + Cases/Mail Queue) */}
+        {activeNav === "intake" && (
+          <div className="flex-1 flex flex-col overflow-hidden bg-white">
+            <div className="border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-6 text-xs font-semibold">
+                <button
+                  onClick={() => setIntakeSubTab("defendants")}
+                  className={`py-3 border-b-2 ${
+                    intakeSubTab === "defendants"
+                      ? "border-slate-900 text-slate-900"
+                      : "border-transparent text-slate-400"
+                  }`}
+                >
+                  Defendant Profession Intake ({defendantsList.length})
+                </button>
+                <button
+                  onClick={() => setIntakeSubTab("cases")}
+                  className={`py-3 border-b-2 ${
+                    intakeSubTab === "cases"
+                      ? "border-slate-900 text-slate-900"
+                      : "border-transparent text-slate-400"
+                  }`}
+                >
+                  Cases Queue (0)
+                </button>
+                <button
+                  onClick={() => setIntakeSubTab("mail")}
+                  className={`py-3 border-b-2 ${
+                    intakeSubTab === "mail"
+                      ? "border-slate-900 text-slate-900"
+                      : "border-transparent text-slate-400"
+                  }`}
+                >
+                  Intake Mail (0)
+                </button>
+              </div>
+              {intakeSaveBanner && (
+                <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded font-semibold">
+                  ✓ Saved to Defendant Memory
+                </span>
+              )}
+            </div>
+
+            {intakeSubTab !== "defendants" ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                <Inbox className="w-10 h-10 text-slate-300 mb-3" />
+                <h3 className="font-serif text-base font-medium text-slate-800">Nothing at the door</h3>
+                <p className="text-xs text-slate-400 max-w-sm mt-1">
+                  Email sent to your intake address lands here as a case proposal before becoming a matter.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
+                <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-slate-200 bg-[#FAFAFA] p-3 overflow-y-auto space-y-2 shrink-0">
+                  <span className="text-[11px] font-bold uppercase text-slate-400 px-1 block">
+                    Memory-Stored Defendants
+                  </span>
+                  {defendantsList.map((def) => (
+                    <button
+                      key={def.id}
+                      onClick={() => setActiveDefId(def.id)}
+                      className={`w-full text-left p-3 rounded-lg border ${
+                        activeDefId === def.id
+                          ? "bg-white border-emerald-600 shadow-sm"
+                          : "bg-white/60 border-slate-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-xs text-slate-900 truncate">
+                          {def.name}
+                        </span>
+                        <span className="text-[10px] font-mono uppercase bg-slate-100 text-slate-600 px-1 rounded">
+                          {def.profession}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 truncate">{def.entityName}</p>
+                    </button>
+                  ))}
+                  <button
+                    onClick={handleAddNewDefendant}
+                    className="w-full py-2 bg-slate-900 text-white text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Defendant
+                  </button>
+                </aside>
+
+                <main className="flex-1 p-6 overflow-y-auto">
+                  <div className="max-w-3xl mx-auto space-y-6">
+                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase text-slate-700">
+                          Step 1: Select Defendant Profession
+                        </span>
+                        <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          {currentProfConfig.governingRules}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {Object.entries(PROFESSION_CONFIGS).map(([key, cfg]) => (
+                          <button
+                            key={key}
+                            onClick={() => handleUpdateDef("profession", key)}
+                            className={`p-2.5 rounded-lg border text-left text-xs font-semibold ${
+                              selectedDef.profession === key
+                                ? "bg-emerald-700 text-white border-emerald-700"
+                                : "bg-white border-slate-200 text-slate-700"
+                            }`}
+                          >
+                            {cfg.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <label className="text-slate-600 font-semibold block mb-1">
+                          Defendant Name
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedDef.name}
+                          onChange={(e) => handleUpdateDef("name", e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-slate-600 font-semibold block mb-1">
+                          Firm / Entity Name
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedDef.entityName}
+                          onChange={(e) => handleUpdateDef("entityName", e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-slate-600 font-semibold block mb-1">
+                          Privity Anchor (Contract / Verbal / Statutory)
+                        </label>
+                        <select
+                          value={selectedDef.privityType}
+                          onChange={(e) => handleUpdateDef("privityType", e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg p-2 bg-white"
+                        >
+                          {currentProfConfig.privityTypes.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-slate-600 font-semibold block mb-1">
+                          Date of Last Action
+                        </label>
+                        <input
+                          type="date"
+                          value={selectedDef.dateLastAction}
+                          onChange={(e) => handleUpdateDef("dateLastAction", e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg p-2"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-slate-700 block mb-1">
+                        Specific Breach & Ultimate Facts (Fla. R. Civ. P. 1.110(b))
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={selectedDef.specificBreach}
+                        onChange={(e) => handleUpdateDef("specificBreach", e.target.value)}
+                        className="w-full border border-slate-300 rounded-lg p-2.5 text-xs"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                      <div>
+                        <label className="text-slate-600 font-semibold block mb-1">
+                          Evidence (Rule 1.130)
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedDef.evidence}
+                          onChange={(e) => handleUpdateDef("evidence", e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-slate-600 font-semibold block mb-1">Witnesses</label>
+                        <input
+                          type="text"
+                          value={selectedDef.witnesses}
+                          onChange={(e) => handleUpdateDef("witnesses", e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-slate-600 font-semibold block mb-1">
+                          Other Co-Defendants
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedDef.otherDefendants}
+                          onChange={(e) => handleUpdateDef("otherDefendants", e.target.value)}
+                          className="w-full border border-slate-300 rounded-lg p-2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </main>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 5: MATTERS (Case-by-Case Count & Intake Mapping) */}
+        {activeNav === "matters" && (
+          <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
+            <div className="max-w-5xl mx-auto space-y-6">
+              {mattersList.map((m) => (
+                <div key={m.id} className="bg-white rounded-xl border border-slate-200 p-6 space-y-5 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900">{m.title}</h2>
+                      <p className="text-xs text-slate-500">
+                        {m.court} • {m.judge}
+                      </p>
+                    </div>
+                    <span className="text-xs font-mono bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded border border-emerald-200">
+                      {m.caseNumber}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
+                      Counts Related to Intake Defendants
+                    </span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {m.counts.map((c, idx) => (
+                        <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-emerald-800">{c.countNum}: {c.title}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-600">
+                            <strong>Authority:</strong> {c.authority}
+                          </p>
+                          <p className="text-[11px] text-slate-600">
+                            <strong>Privity Hook:</strong> {c.privityHook}
+                          </p>
+                          <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px]">
+                            <span className="font-semibold text-slate-700">{c.status}</span>
+                            <button
+                              onClick={() => setActiveNav("defense_playbook")}
+                              className="text-emerald-700 font-semibold hover:underline"
+                            >
+                              Playbook →
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: SAVED SIGNATURES */}
+        {activeNav === "signatures" && (
+          <div className="flex-1 p-8 overflow-y-auto bg-slate-50 flex justify-center">
+            <div className="w-full max-w-xl bg-white p-8 rounded-xl border border-slate-200 shadow-sm space-y-6">
+              <div>
+                <h2 className="text-lg font-serif font-semibold text-slate-900">Saved Signature</h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Save your signature once and apply it to verified complaints, motions, and certificates of service.
+                </p>
+              </div>
+
+              <label className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center space-y-2 block cursor-pointer hover:border-emerald-600">
+                <Upload className="w-7 h-7 text-slate-400 mx-auto" />
+                <span className="text-xs font-semibold text-slate-700 block">
+                  Drop signature image or click to upload (PNG, JPG, WebP)
+                </span>
+                <input type="file" accept="image/*" onChange={handleSignatureImageUpload} className="hidden" />
+              </label>
+
+              {signatureImage && (
+                <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
+                  <img src={signatureImage} alt="Saved Signature" className="max-h-20 mx-auto" />
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">
+                  Electronic /s/ Signature Block (Fla. R. Gen. Prac. & Jud. Admin. 2.515)
+                </label>
+                <input
+                  type="text"
+                  value={signatureText}
+                  onChange={(e) => setSignatureText(e.target.value)}
+                  className="w-full border border-slate-300 rounded-lg p-2.5 text-xs font-serif"
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  try {
+                    localStorage.setItem("fl_prose_sig_text", signatureText);
+                    setSignatureSavedMsg(true);
+                    setTimeout(() => setSignatureSavedMsg(false), 2000);
+                  } catch (e) {}
+                }}
+                className="w-full py-2.5 bg-emerald-700 text-white rounded-lg text-xs font-semibold"
+              >
+                {signatureSavedMsg ? "✓ Signature Saved to Memory" : "Save Signature"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* LIBRARY 1: FILED DRAFTS, MOTIONS, PLEADINGS & ORDERS */}
+        {activeNav === "filed_drafts" && (
+          <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
+            <div className="max-w-5xl mx-auto space-y-6">
+              <div className="bg-white p-5 rounded-xl border border-slate-200 space-y-4 shadow-sm">
+                <h2 className="text-sm font-bold text-slate-900">
+                  Log Filed Motion, Pleading, or Court Order for AI Defense Playbook Analysis
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <input
+                    type="text"
+                    value={newFiledTitle}
+                    onChange={(e) => setNewFiledTitle(e.target.value)}
+                    placeholder="Document Title (e.g., Motion to Dismiss / Order)"
+                    className="border border-slate-300 rounded-lg p-2"
+                  />
+                  <input
+                    type="text"
+                    value={newFiledFiler}
+                    onChange={(e) => setNewFiledFiler(e.target.value)}
+                    placeholder="Filed By (e.g., Defense Counsel / Court)"
+                    className="border border-slate-300 rounded-lg p-2"
+                  />
+                </div>
+                <textarea
+                  rows={2}
+                  value={newFiledSummary}
+                  onChange={(e) => setNewFiledSummary(e.target.value)}
+                  placeholder="Paste key defense arguments or order findings for AI to extract into Defense Playbook..."
+                  className="w-full border border-slate-300 rounded-lg p-2 text-xs"
+                />
+                <button
+                  onClick={handleAddAndAnalyzeFiledPleading}
+                  className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-semibold"
+                >
+                  AI Review & Add to Defense Playbook
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {filedPleadings.map((doc) => (
+                  <div key={doc.id} className="p-4 bg-white rounded-xl border border-slate-200 space-y-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900">{doc.title}</span>
+                      <span className="text-[10px] font-mono bg-rose-50 text-rose-700 px-2 py-0.5 rounded border border-rose-200">
+                        {doc.extractedAttack}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600">{doc.summary}</p>
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+                      <span>{doc.filer} • Filed {doc.dateFiled}</span>
+                      <button
+                        onClick={() => {
+                          setRespondingToFilingId(doc.id);
+                          setActiveNav("templates");
+                        }}
+                        className="text-emerald-700 font-semibold hover:underline"
+                      >
+                        Build Response Template →
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* LIBRARY 2: DEFENSE PLAYBOOK + AI CHAT */}
+        {activeNav === "defense_playbook" && (
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-50">
+            <div className="flex-1 p-6 overflow-y-auto space-y-4">
+              <h2 className="text-base font-bold text-slate-900">
+                Defense Playbook: Count-by-Count Objections & How to Overcome
+              </h2>
+              {defensePlaybook.map((item) => (
+                <div key={item.id} className="p-5 bg-white rounded-xl border border-slate-200 space-y-2.5 shadow-sm">
+                  <span className="text-xs font-bold uppercase text-rose-700 block">{item.count}</span>
+                  <h3 className="text-xs font-bold text-slate-900">Attack: {item.defenseAttack}</h3>
+                  <p className="text-xs text-slate-600">
+                    <strong>Defense Grounds:</strong> {item.defenseGrounds}
                   </p>
-                  <p className="text-xs text-rose
+                  <div className="p-3 bg-emerald-50/80 border border-emerald-200 rounded-lg text-xs text-emerald-950">
+                    <strong>How to Overcome (Florida Law):</strong> {item.howToOvercome}
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    <strong>Controlling Authority:</strong> {item.controllingLaw}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <aside className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-slate-200 bg-white flex flex-col shrink-0">
+              <div className="p-4 border-b border-slate-200 bg-slate-900 text-white">
+                <span className="text-xs font-bold uppercase tracking-wider block">
+                  Defense Playbook AI Strategist
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  Ask how to defeat specific defense motions or objections
+                </span>
+              </div>
+              <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs max-h-96 lg:max-h-none">
+                {defenseChatMsgs.map((m, i) => (
+                  <div
+                    key={i}
+                    className={`p-3 rounded-lg whitespace-pre-wrap leading-relaxed ${
+                      m.sender === "user"
+                        ? "bg-slate-900 text-white ml-4"
+                        : "bg-slate-100 text-slate-800 mr-4"
+                    }`}
+                  >
+                    {m.text}
+                  </div>
+                ))}
+              </div>
+              <div className="p-3 border-t border-slate-200 flex gap-2">
+                <input
+                  type="text"
+                  value={defenseChatInput}
+                  onChange={(e) => setDefenseChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSendDefensePlaybookChat()}
+                  placeholder="Ask about § 607.0832, CPA privity, Count IV..."
+                  className="flex-1 border border-slate-300 rounded px-2.5 py-1.5 text-xs"
+                />
+                <button
+                  onClick={handleSendDefensePlaybookChat}
+                  className="px-3 py-1.5 bg-rose-700 text-white rounded text-xs font-semibold"
+                >
+                  Ask
+                </button>
+              </div>
+            </aside>
+          </div>
+        )}
+
+        {/* LIBRARY 3: PLAINTIFFS PLAYBOOK */}
+        {activeNav === "plaintiff_playbook" && (
+          <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
+            <div className="max-w-5xl mx-auto space-y-5">
+              <div className="p-5 bg-emerald-900 text-white rounded-xl space-y-2 shadow-sm">
+                <span className="text-[10px] font-mono uppercase bg-emerald-800 px-2 py-0.5 rounded">
+                  AI-Synthesized Offensive Litigation Strategy • 4th DCA & Florida Statutory Precision
+                </span>
+                <h2 className="text-base font-bold">
+                  Plaintiff&apos;s Master Playbook & Standing Vulnerability Cure
+                </h2>
+                <p className="text-xs text-emerald-100 leading-relaxed">
+                  Generated from your Filed Pleadings, Defense Playbook, and {defendantsList.length} Intake Defendants.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-2 shadow-sm">
+                  <span className="text-xs font-bold text-emerald-800 uppercase">
+                    1. Immediate Next Step: Rule 1.530 Rehearing (Due Oct 20, 2026)
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Serve Plaintiff&apos;s Motion for Rehearing and to Vacate the Oct 5 Order dismissing Count IV with prejudice. Emphasize that the trial court erred by adopting unsworn defense factual assertions regarding lender disclosures and resolving § 607.0832 safe harbor outside the four corners of the complaint (<em>Barbado v. Green &amp; Murphy, P.A.</em>, 758 So. 2d 1173 (Fla. 4th DCA 2000)).
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-2 shadow-sm">
+                  <span className="text-xs font-bold text-emerald-800 uppercase">
+                    2. Overcoming CPA Privity & Privilege (§ 473.316 & § 473.318)
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Under Fla. Stat. § 473.316(4)(c), there is no accountant-client privilege as to communications relevant to an issue of breach of duty or dispute between parties claiming through the same joint client/entity. Under F.A.C. R. 61H1-23.002 and § 473.318, withholding client general ledgers and workpapers is a direct statutory violation.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-2 shadow-sm">
+                  <span className="text-xs font-bold text-emerald-800 uppercase">
+                    3. Curing Standing Under Dinuro (Direct vs. Derivative)
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Anchor every count in individualized harm: personal tax exposure, freeze-out from distributions, and deprivation of statutory inspection rights under Fla. Stat. § 607.1602 / § 605.0410 (<em>Dinuro Invs., LLC v. Camacho</em>, 141 So. 3d 731).
+                  </p>
+                </div>
+
+                <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-2 shadow-sm">
+                  <span className="text-xs font-bold text-emerald-800 uppercase">
+                    4. Stripping § 607.0832 Safe Harbor Immunity
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Plead affirmative ultimate facts of undisclosed self-dealing, lack of disinterested board/member authorization, and commercial unfairness so § 607.0832 cannot be invoked on a Motion to Dismiss.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* LIBRARY 4: EVIDENCE VAULT & BATES NUMBERING PER DEFENDANT */}
+        {activeNav === "vault" && (
+          <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
+            <div className="max-w-5xl mx-auto space-y-5">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">
+                  Evidence Vault, Metadata & Automated Bates Numbering
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Select a defendant tab below to manage Rule 1.130 exhibits, stored metadata, and Bates stamps.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
+                {defendantsList.map((d) => (
+                  <button
+                    key={d.id}
+                    onClick={() => setActiveDefId(d.id)}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 ${
+                      activeDefId === d.id
+                        ? "bg-slate-900 text-white"
+                        : "bg-white border border-slate-200 text-slate-700"
+                    }`}
+                  >
+                    {d.name} ({d.profession.toUpperCase()})
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-4 bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={newEvExhibit}
+                  onChange={(e) => setNewEvExhibit(e.target.value)}
+                  className="sm:w-36 border border-slate-300 rounded-lg p-2 text-xs font-mono"
+                />
+                <input
+                  type="text"
+                  value={newEvTitle}
+                  onChange={(e) => setNewEvTitle(e.target.value)}
+                  placeholder={`Add PDF/Image Exhibit for ${selectedDef.name}...`}
+                  className="flex-1 border border-slate-300 rounded-lg p-2 text-xs"
+                />
+                <button
+                  onClick={handleAddEvidenceItem}
+                  className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-semibold shrink-0"
+                >
+                  + Stamp & Store Exhibit
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {evidenceItems
+                  .filter((ev) => ev.defendantId === selectedDef.id)
+                  .map((ev) => (
+                    <div key={ev.id} className="p-4 bg-white rounded-xl border border-slate-200 space-y-1.5 shadow-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-emerald-800">
+                          {ev.exhibitLabel}: {ev.title}
+                        </span>
+                        <span className="text-[11px] font-mono bg-slate-900 text-white px-2.5 py-0.5 rounded">
+                          Bates: {ev.batesRange}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 font-mono">
+                        <strong>Stored Metadata:</strong> {ev.capturedMetadata}
+                      </p>
+                      <p className="text-[11px] text-slate-400 font-mono">
+                        <strong>Downloaded Package Timestamp:</strong> {ev.downloadedTimestamp}
+                      </p>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* LIBRARY 5: TEMPLATES & JUDICIAL PROCEDURES */}
+        {activeNav === "templates" && (
+          <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
+            <div className="max-w-5xl mx-auto space-y-6">
+              <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-3 shadow-sm">
+                <span className="text-[10px] font-mono uppercase bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
+                  17th Judicial Circuit Division 25 (Hon. Shari Africk Olefson) Rules Engine
+                </span>
+                <h2 className="text-base font-bold text-slate-900">
+                  Judge Procedures & Responsive Pleading Builder
+                </h2>
+                <p className="text-xs text-slate-600">
+                  Enforces 12pt Times New Roman, double-spacing, numbered paragraphs, Local Rule 10A good-faith conferral certificates, Rule 2.516 e-service blocks, and saved pro se signatures.
+                </p>
+
+                <div className="pt-2">
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Select Filed Motion / Order You Are Responding To:
+                  </label>
+                  <select
+                    value={respondingToFilingId}
+                    onChange={(e) => setRespondingToFilingId(e.target.value)}
+                    className="w-full border border-slate-300 rounded-lg p-2.5 text-xs bg-white"
+                  >
+                    {filedPleadings.map((fp) => (
+                      <option key={fp.id} value={fp.id}>
+                        {fp.title} ({fp.dateFiled} - {fp.filer})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {JUDGE_TEMPLATES.map((tpl) => (
+                  <div
+                    key={tpl.id}
+                    className={`p-5 bg-white rounded-xl border space-y-3 shadow-sm flex flex-col justify-between ${
+                      selectedTemplateId === tpl.id ? "border-emerald-600 ring-2 ring-emerald-500/10" : "border-slate-200"
+                    }`}
+                  >
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                        {tpl.category}
+                      </span>
+                      <h3 className="text-xs font-bold text-slate-900">{tpl.name}</h3>
+                      <p className="text-[11px] text-slate-500">{tpl.description}</p>
+                      <p className="text-[10px] font-mono text-slate-400">{tpl.divisionRules}</p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setSelectedTemplateId(tpl.id);
+                        handleGenerateTemplateIntoDraft();
+                      }}
+                      className="w-full py-2 bg-slate-900 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition"
+                    >
+                      Build & Open Pleading in Editor →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FLOATING FLORIDA LEGAL AI DRAWER */}
+        {aiOpen && (
+          <div className="fixed bottom-4 right-4 w-96 h-[480px] bg-slate-900 border border-slate-700 rounded-xl shadow-2xl flex flex-col z-50 overflow-hidden">
+            <div className="p-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-bold text-white uppercase">Florida Legal AI</span>
+              </div>
+              <button onClick={() => setAiOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 p-3 overflow-y-auto space-y-2 text-xs">
+              {activeChatThread.messages.map((m, idx) => (
+                <div
+                  key={idx}
+                  className={`p-2.5 rounded-lg whitespace-pre-wrap ${
+                    m.sender === "user"
+                      ? "bg-emerald-950 text-emerald-100 ml-6"
+                      : "bg-slate-800 text-slate-200 mr-6"
+                  }`}
+                >
+                  {m.text}
+                </div>
+              ))}
+            </div>
+            <div className="p-2 border-t border-slate-800 bg-slate-900 flex gap-2">
+              <input
+                type="text"
+                value={aiInput}
+                onChange={(e) => setAiInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSendChatThreadMessage(aiInput);
+                    setAiInput("");
+                  }
+                }}
+                placeholder="Ask Florida Legal AI..."
+                className="flex-1 bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
+              />
+              <button
+                onClick={() => {
+                  handleSendChatThreadMessage(aiInput);
+                  setAiInput("");
+                }}
+                className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* SETTINGS MODAL */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-slate-950/50 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-semibold text-sm text-slate-900">Workspace Settings</h3>
+              <button onClick={() => setShowSettingsModal(false)} className="text-slate-400">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="text-slate-600 font-semibold block mb-1">Pro Se Litigant Name</label>
+                <input
+                  type="text"
+                  value={plaintiff}
+                  onChange={(e) => setPlaintiff(e.target.value)}
+                  className="w-full border border-slate-300 rounded p-2"
+                />
+              </div>
+              <div>
+                <label className="text-slate-600 font-semibold block mb-1">E-Portal Service Email</label>
+                <input
+                  type="text"
+                  defaultValue="service@allegedlylegal.com"
+                  className="w-full border border-slate-300 rounded p-2"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
