@@ -8,9 +8,7 @@ import {
   Download,
   BookOpen,
   Gavel,
-  SlidersHorizontal,
   Eye,
-  ExternalLink,
   Plus,
   MessageSquare,
   Clock,
@@ -26,9 +24,15 @@ import {
   Sparkles,
   Send,
   X,
-  Menu
+  Menu,
+  CheckCircle2,
+  FileCode,
+  Users,
+  Compass,
+  ArrowRight
 } from "lucide-react";
 
+// Florida Litigation Guide: Causes of Action & Playbooks
 const FLORIDA_CAUSES_OF_ACTION = [
   {
     id: "breach_contract",
@@ -65,19 +69,33 @@ const FLORIDA_CAUSES_OF_ACTION = [
       { id: "e3", label: "Commercial Injury", prompt: "Direct financial losses, lost corporate opportunities, or tax liability." }
     ],
     commonDefenses: ["Accountant-Client Privilege (§ 473.316)", "Ultramares Privity", "Safe Harbor (§ 607.0832)"]
+  },
+  {
+    id: "civil_conspiracy",
+    title: "Civil Conspiracy & Aiding/Abetting",
+    dcaCitation: "SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327 (11th Cir. 2014)",
+    sol: "4 Years (Fla. Stat. § 95.11(3)(p))",
+    elements: [
+      { id: "e1", label: "Unlawful Agreement", prompt: "An agreement between two or more parties to commit an unlawful act." },
+      { id: "e2", label: "Overt Tortious Act", prompt: "The commission of an overt act in furtherance of the conspiracy." },
+      { id: "e3", label: "Proximate Injury", prompt: "Direct damages suffered as a result of acts performed under the conspiracy." }
+    ],
+    commonDefenses: ["Intra-Corporate Conspiracy Doctrine", "Absence of Actionable Underlying Tort"]
   }
 ];
 
 export default function FloridaProSeLitigationApp() {
-  const [activeNav, setActiveNav] = useState("drafts"); // 'drafts' | 'intake' | 'matters'
-  const [mobileView, setMobileView] = useState("canvas"); // 'menu' | 'canvas' | 'auditor'
+  // Navigation State
+  const [activeNav, setActiveNav] = useState("drafts"); // 'drafts' | 'playbooks' | 'vault' | 'intake' | 'matters' | 'signatures'
+  const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
+  const [sidebarCollapsedDesktop, setSidebarCollapsedDesktop] = useState(false);
 
   // Florida Legal AI State
   const [aiOpen, setAiOpen] = useState(false);
   const [aiMessages, setAiMessages] = useState([
     {
       sender: "assistant",
-      text: "Florida Legal AI ready. Ask about Rule 1.110(b) ultimate facts, Rule 1.130 exhibit attachment traps, or 17th Circuit deadlines."
+      text: "Florida Legal AI active. Ask about Rule 1.110(b) ultimate facts, Rule 1.130 exhibit attachment traps, or 17th Circuit deadlines."
     }
   ]);
   const [aiInput, setAiInput] = useState("");
@@ -151,192 +169,438 @@ export default function FloridaProSeLitigationApp() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full bg-[#FDFDFD] text-[#1E293B] font-sans antialiased overflow-hidden">
-      {/* 1. Global Header */}
-      <header className="h-14 border-b border-slate-200 bg-white px-4 flex items-center justify-between shrink-0 z-20">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white shrink-0">
-            <Scale className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="font-semibold text-xs sm:text-sm text-slate-900 block leading-tight">Florida Pro Se Legal</span>
-            <span className="text-[10px] text-slate-500 font-mono">17th Cir. (Broward)</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setAiOpen(!aiOpen)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Florida AI</span>
-          </button>
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm transition"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Export</span>
-          </button>
-        </div>
-      </header>
-
-      {/* 2. Mobile View Switcher (Visible strictly under 1024px) */}
-      <div className="lg:hidden flex items-center justify-around bg-slate-100 border-b border-slate-200 py-1.5 px-2 shrink-0 z-10 text-xs font-medium">
-        <button
-          onClick={() => setMobileView("menu")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition ${
-            mobileView === "menu" ? "bg-white text-slate-900 shadow-sm font-bold" : "text-slate-500"
-          }`}
-        >
-          <Menu className="w-3.5 h-3.5" /> Menu & Causes
-        </button>
-        <button
-          onClick={() => setMobileView("canvas")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition ${
-            mobileView === "canvas" ? "bg-white text-emerald-800 shadow-sm font-bold" : "text-slate-500"
-          }`}
-        >
-          <Eye className="w-3.5 h-3.5" /> Document Canvas
-        </button>
-        <button
-          onClick={() => setMobileView("auditor")}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition ${
-            mobileView === "auditor" ? "bg-white text-slate-900 shadow-sm font-bold" : "text-slate-500"
-          }`}
-        >
-          <AlertOctagon className="w-3.5 h-3.5" /> Rule Auditor
-        </button>
-      </div>
-
-      {/* 3. Main Workspace Area */}
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Left Column: Navigation & Case Intake */}
-        <aside
-          className={`w-full lg:w-64 bg-[#FAFAFA] border-r border-slate-200 flex flex-col justify-between shrink-0 overflow-y-auto ${
-            mobileView === "menu" ? "flex absolute inset-0 z-10 bg-white" : "hidden lg:flex"
-          }`}
-        >
-          <div className="p-3 space-y-4">
-            <div className="space-y-1">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">Florida Causes</span>
-              {FLORIDA_CAUSES_OF_ACTION.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => {
-                    setSelectedCauseId(c.id);
-                    setMobileView("canvas");
-                  }}
-                  className={`w-full text-left p-2 rounded-lg text-xs transition ${
-                    selectedCauseId === c.id
-                      ? "bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200"
-                      : "text-slate-600 hover:bg-slate-100"
-                  }`}
-                >
-                  <p className="leading-tight">{c.title}</p>
-                  <span className="text-[10px] text-slate-400 font-mono block mt-0.5">{c.sol}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="pt-3 border-t border-slate-200 space-y-2">
-              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">Case Info</span>
-              <div className="px-2 space-y-2 text-xs">
-                <div>
-                  <label className="text-[10px] text-slate-500 uppercase block mb-0.5">County</label>
-                  <input
-                    type="text"
-                    value={county}
-                    onChange={(e) => setCounty(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded p-1.5 text-xs text-slate-800"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 uppercase block mb-0.5">Case Number</label>
-                  <input
-                    type="text"
-                    value={caseNumber}
-                    onChange={(e) => setCaseNumber(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded p-1.5 text-xs text-slate-800"
-                  />
-                </div>
+    <div className="flex h-screen w-full bg-[#FDFDFD] text-[#1E293B] font-sans antialiased overflow-hidden">
+      {/* 1. Full Enterprise Left Navigation Sidebar */}
+      <aside
+        className={`${
+          sidebarCollapsedDesktop ? "lg:w-16" : "lg:w-64"
+        } ${
+          sidebarOpenMobile ? "fixed inset-y-0 left-0 z-50 w-72 shadow-2xl flex" : "hidden lg:flex"
+        } bg-[#FAFAFA] border-r border-slate-200 flex flex-col justify-between shrink-0 select-none transition-all duration-200`}
+      >
+        <div className="p-3 space-y-4 overflow-y-auto">
+          {/* Workspace Switcher */}
+          <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-200/50 cursor-pointer border border-transparent hover:border-slate-200 transition">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <div className="w-6 h-6 rounded-full bg-slate-900 flex items-center justify-center text-white text-[11px] font-bold shrink-0">
+                FL
               </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Center: Legal Paper Canvas (Full width on mobile) */}
-        <main
-          className={`flex-1 bg-[#F1F3F5] overflow-y-auto p-3 sm:p-6 lg:p-8 flex justify-center ${
-            mobileView === "canvas" ? "flex" : "hidden lg:flex"
-          }`}
-        >
-          <div className="w-full max-w-3xl bg-white border border-slate-200 rounded-lg shadow-sm p-4 sm:p-8 lg:p-12 min-h-full font-serif text-xs leading-relaxed text-slate-900 overflow-x-auto">
-            <div className="whitespace-pre-wrap break-words">{compiledComplaint}</div>
-          </div>
-        </main>
-
-        {/* Right Column: Rule Auditor & Elements */}
-        <aside
-          className={`w-full lg:w-80 border-l border-slate-200 bg-white p-4 overflow-y-auto space-y-4 shrink-0 ${
-            mobileView === "auditor" ? "block absolute inset-0 z-10 bg-white" : "hidden lg:block"
-          }`}
-        >
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block mb-1">
-              {currentCause.title}
-            </span>
-            <p className="text-[11px] text-slate-500 leading-snug">
-              <strong>Authority:</strong> {currentCause.dcaCitation}
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700 block">
-              Required Elements (Fla. R. Civ. P. 1.110(b))
-            </span>
-
-            {currentCause.elements.map((elem, idx) => (
-              <div key={elem.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1">
-                <span className="font-semibold text-slate-800">
-                  Element {idx + 1}: {elem.label}
-                </span>
-                <p className="text-[11px] text-slate-500">{elem.prompt}</p>
-                <textarea
-                  rows={2}
-                  value={elementFacts[elem.id] || ""}
-                  onChange={(e) => handleFactChange(elem.id, e.target.value)}
-                  placeholder="State ultimate facts..."
-                  className="w-full bg-white border border-slate-300 rounded p-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-600"
-                />
-              </div>
-            ))}
-
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-800">
-                <input
-                  type="checkbox"
-                  checked={hasExhibitAttached}
-                  onChange={(e) => setHasExhibitAttached(e.target.checked)}
-                  className="rounded text-emerald-600"
-                />
-                Rule 1.130 Exhibit Attached
-              </label>
-              {hasExhibitAttached && (
-                <input
-                  type="text"
-                  value={exhibitName}
-                  onChange={(e) => setExhibitName(e.target.value)}
-                  placeholder="Exhibit Description"
-                  className="w-full bg-white border border-slate-300 rounded p-2 text-xs text-slate-800"
-                />
+              {!sidebarCollapsedDesktop && (
+                <span className="text-xs font-semibold text-slate-800 truncate">Florida Pro Se Legal</span>
               )}
             </div>
+            {!sidebarCollapsedDesktop && <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
           </div>
-        </aside>
 
-        {/* Florida Legal AI Modal/Drawer */}
+          {/* New Filing Split Action */}
+          {!sidebarCollapsedDesktop ? (
+            <div className="flex items-center rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <button
+                onClick={() => {
+                  setActiveNav("drafts");
+                  setSidebarOpenMobile(false);
+                }}
+                className="flex-1 flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition"
+              >
+                <Plus className="w-3.5 h-3.5 text-emerald-700" />
+                New Filing
+              </button>
+              <div className="w-px h-5 bg-slate-200" />
+              <button className="px-2 py-1.5 hover:bg-slate-50 text-slate-400 transition">
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setActiveNav("drafts")}
+              className="w-full h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-emerald-700 shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          )}
+
+          {/* Section: Chats */}
+          <div>
+            {!sidebarCollapsedDesktop && (
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">Chats</span>
+            )}
+            <div className="mt-1 space-y-0.5">
+              <button
+                onClick={() => {
+                  setActiveNav("drafts");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "drafts" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>History</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("drafts");
+                  setSidebarOpenMobile(false);
+                }}
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-slate-600 hover:bg-slate-100 transition"
+              >
+                <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Recent</span>}
+              </button>
+            </div>
+          </div>
+
+          {/* Section: Work */}
+          <div>
+            {!sidebarCollapsedDesktop && (
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">Work</span>
+            )}
+            <div className="mt-1 space-y-0.5">
+              <button
+                onClick={() => {
+                  setActiveNav("today");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "today" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Today</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("intake");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "intake" ? "bg-slate-200/70 text-slate-900 font-semibold border-l-2 border-slate-900" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <Inbox className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  {!sidebarCollapsedDesktop && <span>Intake</span>}
+                </span>
+                {!sidebarCollapsedDesktop && (
+                  <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.2 rounded font-mono">0</span>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("matters");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "matters" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Matters</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("requests");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "requests" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Requests</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("signatures");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "signatures" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <FileCheck className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Signatures</span>}
+              </button>
+            </div>
+          </div>
+
+          {/* Section: Library */}
+          <div>
+            {!sidebarCollapsedDesktop && (
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">Library</span>
+            )}
+            <div className="mt-1 space-y-0.5">
+              <button
+                onClick={() => {
+                  setActiveNav("drafts");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "drafts" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Drafts</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("vault");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "vault" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <FolderLock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Vault</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("playbooks");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "playbooks" ? "bg-slate-200/70 text-slate-900 font-semibold border-l-2 border-emerald-600" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Playbooks</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("templates");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "templates" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <FileCode className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Templates</span>}
+              </button>
+              <button
+                onClick={() => {
+                  setActiveNav("contacts");
+                  setSidebarOpenMobile(false);
+                }}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition ${
+                  activeNav === "contacts" ? "bg-slate-200/70 text-slate-900 font-semibold" : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                {!sidebarCollapsedDesktop && <span>Contacts</span>}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Litigant Footer */}
+        <div className="p-3 border-t border-slate-200 space-y-2">
+          {!sidebarCollapsedDesktop && (
+            <div className="p-2.5 bg-white border border-slate-200 rounded-lg text-xs">
+              <div className="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase">
+                <span>Getting Started</span>
+                <span>2/6</span>
+              </div>
+              <div className="w-full bg-slate-100 h-1 rounded-full mt-1.5 overflow-hidden">
+                <div className="bg-emerald-600 h-full w-1/3" />
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1.5">Next — Verify Rule 1.130 Exhibits →</p>
+            </div>
+          )}
+
+          <button className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-md transition">
+            <Settings className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            {!sidebarCollapsedDesktop && <span>Settings</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Backdrop for mobile sidebar */}
+      {sidebarOpenMobile && (
+        <div
+          onClick={() => setSidebarOpenMobile(false)}
+          className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden"
+        />
+      )}
+
+      {/* 2. Main Workspace Body */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Header */}
+        <header className="h-14 border-b border-slate-200 bg-white px-4 flex items-center justify-between shrink-0 z-10">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpenMobile(true)}
+              className="lg:hidden p-1.5 rounded-md text-slate-600 hover:bg-slate-100"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white shrink-0">
+              <Scale className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-semibold text-xs sm:text-sm text-slate-900 block leading-tight">
+                Florida Pro Se Legal
+              </span>
+              <span className="text-[10px] text-slate-500 font-mono">17th Cir. (Broward)</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setAiOpen(!aiOpen)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Florida AI</span>
+            </button>
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm transition"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Export</span>
+            </button>
+          </div>
+        </header>
+
+        {/* View Switcher based on activeNav */}
+        {activeNav === "playbooks" ? (
+          /* Playbooks Center (Florida Litigation Guide Causes of Action) */
+          <div className="flex-1 p-6 overflow-y-auto bg-slate-50">
+            <div className="max-w-4xl mx-auto space-y-6">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">Florida Litigation Guide Playbooks</h2>
+                <p className="text-xs text-slate-500">
+                  Select a cause of action to load elements, 4th DCA case citations, and pleading standards into your active draft.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {FLORIDA_CAUSES_OF_ACTION.map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => {
+                      setSelectedCauseId(c.id);
+                      setActiveNav("drafts");
+                    }}
+                    className={`p-4 bg-white rounded-lg border cursor-pointer hover:border-emerald-600 transition shadow-sm ${
+                      selectedCauseId === c.id ? "border-emerald-600 ring-2 ring-emerald-500/10" : "border-slate-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-semibold text-xs text-slate-900">{c.title}</h3>
+                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                        {c.sol}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 mb-3">{c.dcaCitation}</p>
+                    <div className="text-[11px] text-slate-600 space-y-1 mb-3">
+                      {c.elements.map((e, idx) => (
+                        <div key={e.id} className="flex items-start gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 mt-0.5 shrink-0" />
+                          <span>{e.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[11px] text-emerald-700 font-semibold inline-flex items-center gap-1">
+                        Load into Draft <ArrowRight className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : activeNav === "intake" ? (
+          /* Intake Hub Component */
+          <div className="flex-1 flex flex-col bg-white overflow-hidden">
+            <div className="border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-slate-900">Case Intake & E-Portal Notices</h2>
+                <p className="text-xs text-slate-400">Review incoming filings before adding them to docket matters</p>
+              </div>
+              <span className="text-xs font-mono text-slate-400">service@allegedlylegal.com</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                <Inbox className="w-6 h-6 stroke-[1.5]" />
+              </div>
+              <h3 className="font-serif text-lg font-medium text-slate-800 mb-1">Nothing at the door</h3>
+              <p className="text-xs text-slate-400 max-w-sm">
+                Service filings delivered through the Florida Courts E-Filing Portal appear here as active items.
+              </p>
+            </div>
+          </div>
+        ) : (
+          /* Default Drafting & Circuit Civil Pleading Studio */
+          <div className="flex flex-1 overflow-hidden relative">
+            {/* Middle: Document Canvas */}
+            <main className="flex-1 bg-[#F1F3F5] overflow-y-auto p-4 sm:p-6 lg:p-8 flex justify-center">
+              <div className="w-full max-w-3xl bg-white border border-slate-200 rounded-lg shadow-sm p-4 sm:p-8 lg:p-12 min-h-full font-serif text-xs leading-relaxed text-slate-900">
+                <div className="whitespace-pre-wrap break-words">{compiledComplaint}</div>
+              </div>
+            </main>
+
+            {/* Right: Florida Fact-Pleading Auditor */}
+            <aside className="w-80 border-l border-slate-200 bg-white p-4 overflow-y-auto space-y-4 shrink-0 hidden md:block">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                  {currentCause.title}
+                </span>
+                <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-mono">
+                  {currentCause.sol}
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+                  Required Elements (Fla. R. Civ. P. 1.110(b))
+                </span>
+
+                {currentCause.elements.map((elem, idx) => (
+                  <div key={elem.id} className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1">
+                    <span className="font-semibold text-slate-800">
+                      Element {idx + 1}: {elem.label}
+                    </span>
+                    <p className="text-[10px] text-slate-500">{elem.prompt}</p>
+                    <textarea
+                      rows={2}
+                      value={elementFacts[elem.id] || ""}
+                      onChange={(e) => handleFactChange(elem.id, e.target.value)}
+                      placeholder="State ultimate facts..."
+                      className="w-full bg-white border border-slate-300 rounded p-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    />
+                  </div>
+                ))}
+
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={hasExhibitAttached}
+                      onChange={(e) => setHasExhibitAttached(e.target.checked)}
+                      className="rounded text-emerald-600"
+                    />
+                    Rule 1.130 Exhibit Attached
+                  </label>
+                  {hasExhibitAttached && (
+                    <input
+                      type="text"
+                      value={exhibitName}
+                      onChange={(e) => setExhibitName(e.target.value)}
+                      placeholder="Exhibit Description"
+                      className="w-full bg-white border border-slate-300 rounded p-1.5 text-xs text-slate-800"
+                    />
+                  )}
+                </div>
+              </div>
+            </aside>
+          </div>
+        )}
+
+        {/* Slide-out Florida Legal AI Assistant Panel */}
         {aiOpen && (
           <div className="fixed sm:absolute bottom-0 right-0 sm:bottom-4 sm:right-4 w-full sm:w-96 h-[480px] sm:h-[500px] bg-slate-900 border border-slate-700 rounded-t-xl sm:rounded-xl shadow-2xl flex flex-col z-50 overflow-hidden">
             <div className="p-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
