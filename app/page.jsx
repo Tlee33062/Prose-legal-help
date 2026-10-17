@@ -3,25 +3,17 @@
 import React, { useState, useMemo } from "react";
 import {
   FileText,
-  ShieldCheck,
-  AlertTriangle,
-  CheckCircle2,
+  Scale,
+  ShieldAlert,
+  Check,
   Download,
-  Share2,
-  ChevronDown,
   Sparkles,
   ArrowRight,
-  Search,
   BookOpen,
-  Sliders,
-  History,
-  Check,
-  X,
-  FileCheck,
   FolderOpen,
-  Settings,
-  Scale,
-  Gavel
+  MessageSquare,
+  PenTool,
+  Search
 } from "lucide-react";
 import * as Diff from "diff";
 
@@ -103,11 +95,30 @@ const AUDIT_RULES = [
   }
 ];
 
+const PREBUILT_FLORIDA_CLAUSES = [
+  {
+    title: "Prevailing Party Legal Fees (Fla. Stat. § 57.105(7))",
+    content: "In the event of any legal proceeding or arbitration arising out of or related to this Agreement, the prevailing party shall be entitled to recover all reasonable attorney's fees, paralegal costs, and taxable expenses incurred at all pre-trial, trial, bankruptcy, and appellate stages, pursuant to Florida Statute § 57.105(7)."
+  },
+  {
+    title: "Broward County Forum Selection & Jury Waiver",
+    content: "The parties irrevocably submit to the exclusive jurisdiction and venue of the Circuit Court of the Seventeenth Judicial Circuit in and for Broward County, Florida. To the fullest extent permitted by law, each party knowingly, voluntarily, and intentionally waives any right to a trial by jury in any litigation arising out of this Agreement."
+  },
+  {
+    title: "Florida Trade Secret & Customer Non-Solicitation",
+    content: "For a period of twelve (12) months following termination, Contractor shall not directly solicit, divert, or conduct business with any active customer of Company with whom Contractor had direct contact, limited geographically to Broward, Miami-Dade, and Palm Beach Counties, Florida, pursuant to Fla. Stat. § 542.335."
+  }
+];
+
 export default function FloridaProSeLegalWorkspace() {
   const [pages, setPages] = useState(INITIAL_CONTRACT_PAGES);
   const [resolvedIds, setResolvedIds] = useState([]);
   const [selectedRuleId, setSelectedRuleId] = useState("sec-indemnity");
-  const [activeFilter, setActiveFilter] = useState("ALL");
+  const [activeModuleTab, setActiveModuleTab] = useState("review"); // 'review' | 'draft' | 'research'
+
+  // Research Query State
+  const [researchQuery, setResearchQuery] = useState("");
+  const [researchAnswer, setResearchAnswer] = useState(null);
 
   const activeRule = useMemo(() => {
     return AUDIT_RULES.find((r) => r.id === selectedRuleId) || AUDIT_RULES[0];
@@ -136,6 +147,42 @@ export default function FloridaProSeLegalWorkspace() {
     setResolvedIds((prev) => [...prev, rule.id]);
   };
 
+  const handleInsertClause = (clauseText) => {
+    setPages((prevPages) => {
+      const updated = [...prevPages];
+      updated[0].sections.push({
+        id: `custom-clause-${Date.now()}`,
+        heading: "NEW STATUTORY PROVISION",
+        body: clauseText
+      });
+      return updated;
+    });
+  };
+
+  const handleExecuteResearch = () => {
+    if (!researchQuery.trim()) return;
+    const lower = researchQuery.toLowerCase();
+    if (lower.includes("fee") || lower.includes("attorney")) {
+      setResearchAnswer({
+        title: "Florida Reciprocal Attorney's Fees",
+        citation: "Fla. Stat. § 57.105(7)",
+        analysis: "Under Florida law, if a contract provides for attorney's fees to one party, the court must also allow reasonable attorney's fees to the other party when that party prevails in any action, whether as a plaintiff or defendant."
+      });
+    } else if (lower.includes("non-compete") || lower.includes("competition")) {
+      setResearchAnswer({
+        title: "Enforceability of Restrictive Covenants",
+        citation: "Fla. Stat. § 542.335",
+        analysis: "Restrictive covenants are strictly construed. Contracts restraining commercial competition must be in writing, supported by at least one legitimate business interest, and limited in duration (presumptively under 2 years)."
+      });
+    } else {
+      setResearchAnswer({
+        title: "General Florida Contract Principles",
+        citation: "Florida Rules of Civil Procedure 1.130",
+        analysis: "All contracts or bonds sued upon, or a copy thereof, must be attached to the initial pleading. Ambiguities in standard-form contracts are construed against the drafting entity."
+      });
+    }
+  };
+
   const handleExportDoc = () => {
     let fullDoc = pages[0].title + "\n" + pages[0].subtitle + "\n\n";
     pages[0].sections.forEach((sec) => {
@@ -145,21 +192,14 @@ export default function FloridaProSeLegalWorkspace() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Florida_Pro_Se_Legal_Reviewed_Contract.txt";
+    link.download = "Florida_Pro_Se_Legal_Agreement.txt";
     link.click();
     URL.revokeObjectURL(url);
   };
 
-  const filteredRules = AUDIT_RULES.filter((rule) => {
-    if (activeFilter === "ALL") return true;
-    if (activeFilter === "UNRESOLVED") return !resolvedIds.includes(rule.id);
-    if (activeFilter === "RESOLVED") return resolvedIds.includes(rule.id);
-    return rule.severity === activeFilter;
-  });
-
   return (
     <div className="flex flex-col h-screen bg-[#F8F9FA] text-[#1E293B] font-sans antialiased">
-      {/* Top Header Bar */}
+      {/* Top Header */}
       <header className="h-14 border-b border-slate-200 bg-white px-5 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2.5">
@@ -170,7 +210,7 @@ export default function FloridaProSeLegalWorkspace() {
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-sm text-slate-900 tracking-tight">Florida Pro Se Legal</span>
                 <span className="text-[11px] font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">
-                  17th Cir. Intelligence
+                  Workspace AI
                 </span>
               </div>
             </div>
@@ -178,25 +218,44 @@ export default function FloridaProSeLegalWorkspace() {
 
           <div className="h-5 w-px bg-slate-200 mx-1" />
 
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <FileText className="w-3.5 h-3.5 text-slate-400" />
-            <span className="font-medium text-slate-700">Commercial_Services_Agreement_v2.docx</span>
-            <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px] font-mono">Fla. Stat. Audit</span>
+          {/* Module Switcher Tabs */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
+            <button
+              onClick={() => setActiveModuleTab("review")}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition ${
+                activeModuleTab === "review" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5 text-emerald-700" />
+              Contract Review
+            </button>
+            <button
+              onClick={() => setActiveModuleTab("draft")}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition ${
+                activeModuleTab === "draft" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <PenTool className="w-3.5 h-3.5 text-indigo-600" />
+              Clause Drafter
+            </button>
+            <button
+              onClick={() => setActiveModuleTab("research")}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition ${
+                activeModuleTab === "research" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <Search className="w-3.5 h-3.5 text-blue-600" />
+              Florida Research
+            </button>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs">
-            <span className="text-slate-500">Florida Compliance Index:</span>
+            <span className="text-slate-500">Compliance Index:</span>
             <span className={`font-bold ${complianceScore >= 90 ? "text-emerald-700" : "text-amber-600"}`}>
               {complianceScore}%
             </span>
-            <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden ml-1">
-              <div
-                className="h-full bg-emerald-600 transition-all duration-300"
-                style={{ width: `${complianceScore}%` }}
-              />
-            </div>
           </div>
 
           <button
@@ -204,27 +263,26 @@ export default function FloridaProSeLegalWorkspace() {
             className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm transition"
           >
             <Download className="w-3.5 h-3.5" />
-            Export Clean Agreement
+            Export Document
           </button>
         </div>
       </header>
 
-      {/* Main 3-Column Interface */}
+      {/* Main 3-Column Split */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Column 1: Document Outline & Florida Playbook */}
+        {/* Left Column: Outline */}
         <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between p-4">
           <div className="space-y-5">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Jurisdiction Digest</span>
-              <div className="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between cursor-pointer hover:bg-slate-100/70 transition">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Playbook Engine</span>
+              <div className="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-emerald-700" />
                   <div className="text-left">
-                    <p className="text-xs font-semibold text-slate-800 leading-none">Broward Circuit Rules</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">§ 57.105 & § 542.335</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-none">Broward 17th Rules</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Fla. Stat. Standards</p>
                   </div>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </div>
             </div>
 
@@ -264,11 +322,11 @@ export default function FloridaProSeLegalWorkspace() {
             <span className="flex items-center gap-1.5">
               <FolderOpen className="w-3.5 h-3.5" /> Florida Pro Se Legal
             </span>
-            <span>v1.0</span>
+            <span>v1.2</span>
           </div>
         </aside>
 
-        {/* Column 2: The Document Canvas */}
+        {/* Center: Legal Paper Canvas */}
         <main className="flex-1 bg-[#F1F3F5] overflow-y-auto p-8 flex justify-center">
           <div className="w-full max-w-[820px] bg-white rounded-lg shadow-sm border border-slate-200/80 p-14 min-h-[1050px] relative">
             <div className="border-b border-slate-100 pb-6 mb-8 text-center">
@@ -316,135 +374,169 @@ export default function FloridaProSeLegalWorkspace() {
                 );
               })}
             </div>
-
-            {/* Signature Block */}
-            <div className="mt-16 pt-8 border-t border-slate-200 grid grid-cols-2 gap-10 font-serif text-xs">
-              <div>
-                <p className="font-bold text-slate-800">CLIENT:</p>
-                <div className="mt-8 border-b border-slate-400 w-48" />
-                <p className="mt-1 text-slate-500">Palm Horizon Enterprises LLC</p>
-              </div>
-              <div>
-                <p className="font-bold text-slate-800">CONTRACTOR:</p>
-                <div className="mt-8 border-b border-slate-400 w-48" />
-                <p className="mt-1 text-slate-500">Southeast Digital Systems LLC</p>
-              </div>
-            </div>
           </div>
         </main>
 
-        {/* Column 3: AI Legal Inspector & Statutory Redline Drawer */}
+        {/* Right Rail: Dynamic Module Drawer */}
         <aside className="w-96 border-l border-slate-200 bg-white flex flex-col justify-between overflow-hidden">
-          <div className="p-4 border-b border-slate-200">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-700" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                  Florida Statutory Audit
-                </h2>
-              </div>
-              <span className="text-xs font-mono text-slate-400">
-                {resolvedIds.length} / {AUDIT_RULES.length} Resolved
-              </span>
-            </div>
-
-            {/* Severity Filter Pills */}
-            <div className="flex gap-1.5">
-              {["ALL", "UNRESOLVED", "RESOLVED"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveFilter(tab)}
-                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition ${
-                    activeFilter === tab
-                      ? "bg-slate-800 text-white"
-                      : "text-slate-500 hover:bg-slate-100"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Violations List */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {filteredRules.map((rule) => {
-              const isResolved = resolvedIds.includes(rule.id);
-              const isSelected = selectedRuleId === rule.id;
-
-              return (
-                <div
-                  key={rule.id}
-                  onClick={() => setSelectedRuleId(rule.id)}
-                  className={`p-3 rounded-lg border transition cursor-pointer ${
-                    isSelected
-                      ? "border-emerald-700 bg-emerald-50/40 shadow-sm"
-                      : "border-slate-200 hover:border-slate-300 bg-white"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-1 mb-1">
-                    <span className="text-xs font-bold text-slate-800">{rule.riskTitle}</span>
-                    {isResolved ? (
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                        <Check className="w-3 h-3" /> Resolved
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">
-                        {rule.severity}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] font-mono text-emerald-700 mb-1">{rule.statute}</p>
-                  <p className="text-xs text-slate-500 leading-snug">{rule.impact}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Interactive Redline Drawer */}
-          {activeRule && (
-            <div className="p-4 border-t border-slate-200 bg-slate-50">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-emerald-700" />
-                  Statutory Redline
+          {/* TAB 1: REVIEW MODULE */}
+          {activeModuleTab === "review" && (
+            <>
+              <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <ShieldAlert className="w-4 h-4 text-emerald-700" />
+                  Statutory Violations
                 </span>
-                <span className="text-[10px] font-mono text-slate-400">{activeRule.statute}</span>
+                <span className="text-xs font-mono text-slate-400">
+                  {resolvedIds.length} / {AUDIT_RULES.length}
+                </span>
               </div>
 
-              {/* Word-level Diff */}
-              <div className="p-3 bg-white border border-slate-200 rounded-lg text-xs leading-relaxed max-h-48 overflow-y-auto mb-3 shadow-inner">
-                {diffResult.map((part, idx) => {
-                  if (part.added) {
-                    return (
-                      <span key={idx} className="bg-emerald-100 text-emerald-800 underline font-medium px-0.5 rounded">
-                        {part.value}
-                      </span>
-                    );
-                  }
-                  if (part.removed) {
-                    return (
-                      <span key={idx} className="bg-rose-100 text-rose-800 line-through opacity-75 px-0.5 rounded">
-                        {part.value}
-                      </span>
-                    );
-                  }
-                  return <span key={idx} className="text-slate-600">{part.value}</span>;
+              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                {AUDIT_RULES.map((rule) => {
+                  const isResolved = resolvedIds.includes(rule.id);
+                  const isSelected = selectedRuleId === rule.id;
+
+                  return (
+                    <div
+                      key={rule.id}
+                      onClick={() => setSelectedRuleId(rule.id)}
+                      className={`p-3 rounded-lg border transition cursor-pointer ${
+                        isSelected
+                          ? "border-emerald-700 bg-emerald-50/40 shadow-sm"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-1 mb-1">
+                        <span className="text-xs font-bold text-slate-800">{rule.riskTitle}</span>
+                        {isResolved ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                            <Check className="w-3 h-3" /> Resolved
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">
+                            {rule.severity}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-mono text-emerald-700 mb-1">{rule.statute}</p>
+                      <p className="text-xs text-slate-500 leading-snug">{rule.impact}</p>
+                    </div>
+                  );
                 })}
               </div>
 
-              <button
-                disabled={resolvedIds.includes(activeRule.id)}
-                onClick={() => handleApplyRedline(activeRule)}
-                className={`w-full py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition ${
-                  resolvedIds.includes(activeRule.id)
-                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                    : "bg-emerald-700 hover:bg-emerald-800 text-white shadow"
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                {resolvedIds.includes(activeRule.id) ? "Redline Accepted" : "Accept Florida Statutory Redline"}
-              </button>
+              {activeRule && (
+                <div className="p-4 border-t border-slate-200 bg-slate-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <ArrowRight className="w-3.5 h-3.5 text-emerald-700" />
+                      Statutory Redline
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">{activeRule.statute}</span>
+                  </div>
+
+                  <div className="p-3 bg-white border border-slate-200 rounded-lg text-xs leading-relaxed max-h-48 overflow-y-auto mb-3 shadow-inner">
+                    {diffResult.map((part, idx) => {
+                      if (part.added) {
+                        return (
+                          <span key={idx} className="bg-emerald-100 text-emerald-800 underline font-medium px-0.5 rounded">
+                            {part.value}
+                          </span>
+                        );
+                      }
+                      if (part.removed) {
+                        return (
+                          <span key={idx} className="bg-rose-100 text-rose-800 line-through opacity-75 px-0.5 rounded">
+                            {part.value}
+                          </span>
+                        );
+                      }
+                      return <span key={idx} className="text-slate-600">{part.value}</span>;
+                    })}
+                  </div>
+
+                  <button
+                    disabled={resolvedIds.includes(activeRule.id)}
+                    onClick={() => handleApplyRedline(activeRule)}
+                    className={`w-full py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition ${
+                      resolvedIds.includes(activeRule.id)
+                        ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                        : "bg-emerald-700 hover:bg-emerald-800 text-white shadow"
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {resolvedIds.includes(activeRule.id) ? "Redline Accepted" : "Accept Florida Statutory Redline"}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* TAB 2: CLAUSE DRAFTER MODULE */}
+          {activeModuleTab === "draft" && (
+            <div className="flex-1 flex flex-col p-4 overflow-y-auto">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 mb-1 flex items-center gap-2">
+                <PenTool className="w-4 h-4 text-indigo-600" />
+                Florida Clause Drafter
+              </span>
+              <p className="text-xs text-slate-500 mb-4">
+                Insert statutory clauses directly into your agreement.
+              </p>
+
+              <div className="space-y-4">
+                {PREBUILT_FLORIDA_CLAUSES.map((clause, idx) => (
+                  <div key={idx} className="p-3 border border-slate-200 rounded-lg bg-slate-50/50">
+                    <h4 className="text-xs font-bold text-slate-800 mb-1">{clause.title}</h4>
+                    <p className="text-xs text-slate-600 mb-3 leading-snug">{clause.content}</p>
+                    <button
+                      onClick={() => handleInsertClause(clause.content)}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded shadow-sm transition"
+                    >
+                      + Insert into Document
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: FLORIDA LEGAL RESEARCH MODULE */}
+          {activeModuleTab === "research" && (
+            <div className="flex-1 flex flex-col p-4 overflow-y-auto">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 mb-1 flex items-center gap-2">
+                <Search className="w-4 h-4 text-blue-600" />
+                Florida Statutory AI Search
+              </span>
+              <p className="text-xs text-slate-500 mb-4">
+                Query Florida Statutes and 17th Judicial Circuit procedural rules.
+              </p>
+
+              <div className="space-y-3 mb-4">
+                <input
+                  type="text"
+                  placeholder="e.g. Can attorney fees be one-sided?"
+                  value={researchQuery}
+                  onChange={(e) => setResearchQuery(e.target.value)}
+                  className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                />
+                <button
+                  onClick={handleExecuteResearch}
+                  className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg transition shadow-sm"
+                >
+                  Run Legal Research Query
+                </button>
+              </div>
+
+              {researchAnswer && (
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                  <h4 className="text-xs font-bold text-emerald-900 mb-1">{researchAnswer.title}</h4>
+                  <span className="inline-block text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded mb-2">
+                    {researchAnswer.citation}
+                  </span>
+                  <p className="text-xs text-slate-700 leading-relaxed">{researchAnswer.analysis}</p>
+                </div>
+              )}
             </div>
           )}
         </aside>
