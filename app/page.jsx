@@ -2,313 +2,423 @@
 
 import React, { useState, useMemo } from "react";
 import {
-  Scale,
-  ShieldAlert,
+  FileText,
+  ShieldCheck,
+  AlertTriangle,
   CheckCircle2,
   Download,
-  RotateCcw,
+  Share2,
+  ChevronDown,
   Sparkles,
-  ArrowRightLeft,
-  Gavel
+  ArrowRight,
+  Search,
+  BookOpen,
+  Sliders,
+  History,
+  Check,
+  X,
+  FileCheck,
+  FolderOpen,
+  Settings,
+  Scale
 } from "lucide-react";
 import * as Diff from "diff";
 
-const INITIAL_FLORIDA_CONTRACT = `FLORIDA COMMERCIAL SERVICES & VENDOR AGREEMENT
-
-This Agreement is made between Palm Horizon Enterprises LLC ("Company"), a Florida Limited Liability Company, and Southeast Digital Ops LLC ("Vendor"), effective as of October 17, 2026.
-
-SECTION 4: INDEMNIFICATION & LIABILITY
-Vendor agrees to fully indemnify, defend, and hold harmless Company, its officers, and directors from any and all claims, liabilities, losses, or expenses, whether or not caused by the sole negligence or willful acts of Company. In no event shall Company's liability exceed the sum of $100.
-
-SECTION 8: RESTRICTIVE COVENANTS & NON-COMPETITION
-For a period of four (4) years following separation, Vendor agrees not to engage in, consult for, or provide similar digital or commercial services to any competitive business entity worldwide, without geographic limitation.
-
-SECTION 11: ATTORNEY'S FEES AND EXPENSES
-If Company initiates legal enforcement under this Agreement, Company shall be entitled to recover all costs, expenses, and attorney's fees incurred. Vendor shall bear its own expenses in all circumstances.
-
-SECTION 14: GOVERNING LAW AND DISPUTE VENUE
-This Agreement shall be governed strictly by the laws of the State of New York. The parties agree that exclusive jurisdiction shall reside in the Supreme Court of New York, New York County.`;
-
-const FLORIDA_AUDIT_CLAUSES = [
+const INITIAL_CONTRACT_PAGES = [
   {
-    id: "fl-indemnity",
-    clauseName: "Indemnification & Sole Negligence",
-    statute: "Fla. Stat. § 725.06 & Florida Public Policy",
-    riskLevel: "CRITICAL",
-    summary:
-      "Florida law voids unilateral indemnity requiring one party to indemnify another for that entity's own sole negligence or willful misconduct without reciprocal statutory limits.",
-    originalSnippet:
-      "Vendor agrees to fully indemnify, defend, and hold harmless Company, its officers, and directors from any and all claims, liabilities, losses, or expenses, whether or not caused by the sole negligence or willful acts of Company.",
-    suggestedRedline:
-      "Vendor agrees to indemnify, defend, and hold harmless Company from third-party claims to the extent caused by Vendor's gross negligence, willful misconduct, or material breach. Neither party shall be obligated to indemnify the other for damages caused by the other party's own negligence or misconduct."
-  },
-  {
-    id: "fl-compete",
-    clauseName: "Restrictive Covenant Duration & Scope",
-    statute: "Fla. Stat. § 542.335(1)(d)",
-    riskLevel: "CRITICAL",
-    summary:
-      "A 4-year worldwide non-compete is statutorily presumed unreasonable and unenforceable in Florida. Enforceable restraints are typically 6 months to 2 years and require specific trade markets and client goodwill protections.",
-    originalSnippet:
-      "For a period of four (4) years following separation, Vendor agrees not to engage in, consult for, or provide similar digital or commercial services to any competitive business entity worldwide, without geographic limitation.",
-    suggestedRedline:
-      "For a period of twelve (12) months following separation, Vendor agrees not to directly solicit active clients of Company with whom Vendor had direct material contact, strictly limited to Broward, Palm Beach, and Miami-Dade Counties, Florida."
-  },
-  {
-    id: "fl-fee",
-    clauseName: "Unilateral Attorney's Fee Shifting",
-    statute: "Fla. Stat. § 57.105(7)",
-    riskLevel: "CRITICAL",
-    summary:
-      "Unilateral fee clauses are non-compliant under Florida law. Fla. Stat. § 57.105(7) makes one-sided fee provisions reciprocal for whichever party prevails in trial, bankruptcy, or appellate proceedings.",
-    originalSnippet:
-      "If Company initiates legal enforcement under this Agreement, Company shall be entitled to recover all costs, expenses, and attorney's fees incurred. Vendor shall bear its own expenses in all circumstances.",
-    suggestedRedline:
-      "In any dispute or litigation arising out of or related to this Agreement, the prevailing party shall be entitled to recover its reasonable attorney's fees, paralegal fees, and taxable costs from the non-prevailing party at all pre-trial, trial, bankruptcy, and appellate levels pursuant to Fla. Stat. § 57.105(7)."
-  },
-  {
-    id: "fl-venue",
-    clauseName: "Out-of-State Venue & Jurisdiction",
-    statute: "Fla. Stat. § 685.101 & Fla. R. Civ. P. 1.060",
-    riskLevel: "MODERATE",
-    summary:
-      "The contract specifies New York jurisdiction for Florida entities. Setting exclusive venue in Broward County (17th Judicial Circuit) eliminates costly forum non conveniens disputes and jurisdictional friction.",
-    originalSnippet:
-      "This Agreement shall be governed strictly by the laws of the State of New York. The parties agree that exclusive jurisdiction shall reside in the Supreme Court of New York, New York County.",
-    suggestedRedline:
-      "This Agreement shall be governed by and construed in accordance with the laws of the State of Florida. Exclusive jurisdiction and venue for any legal proceeding shall lie in the Circuit Court of the Seventeenth Judicial Circuit in and for Broward County, Florida, or the United States District Court for the Southern District of Florida."
+    pageNumber: 1,
+    title: "COMMERCIAL SERVICES & MASTER VENDOR AGREEMENT",
+    subtitle: "State of Florida — 17th Judicial Circuit Jurisdiction",
+    sections: [
+      {
+        id: "recitals",
+        heading: "RECITALS & PARTIES",
+        body: `This Master Commercial Services Agreement ("Agreement") is entered into as of October 17, 2026, by and between Palm Horizon Enterprises LLC, a Florida limited liability company with its principal place of business in Broward County, Florida ("Client"), and Southeast Digital Systems LLC ("Contractor"). WHEREAS, Client desires to retain Contractor to perform enterprise digital infrastructure, data workflow automation, and related services, and Contractor agrees to perform such services under the strict terms set forth herein.`
+      },
+      {
+        id: "sec-indemnity",
+        heading: "SECTION 4. INDEMNIFICATION & ALLOCATION OF RISK",
+        body: `Contractor agrees to defend, indemnify, and hold harmless Client, its parent companies, affiliates, officers, and employees from and against any and all claims, liabilities, losses, damages, or costs (including full attorney's fees), whether or not caused by the sole negligence or willful misconduct of Client. In no event shall Client's aggregate liability exceed the total sum of $100.`
+      },
+      {
+        id: "sec-covenants",
+        heading: "SECTION 8. RESTRICTIVE COVENANTS & COMPETITION",
+        body: `For a period of four (4) years following the termination of this Agreement for any reason, Contractor shall not directly or indirectly engage in, perform services for, consult with, or own any interest in any competitive digital services enterprise worldwide, without geographical limitation.`
+      },
+      {
+        id: "sec-fees",
+        heading: "SECTION 11. LEGAL FEES & EXPENSES",
+        body: `In the event Client initiates judicial enforcement, arbitration, or collection actions arising under this Agreement, Client shall be entitled to recover all costs, expenses, and attorney's fees incurred. Contractor expressly agrees to bear its own legal expenses in all circumstances.`
+      },
+      {
+        id: "sec-venue",
+        heading: "SECTION 14. GOVERNING LAW & FORUM SELECTION",
+        body: `This Agreement shall be interpreted and governed in accordance with the laws of the State of New York. The parties irrevocably consent to the exclusive jurisdiction and venue of the Supreme Court of New York, New York County, and waive any inconvenient forum defenses.`
+      }
+    ]
   }
 ];
 
-export default function ProseLegalHelpWorkspace() {
-  const [contractText, setContractText] = useState(INITIAL_FLORIDA_CONTRACT);
-  const [findings] = useState(FLORIDA_AUDIT_CLAUSES);
+const AUDIT_RULES = [
+  {
+    id: "sec-indemnity",
+    sectionHeading: "Section 4: Indemnification",
+    riskTitle: "Sole Negligence Indemnity Barred",
+    statute: "Fla. Stat. § 725.06 & Florida Public Policy",
+    severity: "HIGH",
+    impact: "Unenforceable under Florida law. One party cannot indemnify another for that party's own sole negligence without statutory monetary caps.",
+    originalText: `Contractor agrees to defend, indemnify, and hold harmless Client, its parent companies, affiliates, officers, and employees from and against any and all claims, liabilities, losses, damages, or costs (including full attorney's fees), whether or not caused by the sole negligence or willful misconduct of Client. In no event shall Client's aggregate liability exceed the total sum of $100.`,
+    replacementText: `Each party agrees to defend and indemnify the other from third-party claims to the extent caused by the indemnifying party's gross negligence, willful misconduct, or material breach. Neither party shall be obligated to indemnify the other for damages caused by the other party's sole negligence or willful misconduct.`
+  },
+  {
+    id: "sec-covenants",
+    sectionHeading: "Section 8: Restrictive Covenants",
+    riskTitle: "Overbroad Duration & Worldwide Scope",
+    statute: "Fla. Stat. § 542.335(1)(d)",
+    severity: "HIGH",
+    impact: "Statutorily presumed unreasonable. Non-competes exceeding 2 years are unenforceable in Florida without proven specialized trade secrets and defined county trade markets.",
+    originalText: `For a period of four (4) years following the termination of this Agreement for any reason, Contractor shall not directly or indirectly engage in, perform services for, consult with, or own any interest in any competitive digital services enterprise worldwide, without geographical limitation.`,
+    replacementText: `For a period of twelve (12) months following termination, Contractor shall not directly solicit active clients of Client with whom Contractor had personal material contact within the prior twelve months, strictly limited to Broward, Miami-Dade, and Palm Beach Counties, Florida.`
+  },
+  {
+    id: "sec-fees",
+    sectionHeading: "Section 11: Legal Fees",
+    riskTitle: "Unilateral Fee Clause Automatically Reciprocal",
+    statute: "Fla. Stat. § 57.105(7)",
+    severity: "HIGH",
+    impact: "Florida statute automatically converts unilateral attorney fee covenants into mutual prevailing-party fee clauses across pre-trial, trial, and appeals.",
+    originalText: `In the event Client initiates judicial enforcement, arbitration, or collection actions arising under this Agreement, Client shall be entitled to recover all costs, expenses, and attorney's fees incurred. Contractor expressly agrees to bear its own legal expenses in all circumstances.`,
+    replacementText: `In any judicial or arbitration proceeding arising out of or related to this Agreement, the prevailing party shall be entitled to recover its reasonable attorney's fees, paralegal costs, and expenses at all trial, bankruptcy, and appellate levels pursuant to Fla. Stat. § 57.105(7).`
+  },
+  {
+    id: "sec-venue",
+    sectionHeading: "Section 14: Forum Selection",
+    riskTitle: "Foreign Jurisdiction for Florida Entities",
+    statute: "Fla. Stat. § 685.101 & Fla. R. Civ. P. 1.060",
+    severity: "MEDIUM",
+    impact: "Forcing Florida LLCs into New York litigation creates jurisdictional burden and grounds for forum non conveniens transfer.",
+    originalText: `This Agreement shall be interpreted and governed in accordance with the laws of the State of New York. The parties irrevocably consent to the exclusive jurisdiction and venue of the Supreme Court of New York, New York County, and waive any inconvenient forum defenses.`,
+    replacementText: `This Agreement shall be governed by the laws of the State of Florida. Exclusive venue and jurisdiction for any disputes shall lie in the Circuit Court of the 17th Judicial Circuit in and for Broward County, Florida, or the U.S. District Court for the Southern District of Florida.`
+  }
+];
+
+export default function InstaSpaceCloneWorkspace() {
+  const [pages, setPages] = useState(INITIAL_CONTRACT_PAGES);
   const [resolvedIds, setResolvedIds] = useState([]);
-  const [selectedClauseId, setSelectedClauseId] = useState("fl-indemnity");
-  const [activeFilter, setActiveFilter] = useState("ALL");
+  const [selectedRuleId, setSelectedRuleId] = useState("sec-indemnity");
+  const [sidebarTab, setSidebarTab] = useState("risks");
 
-  const complianceScore = useMemo(() => {
-    const total = findings.length;
-    if (total === 0) return 100;
-    return Math.round(55 + (resolvedIds.length / total) * 45);
-  }, [findings, resolvedIds]);
+  const activeRule = useMemo(() => {
+    return AUDIT_RULES.find((r) => r.id === selectedRuleId) || AUDIT_RULES[0];
+  }, [selectedRuleId]);
 
-  const activeClause = useMemo(() => {
-    return findings.find((f) => f.id === selectedClauseId) || findings[0];
-  }, [findings, selectedClauseId]);
+  const diffResult = useMemo(() => {
+    if (!activeRule) return [];
+    return Diff.diffWordsWithSpace(activeRule.originalText, activeRule.replacementText);
+  }, [activeRule]);
 
-  const diffParts = useMemo(() => {
-    if (!activeClause) return [];
-    return Diff.diffWordsWithSpace(activeClause.originalSnippet, activeClause.suggestedRedline);
-  }, [activeClause]);
+  const playbookScore = useMemo(() => {
+    const total = AUDIT_RULES.length;
+    return Math.round(58 + (resolvedIds.length / total) * 42);
+  }, [resolvedIds]);
 
-  const handleAcceptRedline = (clause) => {
-    if (resolvedIds.includes(clause.id)) return;
-    setContractText((prev) => prev.replace(clause.originalSnippet, clause.suggestedRedline));
-    setResolvedIds((prev) => [...prev, clause.id]);
+  const handleApplyRedline = (rule) => {
+    if (resolvedIds.includes(rule.id)) return;
+    setPages((prevPages) =>
+      prevPages.map((page) => ({
+        ...page,
+        sections: page.sections.map((sec) =>
+          sec.id === rule.id ? { ...sec, body: rule.replacementText } : sec
+        )
+      }))
+    );
+    setResolvedIds((prev) => [...prev, rule.id]);
   };
 
-  const handleReset = () => {
-    setContractText(INITIAL_FLORIDA_CONTRACT);
-    setResolvedIds([]);
-    setSelectedClauseId("fl-indemnity");
-  };
-
-  const exportCleanDoc = () => {
-    const blob = new Blob([contractText], { type: "text/plain;charset=utf-8" });
+  const handleExportDoc = () => {
+    let fullDoc = pages[0].title + "\n" + pages[0].subtitle + "\n\n";
+    pages[0].sections.forEach((sec) => {
+      fullDoc += sec.heading + "\n" + sec.body + "\n\n";
+    });
+    const blob = new Blob([fullDoc], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "ProSe_Legal_Help_Reviewed_Contract.txt";
-    a.click();
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Reviewed_Contract_instaSpace_ProSe.txt";
+    link.click();
     URL.revokeObjectURL(url);
   };
 
-  const filteredFindings = findings.filter((f) => {
-    if (activeFilter === "ALL") return true;
-    if (activeFilter === "UNRESOLVED") return !resolvedIds.includes(f.id);
-    if (activeFilter === "RESOLVED") return resolvedIds.includes(f.id);
-    return f.riskLevel === activeFilter;
-  });
-
   return (
-    <div className="flex flex-col h-screen bg-slate-950 text-slate-100 font-sans">
-      <header className="h-16 border-b border-slate-800 bg-slate-900/90 px-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400">
-            <Scale className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-semibold text-sm tracking-wide text-white">Pro Se Legal Help</h1>
-              <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded">
-                Florida Jurisdiction
-              </span>
+    <div className="flex flex-col h-screen bg-[#F8F9FA] text-[#1E293B] font-sans antialiased">
+      {/* Top Navigation Bar */}
+      <header className="h-14 border-b border-slate-200 bg-white px-5 flex items-center justify-between z-10">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+              <Scale className="w-4 h-4" />
             </div>
-            <p className="text-xs text-slate-400">
-              Broward County 17th Judicial Circuit & Fla. Stat. Rules Digest
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm text-slate-900 tracking-tight">instaSpace Legal</span>
+                <span className="text-[11px] font-medium bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200/60">
+                  Workspace AI
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-5 w-px bg-slate-200 mx-1" />
+
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <FileText className="w-3.5 h-3.5 text-slate-400" />
+            <span className="font-medium text-slate-700">Commercial_Services_Agreement_v2.docx</span>
+            <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px] font-mono">17th Cir. FL</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
-            <span className="text-xs text-slate-400">Florida Compliance Index:</span>
-            <span
-              className={`text-sm font-bold ${
-                complianceScore >= 90
-                  ? "text-emerald-400"
-                  : complianceScore >= 70
-                  ? "text-amber-400"
-                  : "text-rose-400"
-              }`}
-            >
-              {complianceScore}%
-            </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs">
+            <span className="text-slate-500">Playbook Adherence:</span>
+            <span className="font-bold text-indigo-600">{playbookScore}%</span>
+            <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden ml-1">
+              <div
+                className="h-full bg-indigo-600 transition-all duration-300"
+                style={{ width: `${playbookScore}%` }}
+              />
+            </div>
           </div>
 
           <button
-            onClick={handleReset}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
-            title="Reset"
+            onClick={handleExportDoc}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
           >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={exportCleanDoc}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium transition"
-          >
-            <Download className="w-4 h-4" />
-            Export Clean Agreement
+            <Download className="w-3.5 h-3.5" />
+            Export Document
           </button>
         </div>
       </header>
 
+      {/* Main 3-Column Layout */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-[65] flex flex-col border-r border-slate-800 bg-slate-900/30 overflow-y-auto p-8">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl max-w-4xl mx-auto w-full">
-            <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-800 text-xs text-slate-400 font-mono">
-              <div className="flex items-center gap-2 text-emerald-400">
-                <Gavel className="w-4 h-4" />
-                <span>STATUS: CONTRACT REVIEW ACTIVE</span>
+        {/* Left Rail: Document Navigator & Playbooks */}
+        <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between p-4">
+          <div className="space-y-5">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Legal Playbook</span>
+              <div className="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between cursor-pointer hover:bg-slate-100/70 transition">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-indigo-600" />
+                  <div className="text-left">
+                    <p className="text-xs font-semibold text-slate-800 leading-none">Florida Commercial</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Fla. Stat. 57.105 & 542.335</p>
+                  </div>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </div>
-              <span>
-                {resolvedIds.length} of {findings.length} Florida statutory conflicts resolved
-              </span>
             </div>
-            <div className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap font-serif">
-              {contractText}
+
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Document Outline</span>
+              <nav className="mt-2 space-y-1">
+                {pages[0].sections.map((sec) => {
+                  const hasViolation = AUDIT_RULES.some((r) => r.id === sec.id);
+                  const isResolved = resolvedIds.includes(sec.id);
+                  const isSelected = selectedRuleId === sec.id;
+
+                  return (
+                    <button
+                      key={sec.id}
+                      onClick={() => setSelectedRuleId(sec.id)}
+                      className={`w-full text-left px-2.5 py-2 rounded-lg text-xs flex items-center justify-between transition ${
+                        isSelected
+                          ? "bg-indigo-50/80 text-indigo-700 font-medium"
+                          : "text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span className="truncate pr-2">{sec.heading}</span>
+                      {hasViolation && !isResolved && (
+                        <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+                      )}
+                      {hasViolation && isResolved && (
+                        <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
             </div>
           </div>
-        </div>
 
-        <div className="flex-[35] flex flex-col bg-slate-900/60 overflow-hidden">
-          <div className="p-4 border-b border-slate-800">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-amber-400" />
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                  Statutory Violations
-                </h2>
-              </div>
-              <span className="text-xs text-slate-500 font-mono">
-                {resolvedIds.length}/{findings.length} Resolved
-              </span>
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+            <span className="flex items-center gap-1.5">
+              <FolderOpen className="w-3.5 h-3.5" /> Florida Pro Se Legal
+            </span>
+            <span>v1.4</span>
+          </div>
+        </aside>
+
+        {/* Center: The Word-style White Legal Canvas */}
+        <main className="flex-1 bg-[#F1F3F5] overflow-y-auto p-8 flex justify-center">
+          <div className="w-full max-w-[820px] bg-white rounded-lg shadow-sm border border-slate-200/80 p-14 min-h-[1050px] relative">
+            <div className="border-b border-slate-100 pb-6 mb-8 text-center">
+              <h1 className="text-lg font-serif font-bold text-slate-900 tracking-wide">
+                {pages[0].title}
+              </h1>
+              <p className="text-xs text-slate-500 mt-1">{pages[0].subtitle}</p>
             </div>
-            <div className="flex gap-1.5">
-              {["ALL", "UNRESOLVED", "RESOLVED"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveFilter(tab)}
-                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition ${
-                    activeFilter === tab
-                      ? "bg-slate-800 text-white border border-slate-700"
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+
+            <div className="space-y-6 text-sm text-slate-700 font-serif leading-relaxed">
+              {pages[0].sections.map((section) => {
+                const rule = AUDIT_RULES.find((r) => r.id === section.id);
+                const isSelected = selectedRuleId === section.id;
+                const isResolved = resolvedIds.includes(section.id);
+
+                return (
+                  <div
+                    key={section.id}
+                    onClick={() => rule && setSelectedRuleId(rule.id)}
+                    className={`relative p-3 rounded-lg transition-all ${
+                      rule && !isResolved
+                        ? "bg-rose-50/40 border-l-4 border-rose-500 cursor-pointer"
+                        : rule && isResolved
+                        ? "bg-emerald-50/30 border-l-4 border-emerald-500"
+                        : "border-l-4 border-transparent"
+                    } ${isSelected ? "ring-2 ring-indigo-500/20" : ""}`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="font-sans font-bold text-xs uppercase tracking-wide text-slate-800">
+                        {section.heading}
+                      </h3>
+                      {rule && !isResolved && (
+                        <span className="text-[10px] font-sans font-semibold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">
+                          Florida Risk Flagged
+                        </span>
+                      )}
+                      {rule && isResolved && (
+                        <span className="text-[10px] font-sans font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Statutory Standard Applied
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-slate-800">{section.body}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Signature Block */}
+            <div className="mt-16 pt-8 border-t border-slate-200 grid grid-cols-2 gap-10 font-serif text-xs">
+              <div>
+                <p className="font-bold text-slate-800">CLIENT:</p>
+                <div className="mt-8 border-b border-slate-400 w-48" />
+                <p className="mt-1 text-slate-500">Palm Horizon Enterprises LLC</p>
+              </div>
+              <div>
+                <p className="font-bold text-slate-800">CONTRACTOR:</p>
+                <div className="mt-8 border-b border-slate-400 w-48" />
+                <p className="mt-1 text-slate-500">Southeast Digital Systems LLC</p>
+              </div>
             </div>
           </div>
+        </main>
 
+        {/* Right Rail: AI Risk Inspector & Live Redlines */}
+        <aside className="w-96 border-l border-slate-200 bg-white flex flex-col justify-between overflow-hidden">
+          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                AI Legal Inspector
+              </h2>
+            </div>
+            <span className="text-xs font-mono text-slate-400">
+              {resolvedIds.length} / {AUDIT_RULES.length} Reviewed
+            </span>
+          </div>
+
+          {/* Violations List */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {filteredFindings.map((clause) => {
-              const isResolved = resolvedIds.includes(clause.id);
-              const isSelected = selectedClauseId === clause.id;
+            {AUDIT_RULES.map((rule) => {
+              const isResolved = resolvedIds.includes(rule.id);
+              const isSelected = selectedRuleId === rule.id;
+
               return (
                 <div
-                  key={clause.id}
-                  onClick={() => setSelectedClauseId(clause.id)}
-                  className={`p-3.5 rounded-lg border cursor-pointer transition ${
+                  key={rule.id}
+                  onClick={() => setSelectedRuleId(rule.id)}
+                  className={`p-3 rounded-lg border transition cursor-pointer ${
                     isSelected
-                      ? "border-emerald-500/50 bg-slate-800/80"
-                      : "border-slate-800/80 bg-slate-900/40 hover:border-slate-700"
+                      ? "border-indigo-600 bg-indigo-50/40 shadow-sm"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2 mb-1.5">
-                    <span className="text-xs font-semibold text-slate-200">{clause.clauseName}</span>
+                  <div className="flex items-start justify-between gap-1 mb-1">
+                    <span className="text-xs font-bold text-slate-800">{rule.riskTitle}</span>
                     {isResolved ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/30">
-                        <CheckCircle2 className="w-3 h-3" /> Resolved
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                        <Check className="w-3 h-3" /> Resolved
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/30">
-                        {clause.riskLevel}
+                      <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">
+                        {rule.severity}
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] font-mono text-emerald-400/90 mb-1.5">{clause.statute}</div>
-                  <p className="text-xs text-slate-400 line-clamp-2">{clause.summary}</p>
+                  <p className="text-[11px] font-mono text-indigo-700 mb-1">{rule.statute}</p>
+                  <p className="text-xs text-slate-500 leading-snug">{rule.impact}</p>
                 </div>
               );
             })}
           </div>
 
-          {activeClause && (
-            <div className="p-4 border-t border-slate-800 bg-slate-950/80">
+          {/* Interactive Redline Drawer */}
+          {activeRule && (
+            <div className="p-4 border-t border-slate-200 bg-slate-50">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <ArrowRightLeft className="w-3.5 h-3.5 text-emerald-400" />
-                  Statutory Redline Diff
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
+                  Proposed Redline
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">{activeClause.statute}</span>
+                <span className="text-[10px] font-mono text-slate-400">{activeRule.statute}</span>
               </div>
-              <div className="p-3 bg-slate-900 border border-slate-800 rounded-lg text-xs leading-relaxed max-h-40 overflow-y-auto mb-3">
-                {diffParts.map((part, index) => {
+
+              {/* Word-level Diff */}
+              <div className="p-3 bg-white border border-slate-200 rounded-lg text-xs leading-relaxed max-h-48 overflow-y-auto mb-3 shadow-inner">
+                {diffResult.map((part, idx) => {
                   if (part.added) {
                     return (
-                      <span key={index} className="bg-emerald-500/20 text-emerald-300 underline font-medium px-0.5 rounded">
+                      <span key={idx} className="bg-emerald-100 text-emerald-800 underline font-medium px-0.5 rounded">
                         {part.value}
                       </span>
                     );
                   }
                   if (part.removed) {
                     return (
-                      <span key={index} className="bg-rose-500/20 text-rose-400 line-through opacity-80 px-0.5 rounded">
+                      <span key={idx} className="bg-rose-100 text-rose-800 line-through opacity-75 px-0.5 rounded">
                         {part.value}
                       </span>
                     );
                   }
-                  return <span key={index} className="text-slate-400">{part.value}</span>;
+                  return <span key={idx} className="text-slate-600">{part.value}</span>;
                 })}
               </div>
+
               <button
-                disabled={resolvedIds.includes(activeClause.id)}
-                onClick={() => handleAcceptRedline(activeClause)}
-                className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition ${
-                  resolvedIds.includes(activeClause.id)
-                    ? "bg-slate-800 text-slate-500 cursor-not-allowed"
-                    : "bg-emerald-600 hover:bg-emerald-500 text-white"
+                disabled={resolvedIds.includes(activeRule.id)}
+                onClick={() => handleApplyRedline(activeRule)}
+                className={`w-full py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition ${
+                  resolvedIds.includes(activeRule.id)
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                {resolvedIds.includes(activeClause.id) ? "Redline Accepted" : "Accept Florida Statutory Redline"}
+                {resolvedIds.includes(activeRule.id) ? "Redline Accepted" : "Accept Suggested Redline"}
               </button>
             </div>
           )}
-        </div>
+        </aside>
       </div>
     </div>
   );
