@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from "react";
 import {
-  Gavel,
   Scale,
   FileText,
   AlertOctagon,
@@ -12,14 +11,16 @@ import {
   FolderOpen,
   BookOpen,
   ShieldAlert,
-  Search,
-  ExternalLink,
-  ChevronRight
+  Gavel,
+  SlidersHorizontal,
+  Eye,
+  Check
 } from "lucide-react";
 import { FLORIDA_CAUSES_OF_ACTION, FLORIDA_AFFIRMATIVE_DEFENSES } from "../lib/florida-litigation-data";
 
 export default function FloridaProSeLitigationApp() {
   const [activeTab, setActiveTab] = useState("complaint"); // 'complaint' | 'guide' | 'motion'
+  const [mobilePanel, setMobilePanel] = useState("document"); // 'setup' | 'document' | 'audit'
 
   // Court Metadata
   const [circuit, setCircuit] = useState("17th Judicial Circuit");
@@ -32,10 +33,13 @@ export default function FloridaProSeLitigationApp() {
   // Cause of Action Selection
   const [selectedCauseId, setSelectedCauseId] = useState("breach_contract");
   const currentCause = useMemo(() => {
-    return FLORIDA_CAUSES_OF_ACTION.find((c) => c.id === selectedCauseId) || FLORIDA_CAUSES_OF_ACTION[0];
+    return (
+      FLORIDA_CAUSES_OF_ACTION.find((c) => c.id === selectedCauseId) ||
+      FLORIDA_CAUSES_OF_ACTION[0]
+    );
   }, [selectedCauseId]);
 
-  // Fact Elements Tracking (Florida Fact-Pleading Rule 1.110)
+  // Fact Elements Tracking (Fla. R. Civ. P. 1.110)
   const [elementFacts, setElementFacts] = useState({
     e1: "On October 10, 2025, Plaintiff and Defendant executed a valid, binding commercial contract in Broward County, Florida.",
     e2: "Defendant materially breached Section 4 of the Agreement on January 15, 2026, by intentionally withholding contractually mandated ledger disbursements.",
@@ -65,59 +69,97 @@ export default function FloridaProSeLitigationApp() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#0F172A] text-slate-100 font-sans antialiased">
+    <div className="flex flex-col min-h-screen lg:h-screen bg-[#0F172A] text-slate-100 font-sans antialiased overflow-x-hidden">
       {/* Top Header */}
-      <header className="h-16 border-b border-slate-800 bg-slate-900/90 px-6 flex items-center justify-between">
+      <header className="border-b border-slate-800 bg-slate-900/90 px-4 py-3 sm:px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-sm">
-            <Scale className="w-5 h-5" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-600 flex items-center justify-center text-white shrink-0 shadow-sm">
+            <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-bold text-sm tracking-wide text-white">Florida Pro Se Legal Guide</h1>
-              <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
-                Fla. Lit. Guide Standard
+              <h1 className="font-bold text-xs sm:text-sm tracking-wide text-white">Florida Pro Se Legal</h1>
+              <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                17th Cir.
               </span>
             </div>
-            <p className="text-xs text-slate-400">110+ Causes of Action | Element Checklists | 4th DCA Authority</p>
+            <p className="text-[11px] text-slate-400 hidden sm:block">Fla. R. Civ. P. Fact-Pleading & Defect Auditor</p>
           </div>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 text-xs font-semibold">
+        {/* Action Controls */}
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 text-xs font-semibold">
+            <button
+              onClick={() => setActiveTab("complaint")}
+              className={`px-2.5 py-1 rounded transition ${activeTab === "complaint" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"}`}
+            >
+              Complaint
+            </button>
+            <button
+              onClick={() => setActiveTab("guide")}
+              className={`px-2.5 py-1 rounded transition ${activeTab === "guide" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"}`}
+            >
+              Defenses
+            </button>
+          </div>
+
           <button
-            onClick={() => setActiveTab("complaint")}
-            className={`px-3 py-1.5 rounded transition ${activeTab === "complaint" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"}`}
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm transition shrink-0"
           >
-            Complaint Pleading Builder
-          </button>
-          <button
-            onClick={() => setActiveTab("guide")}
-            className={`px-3 py-1.5 rounded transition ${activeTab === "guide" ? "bg-emerald-600 text-white" : "text-slate-400 hover:text-white"}`}
-          >
-            Causes of Action & Defenses
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export Court Document</span>
+            <span className="sm:hidden">Export</span>
           </button>
         </div>
-
-        <button
-          onClick={handleExport}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm transition"
-        >
-          <Download className="w-4 h-4" />
-          Export Court Document
-        </button>
       </header>
 
-      {/* Main Workspace */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Column: Florida Causes of Action Selector */}
-        <aside className="w-80 border-r border-slate-800 bg-slate-900/40 p-5 overflow-y-auto space-y-4">
+      {/* Mobile-Only Panel Switcher Tabs (Hidden on Desktop) */}
+      <div className="lg:hidden flex items-center justify-around bg-slate-900 border-b border-slate-800 px-2 py-1.5 text-xs font-medium sticky top-0 z-20">
+        <button
+          onClick={() => setMobilePanel("setup")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition ${
+            mobilePanel === "setup" ? "bg-slate-800 text-emerald-400 font-semibold" : "text-slate-400"
+          }`}
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" /> Setup
+        </button>
+        <button
+          onClick={() => setMobilePanel("document")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition ${
+            mobilePanel === "document" ? "bg-slate-800 text-emerald-400 font-semibold" : "text-slate-400"
+          }`}
+        >
+          <Eye className="w-3.5 h-3.5" /> Document
+        </button>
+        <button
+          onClick={() => setMobilePanel("audit")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition ${
+            mobilePanel === "audit" ? "bg-slate-800 text-emerald-400 font-semibold" : "text-slate-400"
+          }`}
+        >
+          <AlertOctagon className="w-3.5 h-3.5" /> Audit
+        </button>
+      </div>
+
+      {/* Main Workspace (Stacked on Mobile, 3 Columns on lg+) */}
+      <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
+        {/* Panel 1: Causes of Action & Case Parameters */}
+        <aside
+          className={`w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-800 bg-slate-900/40 p-4 sm:p-5 overflow-y-auto space-y-4 shrink-0 ${
+            mobilePanel !== "setup" ? "hidden lg:block" : "block"
+          }`}
+        >
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Select Cause of Action</span>
           <div className="space-y-1.5">
             {FLORIDA_CAUSES_OF_ACTION.map((c) => (
               <button
                 key={c.id}
-                onClick={() => setSelectedCauseId(c.id)}
+                onClick={() => {
+                  setSelectedCauseId(c.id);
+                  setMobilePanel("document");
+                }}
                 className={`w-full text-left p-2.5 rounded-lg text-xs transition flex flex-col gap-0.5 ${
                   selectedCauseId === c.id
                     ? "bg-emerald-600 text-white font-medium"
@@ -133,43 +175,84 @@ export default function FloridaProSeLitigationApp() {
           </div>
 
           <div className="pt-4 border-t border-slate-800">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Court Information</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Case Caption Info</span>
             <div className="mt-2 space-y-2 text-xs">
-              <input
-                type="text"
-                value={county}
-                onChange={(e) => setCounty(e.target.value)}
-                placeholder="County"
-                className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"
-              />
-              <input
-                type="text"
-                value={caseNumber}
-                onChange={(e) => setCaseNumber(e.target.value)}
-                placeholder="Case Number"
-                className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"
-              />
+              <div>
+                <label className="text-slate-400 block mb-1">County / Circuit</label>
+                <input
+                  type="text"
+                  value={county}
+                  onChange={(e) => setCounty(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-slate-400 block mb-1">Division</label>
+                  <input
+                    type="text"
+                    value={division}
+                    onChange={(e) => setDivision(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400 block mb-1">Case Number</label>
+                  <input
+                    type="text"
+                    value={caseNumber}
+                    onChange={(e) => setCaseNumber(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Plaintiff (Pro Se)</label>
+                <input
+                  type="text"
+                  value={plaintiff}
+                  onChange={(e) => setPlaintiff(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"
+                />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Defendant</label>
+                <input
+                  type="text"
+                  value={defendant}
+                  onChange={(e) => setDefendant(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white"
+                />
+              </div>
             </div>
           </div>
         </aside>
 
-        {/* Center: Live Court Pleading Canvas */}
-        <main className="flex-1 bg-slate-950 p-8 overflow-y-auto flex justify-center">
-          <div className="w-full max-w-3xl bg-white text-slate-900 rounded-lg shadow-2xl p-12 min-h-[1050px] font-serif text-xs leading-relaxed">
-            <div className="whitespace-pre-wrap">{compiledComplaint}</div>
+        {/* Panel 2: Live Court Document Canvas */}
+        <main
+          className={`flex-1 bg-slate-950 p-3 sm:p-6 lg:p-8 overflow-y-auto flex justify-center ${
+            mobilePanel !== "document" ? "hidden lg:flex" : "flex"
+          }`}
+        >
+          <div className="w-full max-w-3xl bg-white text-slate-900 rounded-lg shadow-2xl p-5 sm:p-8 lg:p-12 min-h-[500px] lg:min-h-[1050px] font-serif text-[11px] sm:text-xs leading-relaxed">
+            <div className="whitespace-pre-wrap break-words">{compiledComplaint}</div>
           </div>
         </main>
 
-        {/* Right Column: Element-by-Element Pleading Checker */}
-        <aside className="w-96 border-l border-slate-800 bg-slate-900/60 p-5 overflow-y-auto space-y-5">
+        {/* Panel 3: Florida Fact-Pleading Elements & Defect Auditor */}
+        <aside
+          className={`w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-900/60 p-4 sm:p-5 overflow-y-auto space-y-5 shrink-0 ${
+            mobilePanel !== "audit" ? "hidden lg:block" : "block"
+          }`}
+        >
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 block mb-1">
               {currentCause.title}
             </span>
-            <p className="text-[11px] text-slate-400 mb-2 leading-relaxed">
-              <strong className="text-slate-300">Controlling Citation:</strong> {currentCause.dcaCitation}
+            <p className="text-[11px] text-slate-400 mb-1 leading-relaxed">
+              <strong className="text-slate-300">Authority:</strong> {currentCause.dcaCitation}
             </p>
-            <p className="text-[11px] text-slate-400 mb-4">
+            <p className="text-[11px] text-slate-400">
               <strong className="text-slate-300">Statute of Limitations:</strong> {currentCause.sol}
             </p>
           </div>
@@ -189,7 +272,7 @@ export default function FloridaProSeLitigationApp() {
                   rows={2}
                   value={elementFacts[elem.id] || ""}
                   onChange={(e) => handleFactChange(elem.id, e.target.value)}
-                  placeholder="Insert specific facts, dates, unperformed actions..."
+                  placeholder="State specific facts, dates, unperformed covenants..."
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
@@ -211,13 +294,13 @@ export default function FloridaProSeLitigationApp() {
                   type="text"
                   value={exhibitName}
                   onChange={(e) => setExhibitName(e.target.value)}
-                  placeholder="Exhibit Description (e.g., Contract, Demand Letter)"
+                  placeholder="Exhibit Description (e.g., Executed Agreement)"
                   className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white"
                 />
               )}
             </div>
 
-            {/* Affirmative Defense Warnings */}
+            {/* Anticipated Affirmative Defenses */}
             <div className="pt-3 border-t border-slate-800 space-y-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">
                 Anticipated Affirmative Defenses
@@ -225,62 +308,6 @@ export default function FloridaProSeLitigationApp() {
               <ul className="text-[11px] text-slate-400 space-y-1 list-disc pl-4">
                 {currentCause.commonDefenses.map((def, i) => (
                   <li key={i}>{def}</li>
-      {
-    id: "cpa_professional_negligence",
-    title: "CPA Professional Negligence & Record Non-Disclosure",
-    dcaCitation: "Dattoma v. Laughlin, 183 So. 3d 465 (Fla. 4th DCA 2016); Fla. Stat. § 473.318; F.A.C. R. 61H1-23.002",
-    sol: "2 Years from Discovery (Fla. Stat. § 95.11(4)(a))",
-    elements: [
-      { 
-        id: "e1", 
-        label: "Professional Duty & Standards", 
-        prompt: "Defendant CPA owed Plaintiff a professional standard of care under Fla. Stat. Chapter 473 and F.A.C. 61H1-21/23 to accurately report and deliver accounting records." 
-      },
-      { 
-        id: "e2", 
-        label: "Breach of Standard / Record Withholding", 
-        prompt: "Defendant breached that standard by withholding general ledger workpapers/tax filings (Rule 61H1-23.002) or disseminating unauthorized financial disclosures." 
-      },
-      { 
-        id: "e3", 
-        label: "Direct Injury & Consequential Damages", 
-        prompt: "Plaintiff suffered distinct commercial injury, financial loss, tax liability, or lost business valuation directly caused by Defendant's breach." 
-      }
-    ],
-    commonDefenses: [
-      "Accountant-Client Privilege (§ 473.316)",
-      "Lack of Privity / Ultramares Doctrine",
-      "Safe Harbor Under Fla. Stat. § 607.0832"
-    ]
-  },
-  {
-    id: "civil_aiding_abetting",
-    title: "Aiding and Abetting Breach of Fiduciary Duty",
-    dcaCitation: "AmeriFirst Bank v. Bomar, 757 F. Supp. 1365 (S.D. Fla. 1991); Halberstam v. Welch, 705 F.2d 472 (D.C. Cir. 1983)",
-    sol: "4 Years (Fla. Stat. § 95.11(3)(p))",
-    elements: [
-      { 
-        id: "e1", 
-        label: "Underlying Fiduciary Breach", 
-        prompt: "A primary fiduciary committed an underlying breach of fiduciary duty or self-dealing." 
-      },
-      { 
-        id: "e2", 
-        label: "Substantial Knowledge", 
-        prompt: "Defendant (e.g., CPA or outside professional) had actual knowledge of the primary actor's wrongful conduct." 
-      },
-      { 
-        id: "e3", 
-        label: "Substantial Assistance", 
-        prompt: "Defendant rendered substantial assistance, encouragement, or concealment that facilitated the breach." 
-      }
-    ],
-    commonDefenses: [
-      "No Underlying Actionable Breach Established",
-      "Absence of Actual Knowledge (Constructive Knowledge Insufficient)",
-      "Routine Professional Services Safe Harbor"
-    ]
-  },
                 ))}
               </ul>
             </div>
