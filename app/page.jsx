@@ -20,7 +20,8 @@ import {
   FileCheck,
   FolderOpen,
   Settings,
-  Scale
+  Scale,
+  Gavel
 } from "lucide-react";
 import * as Diff from "diff";
 
@@ -28,7 +29,7 @@ const INITIAL_CONTRACT_PAGES = [
   {
     pageNumber: 1,
     title: "COMMERCIAL SERVICES & MASTER VENDOR AGREEMENT",
-    subtitle: "State of Florida — 17th Judicial Circuit Jurisdiction",
+    subtitle: "State of Florida — 17th Judicial Circuit Jurisdiction (Broward County)",
     sections: [
       {
         id: "recitals",
@@ -65,7 +66,7 @@ const AUDIT_RULES = [
     sectionHeading: "Section 4: Indemnification",
     riskTitle: "Sole Negligence Indemnity Barred",
     statute: "Fla. Stat. § 725.06 & Florida Public Policy",
-    severity: "HIGH",
+    severity: "CRITICAL",
     impact: "Unenforceable under Florida law. One party cannot indemnify another for that party's own sole negligence without statutory monetary caps.",
     originalText: `Contractor agrees to defend, indemnify, and hold harmless Client, its parent companies, affiliates, officers, and employees from and against any and all claims, liabilities, losses, damages, or costs (including full attorney's fees), whether or not caused by the sole negligence or willful misconduct of Client. In no event shall Client's aggregate liability exceed the total sum of $100.`,
     replacementText: `Each party agrees to defend and indemnify the other from third-party claims to the extent caused by the indemnifying party's gross negligence, willful misconduct, or material breach. Neither party shall be obligated to indemnify the other for damages caused by the other party's sole negligence or willful misconduct.`
@@ -75,7 +76,7 @@ const AUDIT_RULES = [
     sectionHeading: "Section 8: Restrictive Covenants",
     riskTitle: "Overbroad Duration & Worldwide Scope",
     statute: "Fla. Stat. § 542.335(1)(d)",
-    severity: "HIGH",
+    severity: "CRITICAL",
     impact: "Statutorily presumed unreasonable. Non-competes exceeding 2 years are unenforceable in Florida without proven specialized trade secrets and defined county trade markets.",
     originalText: `For a period of four (4) years following the termination of this Agreement for any reason, Contractor shall not directly or indirectly engage in, perform services for, consult with, or own any interest in any competitive digital services enterprise worldwide, without geographical limitation.`,
     replacementText: `For a period of twelve (12) months following termination, Contractor shall not directly solicit active clients of Client with whom Contractor had personal material contact within the prior twelve months, strictly limited to Broward, Miami-Dade, and Palm Beach Counties, Florida.`
@@ -85,7 +86,7 @@ const AUDIT_RULES = [
     sectionHeading: "Section 11: Legal Fees",
     riskTitle: "Unilateral Fee Clause Automatically Reciprocal",
     statute: "Fla. Stat. § 57.105(7)",
-    severity: "HIGH",
+    severity: "CRITICAL",
     impact: "Florida statute automatically converts unilateral attorney fee covenants into mutual prevailing-party fee clauses across pre-trial, trial, and appeals.",
     originalText: `In the event Client initiates judicial enforcement, arbitration, or collection actions arising under this Agreement, Client shall be entitled to recover all costs, expenses, and attorney's fees incurred. Contractor expressly agrees to bear its own legal expenses in all circumstances.`,
     replacementText: `In any judicial or arbitration proceeding arising out of or related to this Agreement, the prevailing party shall be entitled to recover its reasonable attorney's fees, paralegal costs, and expenses at all trial, bankruptcy, and appellate levels pursuant to Fla. Stat. § 57.105(7).`
@@ -95,18 +96,18 @@ const AUDIT_RULES = [
     sectionHeading: "Section 14: Forum Selection",
     riskTitle: "Foreign Jurisdiction for Florida Entities",
     statute: "Fla. Stat. § 685.101 & Fla. R. Civ. P. 1.060",
-    severity: "MEDIUM",
+    severity: "MODERATE",
     impact: "Forcing Florida LLCs into New York litigation creates jurisdictional burden and grounds for forum non conveniens transfer.",
     originalText: `This Agreement shall be interpreted and governed in accordance with the laws of the State of New York. The parties irrevocably consent to the exclusive jurisdiction and venue of the Supreme Court of New York, New York County, and waive any inconvenient forum defenses.`,
     replacementText: `This Agreement shall be governed by the laws of the State of Florida. Exclusive venue and jurisdiction for any disputes shall lie in the Circuit Court of the 17th Judicial Circuit in and for Broward County, Florida, or the U.S. District Court for the Southern District of Florida.`
   }
 ];
 
-export default function InstaSpaceCloneWorkspace() {
+export default function FloridaProSeLegalWorkspace() {
   const [pages, setPages] = useState(INITIAL_CONTRACT_PAGES);
   const [resolvedIds, setResolvedIds] = useState([]);
   const [selectedRuleId, setSelectedRuleId] = useState("sec-indemnity");
-  const [sidebarTab, setSidebarTab] = useState("risks");
+  const [activeFilter, setActiveFilter] = useState("ALL");
 
   const activeRule = useMemo(() => {
     return AUDIT_RULES.find((r) => r.id === selectedRuleId) || AUDIT_RULES[0];
@@ -117,7 +118,7 @@ export default function InstaSpaceCloneWorkspace() {
     return Diff.diffWordsWithSpace(activeRule.originalText, activeRule.replacementText);
   }, [activeRule]);
 
-  const playbookScore = useMemo(() => {
+  const complianceScore = useMemo(() => {
     const total = AUDIT_RULES.length;
     return Math.round(58 + (resolvedIds.length / total) * 42);
   }, [resolvedIds]);
@@ -144,25 +145,32 @@ export default function InstaSpaceCloneWorkspace() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "Reviewed_Contract_instaSpace_ProSe.txt";
+    link.download = "Florida_Pro_Se_Legal_Reviewed_Contract.txt";
     link.click();
     URL.revokeObjectURL(url);
   };
 
+  const filteredRules = AUDIT_RULES.filter((rule) => {
+    if (activeFilter === "ALL") return true;
+    if (activeFilter === "UNRESOLVED") return !resolvedIds.includes(rule.id);
+    if (activeFilter === "RESOLVED") return resolvedIds.includes(rule.id);
+    return rule.severity === activeFilter;
+  });
+
   return (
     <div className="flex flex-col h-screen bg-[#F8F9FA] text-[#1E293B] font-sans antialiased">
-      {/* Top Navigation Bar */}
+      {/* Top Header Bar */}
       <header className="h-14 border-b border-slate-200 bg-white px-5 flex items-center justify-between z-10">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-sm shadow-sm">
               <Scale className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-slate-900 tracking-tight">instaSpace Legal</span>
-                <span className="text-[11px] font-medium bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200/60">
-                  Workspace AI
+                <span className="font-semibold text-sm text-slate-900 tracking-tight">Florida Pro Se Legal</span>
+                <span className="text-[11px] font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                  17th Cir. Intelligence
                 </span>
               </div>
             </div>
@@ -173,45 +181,47 @@ export default function InstaSpaceCloneWorkspace() {
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <FileText className="w-3.5 h-3.5 text-slate-400" />
             <span className="font-medium text-slate-700">Commercial_Services_Agreement_v2.docx</span>
-            <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px] font-mono">17th Cir. FL</span>
+            <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[10px] font-mono">Fla. Stat. Audit</span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs">
-            <span className="text-slate-500">Playbook Adherence:</span>
-            <span className="font-bold text-indigo-600">{playbookScore}%</span>
+            <span className="text-slate-500">Florida Compliance Index:</span>
+            <span className={`font-bold ${complianceScore >= 90 ? "text-emerald-700" : "text-amber-600"}`}>
+              {complianceScore}%
+            </span>
             <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden ml-1">
               <div
-                className="h-full bg-indigo-600 transition-all duration-300"
-                style={{ width: `${playbookScore}%` }}
+                className="h-full bg-emerald-600 transition-all duration-300"
+                style={{ width: `${complianceScore}%` }}
               />
             </div>
           </div>
 
           <button
             onClick={handleExportDoc}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg shadow-sm transition"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm transition"
           >
             <Download className="w-3.5 h-3.5" />
-            Export Document
+            Export Clean Agreement
           </button>
         </div>
       </header>
 
-      {/* Main 3-Column Layout */}
+      {/* Main 3-Column Interface */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Rail: Document Navigator & Playbooks */}
+        {/* Column 1: Document Outline & Florida Playbook */}
         <aside className="w-64 border-r border-slate-200 bg-white flex flex-col justify-between p-4">
           <div className="space-y-5">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Legal Playbook</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Jurisdiction Digest</span>
               <div className="mt-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between cursor-pointer hover:bg-slate-100/70 transition">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-indigo-600" />
+                  <BookOpen className="w-4 h-4 text-emerald-700" />
                   <div className="text-left">
-                    <p className="text-xs font-semibold text-slate-800 leading-none">Florida Commercial</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Fla. Stat. 57.105 & 542.335</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-none">Broward Circuit Rules</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">§ 57.105 & § 542.335</p>
                   </div>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
@@ -232,7 +242,7 @@ export default function InstaSpaceCloneWorkspace() {
                       onClick={() => setSelectedRuleId(sec.id)}
                       className={`w-full text-left px-2.5 py-2 rounded-lg text-xs flex items-center justify-between transition ${
                         isSelected
-                          ? "bg-indigo-50/80 text-indigo-700 font-medium"
+                          ? "bg-emerald-50 text-emerald-800 font-medium border border-emerald-200/60"
                           : "text-slate-600 hover:bg-slate-50"
                       }`}
                     >
@@ -254,11 +264,11 @@ export default function InstaSpaceCloneWorkspace() {
             <span className="flex items-center gap-1.5">
               <FolderOpen className="w-3.5 h-3.5" /> Florida Pro Se Legal
             </span>
-            <span>v1.4</span>
+            <span>v1.0</span>
           </div>
         </aside>
 
-        {/* Center: The Word-style White Legal Canvas */}
+        {/* Column 2: The Document Canvas */}
         <main className="flex-1 bg-[#F1F3F5] overflow-y-auto p-8 flex justify-center">
           <div className="w-full max-w-[820px] bg-white rounded-lg shadow-sm border border-slate-200/80 p-14 min-h-[1050px] relative">
             <div className="border-b border-slate-100 pb-6 mb-8 text-center">
@@ -284,7 +294,7 @@ export default function InstaSpaceCloneWorkspace() {
                         : rule && isResolved
                         ? "bg-emerald-50/30 border-l-4 border-emerald-500"
                         : "border-l-4 border-transparent"
-                    } ${isSelected ? "ring-2 ring-indigo-500/20" : ""}`}
+                    } ${isSelected ? "ring-2 ring-emerald-500/20" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="font-sans font-bold text-xs uppercase tracking-wide text-slate-800">
@@ -292,12 +302,12 @@ export default function InstaSpaceCloneWorkspace() {
                       </h3>
                       {rule && !isResolved && (
                         <span className="text-[10px] font-sans font-semibold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">
-                          Florida Risk Flagged
+                          Statutory Conflict
                         </span>
                       )}
                       {rule && isResolved && (
                         <span className="text-[10px] font-sans font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <Check className="w-3 h-3" /> Statutory Standard Applied
+                          <Check className="w-3 h-3" /> Florida Standard Applied
                         </span>
                       )}
                     </div>
@@ -323,23 +333,42 @@ export default function InstaSpaceCloneWorkspace() {
           </div>
         </main>
 
-        {/* Right Rail: AI Risk Inspector & Live Redlines */}
+        {/* Column 3: AI Legal Inspector & Statutory Redline Drawer */}
         <aside className="w-96 border-l border-slate-200 bg-white flex flex-col justify-between overflow-hidden">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                AI Legal Inspector
-              </h2>
+          <div className="p-4 border-b border-slate-200">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-700" />
+                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                  Florida Statutory Audit
+                </h2>
+              </div>
+              <span className="text-xs font-mono text-slate-400">
+                {resolvedIds.length} / {AUDIT_RULES.length} Resolved
+              </span>
             </div>
-            <span className="text-xs font-mono text-slate-400">
-              {resolvedIds.length} / {AUDIT_RULES.length} Reviewed
-            </span>
+
+            {/* Severity Filter Pills */}
+            <div className="flex gap-1.5">
+              {["ALL", "UNRESOLVED", "RESOLVED"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveFilter(tab)}
+                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition ${
+                    activeFilter === tab
+                      ? "bg-slate-800 text-white"
+                      : "text-slate-500 hover:bg-slate-100"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Violations List */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {AUDIT_RULES.map((rule) => {
+            {filteredRules.map((rule) => {
               const isResolved = resolvedIds.includes(rule.id);
               const isSelected = selectedRuleId === rule.id;
 
@@ -349,7 +378,7 @@ export default function InstaSpaceCloneWorkspace() {
                   onClick={() => setSelectedRuleId(rule.id)}
                   className={`p-3 rounded-lg border transition cursor-pointer ${
                     isSelected
-                      ? "border-indigo-600 bg-indigo-50/40 shadow-sm"
+                      ? "border-emerald-700 bg-emerald-50/40 shadow-sm"
                       : "border-slate-200 hover:border-slate-300 bg-white"
                   }`}
                 >
@@ -365,7 +394,7 @@ export default function InstaSpaceCloneWorkspace() {
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] font-mono text-indigo-700 mb-1">{rule.statute}</p>
+                  <p className="text-[11px] font-mono text-emerald-700 mb-1">{rule.statute}</p>
                   <p className="text-xs text-slate-500 leading-snug">{rule.impact}</p>
                 </div>
               );
@@ -377,8 +406,8 @@ export default function InstaSpaceCloneWorkspace() {
             <div className="p-4 border-t border-slate-200 bg-slate-50">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <ArrowRight className="w-3.5 h-3.5 text-indigo-600" />
-                  Proposed Redline
+                  <ArrowRight className="w-3.5 h-3.5 text-emerald-700" />
+                  Statutory Redline
                 </span>
                 <span className="text-[10px] font-mono text-slate-400">{activeRule.statute}</span>
               </div>
@@ -410,11 +439,11 @@ export default function InstaSpaceCloneWorkspace() {
                 className={`w-full py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition ${
                   resolvedIds.includes(activeRule.id)
                     ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow"
+                    : "bg-emerald-700 hover:bg-emerald-800 text-white shadow"
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                {resolvedIds.includes(activeRule.id) ? "Redline Accepted" : "Accept Suggested Redline"}
+                {resolvedIds.includes(activeRule.id) ? "Redline Accepted" : "Accept Florida Statutory Redline"}
               </button>
             </div>
           )}
