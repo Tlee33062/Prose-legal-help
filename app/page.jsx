@@ -25,7 +25,9 @@ import {
   Mail,
   ChevronRight,
   Sparkles,
-  ShieldAlert
+  ShieldAlert,
+  Send,
+  X
 } from "lucide-react";
 
 // Florida Litigation Guide: Causes of Action
@@ -74,6 +76,17 @@ export default function FloridaProSeLitigationApp() {
   const [intakeTab, setIntakeTab] = useState("cases"); // 'cases' | 'mail'
   const [intakeFilter, setIntakeFilter] = useState("all"); // 'all' | 'needs_you' | 'working'
 
+  // Florida Legal AI State
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiMessages, setAiMessages] = useState([
+    {
+      sender: "assistant",
+      text: "Florida Legal AI online. Ask me about Florida fact-pleading rules (Fla. R. Civ. P. 1.110(b)), surviving Four Corners Rule dismissals (Rule 1.130), meeting the Dinuro direct injury standard, or calculating strict 15-day rehearing deadlines."
+    }
+  ]);
+  const [aiInput, setAiInput] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
   // Court Metadata
   const [circuit, setCircuit] = useState("17th Judicial Circuit");
   const [county, setCounty] = useState("Broward");
@@ -99,6 +112,37 @@ export default function FloridaProSeLitigationApp() {
 
   const handleFactChange = (elementId, text) => {
     setElementFacts((prev) => ({ ...prev, [elementId]: text }));
+  };
+
+  // Florida Legal AI Processing Engine
+  const handleSendAi = () => {
+    if (!aiInput.trim()) return;
+    const userMsg = aiInput.trim();
+    setAiMessages((prev) => [...prev, { sender: "user", text: userMsg }]);
+    setAiInput("");
+    setAiLoading(true);
+
+    setTimeout(() => {
+      const lower = userMsg.toLowerCase();
+      let response = "";
+
+      if (lower.includes("four corners") || lower.includes("1.130") || lower.includes("attach") || lower.includes("exhibit")) {
+        response = "Under Fla. R. Civ. P. 1.130(a), all contracts, notes, bills of exchange, or documents sued upon MUST be attached to the complaint. On a Motion to Dismiss under Rule 1.140, the Court is strictly confined to the 'Four Corners' of the complaint and its exhibits. If you fail to attach the instrument—or fail to plead specific ultimate facts showing it is solely in the defendant's possession—the count is vulnerable to dismissal with prejudice.";
+      } else if (lower.includes("dinuro") || lower.includes("direct") || lower.includes("derivative") || lower.includes("fiduciary")) {
+        response = "Under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014), to bring a direct action rather than a derivative action, you must satisfy the two-prong test: (1) direct harm to the individual member that does not flow merely from company injury, and (2) special injury or a separate duty owed directly to you (e.g., deprivation of voting/inspection rights, direct buyout loss, or personal tax liability).";
+      } else if (lower.includes("rehearing") || lower.includes("1.530") || lower.includes("deadline")) {
+        response = "Under Fla. R. Civ. P. 1.530(b), a Motion for Rehearing must be served no later than 15 days after the date of filing of the judgment or order. Under Florida Rule of General Practice and Judicial Administration 2.514, calculate calendar days starting the day after filing. This 15-day deadline is jurisdictional and cannot be enlarged by the court under Rule 1.090(b).";
+      } else if (lower.includes("safe harbor") || lower.includes("607.0832") || lower.includes("conflict")) {
+        response = "Fla. Stat. § 607.0832 provides a statutory safe harbor for director conflict-of-interest transactions only if material facts were fully disclosed and approved in good faith. To neutralize a § 607.0832 defense on a Motion to Dismiss, you must plead affirmative ultimate facts showing intentional nondisclosure, self-dealing, or bad faith.";
+      } else if (lower.includes("cpa") || lower.includes("accounting") || lower.includes("privilege") || lower.includes("records")) {
+        response = "Under Fla. Admin. Code R. 61H1-23.002 and Fla. Stat. § 473.318, CPAs are legally required to return client records and supporting workpapers for general ledger entries upon reasonable demand. While Fla. Stat. § 473.316 protects communications, § 473.316(4)(a) explicitly waives accountant-client privilege when services were obtained to facilitate crime or fraud, or in litigation between joint clients (§ 473.316(4)(c)).";
+      } else {
+        response = `Under Florida law (Fla. R. Civ. P. 1.110(b)), Florida is a strict fact-pleading jurisdiction. You must plead ultimate facts establishing every single element for ${currentCause.title} rather than legal conclusions. For the 17th Judicial Circuit (Broward County Division ${division}), ensure your caption, exhibit designations (EXHIBIT A), and Rule 2.516 e-service certificates are fully set forth.`;
+      }
+
+      setAiMessages((prev) => [...prev, { sender: "assistant", text: response }]);
+      setAiLoading(false);
+    }, 400);
   };
 
   // Compile Verified Complaint Text
@@ -249,19 +293,8 @@ export default function FloridaProSeLitigationApp() {
           </div>
         </div>
 
-        {/* Litigant Footer Card */}
+        {/* Footer */}
         <div className="p-3 border-t border-slate-200 space-y-2">
-          <div className="p-2.5 bg-white border border-slate-200 rounded-lg text-xs">
-            <div className="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase">
-              <span>Filing Progress</span>
-              <span>2/6</span>
-            </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-1 overflow-hidden">
-              <div className="bg-emerald-600 h-full w-1/3" />
-            </div>
-            <p className="text-[10px] text-slate-500 mt-1">Next: Verify Rule 1.130 Exhibits</p>
-          </div>
-
           <button className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-md transition">
             <Settings className="w-3.5 h-3.5 text-slate-400" />
             Settings
@@ -269,20 +302,17 @@ export default function FloridaProSeLitigationApp() {
         </div>
       </aside>
 
-      {/* 2. Primary Content Stage */}
+      {/* 2. Main Content Stage */}
       {activeNav === "intake" ? (
-        /* The Intake Hub Component */
         <main className="flex-1 flex flex-col bg-white overflow-hidden">
-          {/* Intake Header */}
           <header className="h-14 border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
             <div>
               <h2 className="text-sm font-semibold text-slate-900">Intake</h2>
-              <p className="text-xs text-slate-400">Review incoming case filings and notices before they become formal matters</p>
+              <p className="text-xs text-slate-400">Review incoming case filings and notices</p>
             </div>
             <span className="text-xs font-mono text-slate-400">service@allegedlylegal.com</span>
           </header>
 
-          {/* Subheader Switcher: Cases vs Mail */}
           <div className="border-b border-slate-200 px-6 flex items-center gap-6 text-xs font-medium shrink-0">
             <button
               onClick={() => setIntakeTab("cases")}
@@ -302,7 +332,6 @@ export default function FloridaProSeLitigationApp() {
             </button>
           </div>
 
-          {/* Filters & Search */}
           <div className="p-6 pb-2 space-y-3 shrink-0">
             <div className="relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -341,7 +370,6 @@ export default function FloridaProSeLitigationApp() {
             </div>
           </div>
 
-          {/* Empty State Graphic */}
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
             <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-4">
               <Inbox className="w-6 h-6 stroke-[1.5]" />
@@ -353,9 +381,8 @@ export default function FloridaProSeLitigationApp() {
           </div>
         </main>
       ) : (
-        /* The Drafting & Pleading Center (Fact-Pleading & 4-Corners Engine) */
         <main className="flex-1 flex flex-col overflow-hidden bg-slate-50">
-          {/* Top Bar */}
+          {/* Top Bar with AI Trigger Button */}
           <header className="h-14 border-b border-slate-200 bg-white px-6 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
               <Scale className="w-4 h-4 text-emerald-700" />
@@ -365,16 +392,26 @@ export default function FloridaProSeLitigationApp() {
               </span>
             </div>
 
-            <button
-              onClick={handleExport}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm transition"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Export Document
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setAiOpen(!aiOpen)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Florida Legal AI
+              </button>
+
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-medium rounded-lg shadow-sm transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Export Document
+              </button>
+            </div>
           </header>
 
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden relative">
             {/* Center Canvas */}
             <div className="flex-1 p-8 overflow-y-auto flex justify-center bg-[#F1F3F5]">
               <div className="w-full max-w-3xl bg-white border border-slate-200/80 rounded-lg shadow-sm p-12 min-h-[1050px] font-serif text-xs leading-relaxed text-slate-900">
@@ -417,7 +454,6 @@ export default function FloridaProSeLitigationApp() {
                   </div>
                 ))}
 
-                {/* Rule 1.130 Exhibit Box */}
                 <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-800">
                     <input
@@ -440,6 +476,54 @@ export default function FloridaProSeLitigationApp() {
                 </div>
               </div>
             </aside>
+
+            {/* Slide-out Florida Legal AI Assistant Panel */}
+            {aiOpen && (
+              <div className="absolute bottom-4 right-4 w-96 h-[520px] bg-slate-900 border border-slate-700 rounded-xl shadow-2xl flex flex-col z-50 overflow-hidden">
+                <div className="p-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Florida Legal AI</span>
+                  </div>
+                  <button onClick={() => setAiOpen(false)} className="text-slate-400 hover:text-white text-xs font-bold px-1.5 py-0.5">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 p-3 overflow-y-auto space-y-2 text-xs">
+                  {aiMessages.map((m, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-2.5 rounded-lg leading-relaxed ${
+                        m.sender === "user"
+                          ? "bg-emerald-950/80 border border-emerald-600/40 text-emerald-100 ml-6"
+                          : "bg-slate-800/90 border border-slate-700 text-slate-200 mr-6"
+                      }`}
+                    >
+                      {m.text}
+                    </div>
+                  ))}
+                  {aiLoading && <div className="text-[11px] text-slate-400 italic">Analyzing Florida rules...</div>}
+                </div>
+
+                <div className="p-2 border-t border-slate-800 bg-slate-900 flex gap-2">
+                  <input
+                    type="text"
+                    value={aiInput}
+                    onChange={(e) => setAiInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendAi()}
+                    placeholder="Ask about Rule 1.130, Dinuro, rehearing..."
+                    className="flex-1 bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                  <button
+                    onClick={handleSendAi}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded flex items-center justify-center transition"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       )}
