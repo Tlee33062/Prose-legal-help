@@ -27,7 +27,9 @@ import {
   ArrowLeft,
   Save,
   Printer,
-  Gavel
+  Gavel,
+  Trash2,
+  RefreshCw
 } from "lucide-react";
 
 // ============================================================================
@@ -183,6 +185,7 @@ const PROFESSION_CONFIGS = {
   }
 };
 
+// Updated Default Defendants with April I. Halle, Esq.
 const INITIAL_DEFENDANTS = [
   {
     id: "def-1",
@@ -197,15 +200,15 @@ const INITIAL_DEFENDANTS = [
     discoveryDate: "2026-02-01",
     evidence: "EXHIBIT A: Written Records Demand & Lender Disclosure Emails",
     witnesses: "Corporate Bookkeeper, Third-Party Loan Officer",
-    otherDefendants: "Halle, Managing Directors"
+    otherDefendants: "April I. Halle, Esq., Managing Directors"
   },
   {
     id: "def-2",
-    name: "Richard Halle, Esq.",
-    entityName: "The Halle Law Firm P.A.",
+    name: "April I. Halle, Esq.",
+    entityName: "The Halle Law Firm, P.A. (hallelaw.com)",
     profession: "attorney",
     privityType: "joint_client_atty",
-    customPrivityDetails: "Joint representation exception under Fla. Stat. § 90.502(4)(c) and aiding/abetting fiduciary breach with actual knowledge of Delray Beach DBA & Broward corporate record concealment.",
+    customPrivityDetails: "Joint representation / common interest exception under Fla. Stat. § 90.502(4)(c) and aiding/abetting fiduciary breach with actual knowledge of Delray Beach DBA & Broward corporate record concealment.",
     suedCapacity: "both",
     specificBreach: "Represented conflicting corporate and individual interests simultaneously under Rule 4-1.7, facilitated unauthorized record transfers, and actively concealed material corporate transactions from Plaintiff.",
     dateLastAction: "2026-02-10",
@@ -229,7 +232,7 @@ const INITIAL_FILED_PLEADINGS = [
   {
     id: "filed-2",
     title: "Defendants' Motion to Dismiss Third Amended Complaint",
-    filer: "Defense Counsel (Halle / Engleberg)",
+    filer: "Defense Counsel (April I. Halle, Esq. / Engleberg)",
     dateFiled: "2026-09-18",
     type: "Defense Motion",
     summary: "Argues claims are derivative under Dinuro rather than direct, asserts intra-corporate conspiracy bar, and claims failure to attach complete contract instruments under Rule 1.130(a).",
@@ -251,7 +254,7 @@ const INITIAL_DEFENSE_PLAYBOOK = [
     id: "dp-1",
     count: "Count I & II: Breach of Fiduciary Duty & Corporate Mismanagement",
     defenseAttack: "Dinuro Derivative Standing Bar & Business Judgment Rule",
-    defenseGrounds: "Defense argues injury flowed to the entity first and Plaintiff only suffered indirect member diminution in value under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014).",
+    defenseGrounds: "Defense (April I. Halle, Esq. & co-defendants) argues injury flowed to the entity first and Plaintiff only suffered indirect member diminution in value under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014).",
     howToOvercome: "Plead BOTH prongs of Dinuro with surgical ultimate facts: (1) Direct harm unique to Plaintiff individually (freeze-out of distributions, personal tax liability, deprivation of statutory inspection rights under § 607.1602 / § 605.0410), and (2) Separate statutory or contractual duty owed directly to Plaintiff.",
     controllingLaw: "Dinuro Invs., LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014); Strazzulla v. Riverside Banking Co., 175 So. 3d 879 (Fla. 4th DCA 2015)."
   },
@@ -290,7 +293,7 @@ DIVISION: 25 (Hon. Shari Africk Olefson)
 TINA DIANE LEE,
     Plaintiff,
 v.
-RICHARD HALLE, ESQ., ENGLEBERG, CPA, et al.,
+APRIL I. HALLE, ESQ., THE HALLE LAW FIRM, P.A., ENGLEBERG, CPA, et al.,
     Defendants.
 __________________________________________/
 
@@ -307,7 +310,7 @@ II. STANDARD OF REVIEW UNDER FLA. R. CIV. P. 1.530 & THE FOUR CORNERS RULE
 III. POINT-BY-POINT FLORIDA LEGAL ARGUMENT
 
 A. FLA. STAT. § 607.0832 (DIRECTOR SAFE HARBOR) IS AN AFFIRMATIVE DEFENSE INAPPLICABLE ON A MOTION TO DISMISS AND INAPPLICABLE TO OUTSIDE CPAs
-3. First, Fla. Stat. § 607.0832 governs director conflict-of-interest transactions—it does not immunize an outside Certified Public Accountant from professional malpractice under Chapter 473 or aiding and abetting tortious conduct.
+3. First, Fla. Stat. § 607.0832 governs director conflict-of-interest transactions—it does not immunize an outside Certified Public Accountant from professional malpractice under Chapter 473 or aiding and abetting tortious conduct alongside co-defendants (including April I. Halle, Esq.).
 4. Second, even as to corporate directors, § 607.0832 requires affirmative proof that all material facts were fully disclosed to disinterested decision-makers OR that the transaction was fair to the entity. Where, as here, Plaintiff pleads ultimate facts of active concealment, secret self-dealing, and bad faith, an affirmative defense cannot be adjudicated on a motion to dismiss. Chakra 5, Inc. v. City of Miami Beach, 254 So. 3d 1056 (Fla. 3d DCA 2018).
 
 B. PLAINTIFF PLEADS DIRECT STATUTORY STANDING, PRIVITY & PRIVILEGE EXCEPTIONS UNDER FLA. STAT. §§ 473.316(4)(a), (4)(c), 473.318 & F.A.C. R. 61H1-23.002
@@ -315,7 +318,7 @@ B. PLAINTIFF PLEADS DIRECT STATUTORY STANDING, PRIVITY & PRIVILEGE EXCEPTIONS UN
    • Joint-Client / Common Entity Exception (§ 473.316(4)(c)): Florida Statute § 473.316(4)(c) expressly provides that there is NO accountant-client privilege as to a communication relevant to an issue of breach of duty or a matter of common interest between two or more clients/equity members.
    • Crime-Fraud Exception (§ 473.316(4)(a)): Privilege is abolished when the services of the accountant were sought or obtained to enable or aid anyone to commit or plan what the client knew or should have known was a crime or fraud.
    • Mandatory Duty to Return Client Records (§ 473.318 & F.A.C. R. 61H1-23.002): Under Florida Administrative Code Rule 61H1-23.002 and § 473.318, a CPA must furnish client records, general ledgers, and tax filings within a reasonable time upon request.
-   • Third-Party Reliance & Aiding/Abetting Liability: Under First Fla. Bank, N.A. v. Max Mitchell & Co., 558 So. 2d 9 (Fla. 1990) (adopting Restatement (Second) of Torts § 552) and Dattoma v. Laughlin, 183 So. 3d 465 (Fla. 4th DCA 2016), an accountant is liable to known relying stakeholders. Furthermore, a professional who has actual knowledge of a fiduciary breach and provides substantial assistance (releasing unverified financials to lenders while withholding ledgers from Plaintiff) is liable for aiding and abetting under SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327 (11th Cir. 2014).
+   • Third-Party Reliance & Aiding/Abetting Liability: Under First Fla. Bank, N.A. v. Max Mitchell & Co., 558 So. 2d 9 (Fla. 1990) (adopting Restatement (Second) of Torts § 552) and Dattoma v. Laughlin, 183 So. 3d 465 (Fla. 4th DCA 2016), an accountant is liable to known relying stakeholders. Furthermore, a professional who has actual knowledge of a fiduciary breach and provides substantial assistance is liable for aiding and abetting under SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327 (11th Cir. 2014).
 
 C. DISMISSAL WITH PREJUDICE WITHOUT LEAVE TO AMEND VIOLATES FLA. R. CIV. P. 1.190(a)
 6. In the 4th DCA, refusal to allow amendment of a pleading constitutes an abuse of discretion unless it clearly appears that allowing the amendment would prejudice the opposing party, the privilege to amend has been abused, or amendment would be futile. Dimick v. Ray, 774 So. 2d 830 (Fla. 4th DCA 2000). Plaintiff's Verified Fourth Amended Complaint cures every purported defect with surgical ultimate facts and Rule 1.130 exhibits.
@@ -342,11 +345,18 @@ IN AND FOR BROWARD COUNTY, FLORIDA
 CASE NO.: CACE-26-XXXXXX
 DIVISION: 25
 
+TINA DIANE LEE,
+    Plaintiff,
+v.
+APRIL I. HALLE, ESQ., THE HALLE LAW FIRM, P.A., ENGLEBERG, CPA, et al.,
+    Defendants.
+__________________________________________/
+
 PLAINTIFF'S MEMORANDUM OF LAW ON DIRECT ACTION STANDING UNDER DINURO AND RULE 1.130 EXCLUSIVE POSSESSION EXCEPTION
 (Assigned Scope: Counts I, II & III • Responding to: Defense Motion to Dismiss)
 
 I. DIRECT ACTION STANDING UNDER DINURO INVESTMENTS, LLC V. CAMACHO
-1. Defendants erroneously contend that Plaintiff's claims are derivative. Under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731, 739–40 (Fla. 3d DCA 2014) and Strazzulla v. Riverside Banking Co., 175 So. 3d 879 (Fla. 4th DCA 2015), a member or shareholder has standing to bring a DIRECT action where:
+1. Defendants (including April I. Halle, Esq. and Engleberg, CPA) erroneously contend that Plaintiff's claims are derivative. Under Dinuro Investments, LLC v. Camacho, 141 So. 3d 731, 739–40 (Fla. 3d DCA 2014) and Strazzulla v. Riverside Banking Co., 175 So. 3d 879 (Fla. 4th DCA 2015), a member or shareholder has standing to bring a DIRECT action where:
    (a) There is a direct harm to the shareholder or member such that the alleged injury does not flow subsequently from an initial harm to the company; AND
    (b) There is a special injury that is separate and distinct from those sustained by other shareholders/members, OR a separate duty owed by the defendant directly to the plaintiff under contract or statute.
 2. Here, Plaintiff alleges distinct, individualized pecuniary injuries—including deprivation of statutory inspection rights under Fla. Stat. § 607.1602 / § 605.0410, personal tax exposure, targeted freeze-out from distributions, and loss of fair-value buyout rights. These injuries are personal to Plaintiff and satisfy both prongs of Dinuro.
@@ -390,8 +400,18 @@ const JUDGE_TEMPLATES = [
   }
 ];
 
+// Helper to sanitize any cached "Richard Halle" strings into "April I. Halle, Esq."
+const sanitizeRichardToApril = (str) => {
+  if (typeof str !== "string") return str;
+  return str
+    .replace(/RICHARD HALLE,\s*ESQ\./gi, "APRIL I. HALLE, ESQ.")
+    .replace(/Richard Halle,\s*Esq\./gi, "April I. Halle, Esq.")
+    .replace(/Richard Halle/gi, "April I. Halle, Esq.")
+    .replace(/Halle & Associates PA/gi, "The Halle Law Firm, P.A.");
+};
+
 export default function FloridaProSeLitigationApp() {
-  const [activeNav, setActiveNav] = useState("memo_of_law");
+  const [activeNav, setActiveNav] = useState("intake");
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [recentExpanded, setRecentExpanded] = useState(true);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
@@ -443,7 +463,7 @@ export default function FloridaProSeLitigationApp() {
   ]);
   const [activeChatId, setActiveChatId] = useState("chat-1");
 
-  // 2. Saved Drafts
+  // 2. Saved Drafts (Updated to April I. Halle, Esq.)
   const [savedDrafts, setSavedDrafts] = useState([
     {
       id: "draft-1",
@@ -452,7 +472,7 @@ export default function FloridaProSeLitigationApp() {
       caseNo: "CACE-26-XXXXXX",
       type: "Complaint",
       status: "Filed / Active",
-      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25 (Hon. Shari Africk Olefson)\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nRICHARD HALLE, ESQ., ENGLEBERG, CPA, et al.,\n    Defendants.\n__________________________________________/\n\nVERIFIED FOURTH AMENDED COMPLAINT FOR DAMAGES AND DEMAND FOR JURY TRIAL\n\nPlaintiff, TINA DIANE LEE, pro se, sues Defendants and alleges ultimate facts pursuant to Fla. R. Civ. P. 1.110(b):\n\nJURISDICTION, VENUE, AND PRIVITY\n1. This is an action for damages exceeding $50,000.00, exclusive of interest, costs, and attorney's fees, within the jurisdiction of this Court under Fla. Stat. § 26.012.\n2. Venue is proper in Broward County under Fla. Stat. § 47.011 as the causes of action accrued herein.\n3. Pursuant to Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014), Plaintiff brings direct claims for individualized pecuniary harm and deprivation of statutory inspection rights owed directly to Plaintiff.\n\nCOUNT I: BREACH OF FIDUCIARY DUTY & SELF-DEALING\n4. Plaintiff realleges Paragraphs 1–3. Defendants owed direct fiduciary duties of loyalty and candor.\n5. Defendants engaged in undisclosed self-dealing and bad-faith transfers without disinterested approval, stripping any safe harbor protection under Fla. Stat. § 607.0832.\n\nCOUNT II: PROFESSIONAL NEGLIGENCE & STATUTORY RECORD VIOLATIONS (AGAINST CPA)\n6. Plaintiff realleges Paragraphs 1–3. Pursuant to Fla. Stat. §§ 473.316(4)(a), (4)(c), and 473.318, and F.A.C. R. 61H1-23.002, Defendant CPA owed a mandatory duty to furnish client general ledgers and workpapers.\n7. Defendant withheld records while transmitting unverified financial data to third-party lenders.\n\nVERIFICATION\nUnder penalties of perjury pursuant to Fla. Stat. § 92.525, I declare that I have read the foregoing Complaint and that the facts stated in it are true.\n\nDated: October 17, 2026.\nBy: /s/ Tina Diane Lee\nTina Diane Lee, Pro Se\nEmail: service@allegedlylegal.com`
+      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25 (Hon. Shari Africk Olefson)\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nAPRIL I. HALLE, ESQ., THE HALLE LAW FIRM, P.A., ENGLEBERG, CPA, et al.,\n    Defendants.\n__________________________________________/\n\nVERIFIED FOURTH AMENDED COMPLAINT FOR DAMAGES AND DEMAND FOR JURY TRIAL\n\nPlaintiff, TINA DIANE LEE, pro se, sues Defendants (including APRIL I. HALLE, ESQ. and ENGLEBERG, CPA) and alleges ultimate facts pursuant to Fla. R. Civ. P. 1.110(b):\n\nJURISDICTION, VENUE, AND PRIVITY\n1. This is an action for damages exceeding $50,000.00, exclusive of interest, costs, and attorney's fees, within the jurisdiction of this Court under Fla. Stat. § 26.012.\n2. Venue is proper in Broward County under Fla. Stat. § 47.011 as the causes of action accrued herein.\n3. Pursuant to Dinuro Investments, LLC v. Camacho, 141 So. 3d 731 (Fla. 3d DCA 2014), Plaintiff brings direct claims for individualized pecuniary harm and deprivation of statutory inspection rights owed directly to Plaintiff.\n\nCOUNT I: BREACH OF FIDUCIARY DUTY, LEGAL MALPRACTICE & CONFLICT OF INTEREST (AGAINST APRIL I. HALLE, ESQ.)\n4. Plaintiff realleges Paragraphs 1–3. Defendant April I. Halle, Esq. (The Halle Law Firm, P.A.) owed direct fiduciary duties of loyalty, candor, and non-conflicted representation.\n5. Defendant engaged in undisclosed adverse representation (Rule 4-1.7) and bad-faith concealment of Delray Beach DBA and Broward corporate records, stripping any safe harbor protection under Fla. Stat. § 607.0832.\n\nCOUNT II: PROFESSIONAL NEGLIGENCE & STATUTORY RECORD VIOLATIONS (AGAINST ENGLEBERG, CPA)\n6. Plaintiff realleges Paragraphs 1–3. Pursuant to Fla. Stat. §§ 473.316(4)(a), (4)(c), and 473.318, and F.A.C. R. 61H1-23.002, Defendant Engleberg, CPA owed a mandatory duty to furnish client general ledgers and workpapers.\n7. Defendant withheld records while transmitting unverified financial data to third-party lenders.\n\nVERIFICATION\nUnder penalties of perjury pursuant to Fla. Stat. § 92.525, I declare that I have read the foregoing Complaint and that the facts stated in it are true.\n\nDated: October 17, 2026.\nBy: /s/ Tina Diane Lee\nTina Diane Lee, Pro Se\nEmail: service@allegedlylegal.com`
     },
     {
       id: "draft-2",
@@ -461,7 +481,7 @@ export default function FloridaProSeLitigationApp() {
       caseNo: "CACE-26-XXXXXX",
       type: "Motion for Rehearing",
       status: "Urgent (Due Oct 20)",
-      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nRICHARD HALLE, ESQ., ENGLEBERG, CPA, et al.,\n    Defendants.\n__________________________________________/\n\nPLAINTIFF'S TIMELY MOTION FOR REHEARING AND TO VACATE OCTOBER 5, 2026 ORDER DISMISSING COUNT IV WITH PREJUDICE PURSUANT TO FLA. R. CIV. P. 1.530\n\nPlaintiff, TINA DIANE LEE, pro se, timely moves for rehearing of the Court's October 5, 2026 Order Dismissing Count IV With Prejudice, and states:\n\n1. TIMELINESS: Pursuant to Fla. R. Civ. P. 1.530(b), this Motion is served within 15 days of the October 5, 2026 Order.\n2. FOUR CORNERS VIOLATION: On a motion to dismiss, the Court is strictly confined to the four corners of the complaint (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)). The October 5 Order improperly adopted unsworn factual assertions of defense counsel regarding lender communications and corporate safe harbors (§ 607.0832) that do not appear on the face of the pleading.\n3. STATUTORY PRIVILEGE WAIVER & PRIVITY: Under Fla. Stat. § 473.316(4)(a) & (c) and F.A.C. R. 61H1-23.002, accountant-client privilege does not apply to joint clients or fraud, and CPAs are statutorily required to return client records.\n\nWHEREFORE, Plaintiff respectfully requests that this Court grant rehearing, vacate the dismissal with prejudice of Count IV, and permit the action to proceed on the Fourth Amended Complaint.\n\nBy: /s/ Tina Diane Lee`
+      content: `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT\nIN AND FOR BROWARD COUNTY, FLORIDA\n\nCASE NO.: CACE-26-XXXXXX\nDIVISION: 25\n\nTINA DIANE LEE,\n    Plaintiff,\nv.\nAPRIL I. HALLE, ESQ., THE HALLE LAW FIRM, P.A., ENGLEBERG, CPA, et al.,\n    Defendants.\n__________________________________________/\n\nPLAINTIFF'S TIMELY MOTION FOR REHEARING AND TO VACATE OCTOBER 5, 2026 ORDER DISMISSING COUNT IV WITH PREJUDICE PURSUANT TO FLA. R. CIV. P. 1.530\n\nPlaintiff, TINA DIANE LEE, pro se, timely moves for rehearing of the Court's October 5, 2026 Order Dismissing Count IV With Prejudice, and states:\n\n1. TIMELINESS: Pursuant to Fla. R. Civ. P. 1.530(b), this Motion is served within 15 days of the October 5, 2026 Order.\n2. FOUR CORNERS VIOLATION: On a motion to dismiss, the Court is strictly confined to the four corners of the complaint (Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)). The October 5 Order improperly adopted unsworn factual assertions of defense counsel regarding lender communications and corporate safe harbors (§ 607.0832) that do not appear on the face of the pleading.\n3. STATUTORY PRIVILEGE WAIVER & PRIVITY: Under Fla. Stat. § 473.316(4)(a) & (c) and F.A.C. R. 61H1-23.002, accountant-client privilege does not apply to joint clients or fraud, and CPAs are statutorily required to return client records.\n\nWHEREFORE, Plaintiff respectfully requests that this Court grant rehearing, vacate the dismissal with prejudice of Count IV, and permit the action to proceed on the Fourth Amended Complaint.\n\nBy: /s/ Tina Diane Lee`
     }
   ]);
   const [activeDraftId, setActiveDraftId] = useState("draft-1");
@@ -488,16 +508,16 @@ export default function FloridaProSeLitigationApp() {
 
   // 4. Defendants Intake
   const [defendantsList, setDefendantsList] = useState(INITIAL_DEFENDANTS);
-  const [activeDefId, setActiveDefId] = useState("def-1");
+  const [activeDefId, setActiveDefId] = useState("def-2"); // Default highlight on April I. Halle, Esq.
 
-  // 5. Matters & Counts
+  // 5. Matters & Counts (Updated to April I. Halle, Esq.)
   const [matterCounts, setMatterCounts] = useState([
     {
       id: "cnt-1",
       countNum: "Count I",
-      title: "Breach of Fiduciary Duty & Direct Member Harm",
-      defendantName: "Richard Halle, Esq.",
-      authority: "Fla. Stat. § 605.04091 / § 607.0830; Dinuro Invs. v. Camacho, 141 So. 3d 731",
+      title: "Breach of Fiduciary Duty, Conflict of Interest & Direct Harm",
+      defendantName: "April I. Halle, Esq.",
+      authority: "Rules Regulating Fla. Bar 4-1.7; Fla. Stat. § 90.502(4)(c); Dinuro Invs. v. Camacho",
       privityHook: "Joint Representation Exception (§ 90.502(4)(c)) & Direct Special Injury",
       status: "Pled in 4th Amended Complaint"
     },
@@ -505,7 +525,7 @@ export default function FloridaProSeLitigationApp() {
       id: "cnt-2",
       countNum: "Count II",
       title: "Equitable Accounting & Corporate Record Inspection",
-      defendantName: "Engleberg, CPA & Richard Halle, Esq.",
+      defendantName: "Engleberg, CPA & April I. Halle, Esq.",
       authority: "Fla. Stat. § 607.1602; F.A.C. R. 61H1-23.002",
       privityHook: "Statutory Inspection Right & Direct Member Ownership",
       status: "Pled in 4th Amended Complaint"
@@ -514,7 +534,7 @@ export default function FloridaProSeLitigationApp() {
       id: "cnt-3",
       countNum: "Count III",
       title: "Civil Conspiracy & Aiding/Abetting Breach of Fiduciary Duty",
-      defendantName: "Engleberg, CPA & Richard Halle, Esq.",
+      defendantName: "Engleberg, CPA & April I. Halle, Esq.",
       authority: "SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327",
       privityHook: "Actual Knowledge + Substantial Assistance in Withholding Records",
       status: "Pled in 4th Amended Complaint"
@@ -545,7 +565,7 @@ export default function FloridaProSeLitigationApp() {
   const [defenseChatMsgs, setDefenseChatMsgs] = useState([
     {
       sender: "assistant",
-      text: "Defense Playbook AI ready. Ask me how to dismantle any defense objection (e.g., § 607.0832 Safe Harbor, Ultramares Privity, Dinuro, or the Four Corners Rule)."
+      text: "Defense Playbook AI ready. Live Intake Roster loaded (April I. Halle, Esq. & Engleberg, CPA). Ask me how to dismantle any defense objection."
     }
   ]);
   const [defenseChatInput, setDefenseChatInput] = useState("");
@@ -559,8 +579,8 @@ export default function FloridaProSeLitigationApp() {
     },
     {
       id: "pp-2",
-      title: "2. Overcoming CPA Privity & Privilege (§ 473.316 & § 473.318)",
-      body: "Under Fla. Stat. § 473.316(4)(c), there is no accountant-client privilege as to communications relevant to an issue of breach of duty or dispute between parties claiming through the same joint client/entity. Under F.A.C. R. 61H1-23.002 and § 473.318, withholding client general ledgers and workpapers is a direct statutory violation."
+      title: "2. Overcoming CPA & Attorney Privity / Privilege (§ 473.316 & § 90.502)",
+      body: "As to Engleberg, CPA and April I. Halle, Esq.: Under Fla. Stat. § 473.316(4)(c) and § 90.502(4)(c), privilege does not apply in disputes between parties claiming through a joint client/common interest, nor under the crime-fraud exceptions (§ 473.316(4)(a) / § 90.502(4)(a)). Under F.A.C. R. 61H1-23.002 and § 473.318, withholding client general ledgers and workpapers is a direct statutory violation."
     },
     {
       id: "pp-3",
@@ -586,10 +606,10 @@ export default function FloridaProSeLitigationApp() {
       id: "ev-2",
       defendantId: "def-2",
       exhibitLabel: "EXHIBIT B",
-      title: "Delray Beach DBA Corporate Records & Sunbiz Amendments",
+      title: "April I. Halle, Esq. Retainer & Delray Beach DBA Corporate Records",
       fileType: "Certified State Record (PDF)",
       batesRange: "LEE-EXB-0009 to LEE-EXB-0024",
-      capturedMetadata: "FL-DOS-Sunbiz Doc #L24000XXXXXX • Certified Timestamp",
+      capturedMetadata: "FL-DOS-Sunbiz Doc • Linked to April I. Halle, Esq. (hallelaw.com)",
       downloadedTimestamp: "2026-10-17 08:12:30 EDT"
     }
   ]);
@@ -600,10 +620,10 @@ export default function FloridaProSeLitigationApp() {
   const [selectedTemplateId, setSelectedTemplateId] = useState("tpl-rehearing");
   const [respondingToFilingId, setRespondingToFilingId] = useState("filed-1");
 
-  // 12. NEW LIBRARY TAB 6: MEMORANDUM OF LAW STATE
+  // 12. Memorandum of Law State
   const [memorandaList, setMemorandaList] = useState(INITIAL_MEMORANDA_OF_LAW);
   const [activeMemoId, setActiveMemoId] = useState("memo-1");
-  const [memoSelectedCountId, setMemoSelectedCountId] = useState("cnt-4"); // Or 'all'
+  const [memoSelectedCountId, setMemoSelectedCountId] = useState("cnt-4");
   const [memoSelectedFilingId, setMemoSelectedFilingId] = useState("filed-1");
   const [memoSelectedMotionType, setMemoSelectedMotionType] = useState(
     "Rule 1.530 Motion for Rehearing & To Vacate Dismissal"
@@ -613,30 +633,62 @@ export default function FloridaProSeLitigationApp() {
   const [aiOpen, setAiOpen] = useState(false);
   const [aiInput, setAiInput] = useState("");
 
+  // ============================================================================
+  // AUTO-MIGRATE & SANITIZE LOCALSTORAGE ON STARTUP (Fixes "Richard Halle" bug)
+  // ============================================================================
   useEffect(() => {
     try {
-      const savedDefs = localStorage.getItem("fl_prose_defendants");
-      if (savedDefs) setDefendantsList(JSON.parse(savedDefs));
-      const savedDr = localStorage.getItem("fl_prose_drafts");
-      if (savedDr) setSavedDrafts(JSON.parse(savedDr));
+      const savedDefsRaw = localStorage.getItem("fl_prose_defendants");
+      if (savedDefsRaw) {
+        const cleanedDefs = JSON.parse(sanitizeRichardToApril(savedDefsRaw));
+        setDefendantsList(cleanedDefs);
+        localStorage.setItem("fl_prose_defendants", JSON.stringify(cleanedDefs));
+      }
+
+      const savedDrRaw = localStorage.getItem("fl_prose_drafts");
+      if (savedDrRaw) {
+        const cleanedDr = JSON.parse(sanitizeRichardToApril(savedDrRaw));
+        setSavedDrafts(cleanedDr);
+        localStorage.setItem("fl_prose_drafts", JSON.stringify(cleanedDr));
+      }
+
+      const savedCountsRaw = localStorage.getItem("fl_prose_matter_counts");
+      if (savedCountsRaw) {
+        const cleanedCounts = JSON.parse(sanitizeRichardToApril(savedCountsRaw));
+        setMatterCounts(cleanedCounts);
+        localStorage.setItem("fl_prose_matter_counts", JSON.stringify(cleanedCounts));
+      }
+
+      const savedMemosRaw = localStorage.getItem("fl_prose_memoranda");
+      if (savedMemosRaw) {
+        const cleanedMemos = JSON.parse(sanitizeRichardToApril(savedMemosRaw));
+        setMemorandaList(cleanedMemos);
+        localStorage.setItem("fl_prose_memoranda", JSON.stringify(cleanedMemos));
+      }
+
       const savedSig = localStorage.getItem("fl_prose_sig_text");
       if (savedSig) setSignatureText(savedSig);
       const savedSigImg = localStorage.getItem("fl_prose_sig_img");
       if (savedSigImg) setSignatureImage(savedSigImg);
-      const savedEv = localStorage.getItem("fl_prose_evidence");
-      if (savedEv) setEvidenceItems(JSON.parse(savedEv));
-      const savedCounts = localStorage.getItem("fl_prose_matter_counts");
-      if (savedCounts) setMatterCounts(JSON.parse(savedCounts));
+      const savedEvRaw = localStorage.getItem("fl_prose_evidence");
+      if (savedEvRaw) {
+        const cleanedEv = JSON.parse(sanitizeRichardToApril(savedEvRaw));
+        setEvidenceItems(cleanedEv);
+      }
       const savedCal = localStorage.getItem("fl_prose_calendar");
       if (savedCal) setCalendarEvents(JSON.parse(savedCal));
-      const savedFiled = localStorage.getItem("fl_prose_filed_docs");
-      if (savedFiled) setFiledPleadings(JSON.parse(savedFiled));
-      const savedDefPb = localStorage.getItem("fl_prose_defense_pb");
-      if (savedDefPb) setDefensePlaybook(JSON.parse(savedDefPb));
-      const savedPlPb = localStorage.getItem("fl_prose_plaintiff_pb");
-      if (savedPlPb) setPlaintiffPlaybookCards(JSON.parse(savedPlPb));
-      const savedMemos = localStorage.getItem("fl_prose_memoranda");
-      if (savedMemos) setMemorandaList(JSON.parse(savedMemos));
+      const savedFiledRaw = localStorage.getItem("fl_prose_filed_docs");
+      if (savedFiledRaw) {
+        setFiledPleadings(JSON.parse(sanitizeRichardToApril(savedFiledRaw)));
+      }
+      const savedDefPbRaw = localStorage.getItem("fl_prose_defense_pb");
+      if (savedDefPbRaw) {
+        setDefensePlaybook(JSON.parse(sanitizeRichardToApril(savedDefPbRaw)));
+      }
+      const savedPlPbRaw = localStorage.getItem("fl_prose_plaintiff_pb");
+      if (savedPlPbRaw) {
+        setPlaintiffPlaybookCards(JSON.parse(sanitizeRichardToApril(savedPlPbRaw)));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -660,8 +712,15 @@ export default function FloridaProSeLitigationApp() {
     [memorandaList, activeMemoId]
   );
 
+  // Live Case Caption String Built Directly from Current Intake Defendants
+  const liveDefendantsCaptionString = useMemo(() => {
+    return defendantsList
+      .map((d) => `${d.name.toUpperCase()}${d.entityName ? `, ${d.entityName.toUpperCase()}` : ""}`)
+      .join(", ");
+  }, [defendantsList]);
+
   // ============================================================================
-  // AI MEMORANDUM OF LAW GENERATOR & PRINT ENGINE
+  // AI MEMORANDUM OF LAW GENERATOR (100% DRIVEN BY LIVE INTAKE)
   // ============================================================================
 
   const handleAiGenerateMemorandum = () => {
@@ -670,33 +729,34 @@ export default function FloridaProSeLitigationApp() {
     const targetCountObj =
       memoSelectedCountId === "all"
         ? {
-            countNum: "All Counts (Counts I–IV)",
-            title: "Omnibus Causes of Action",
+            countNum: "All Counts (Omnibus)",
+            title: "All Pled Causes of Action",
             defendantName: defendantsList.map((d) => d.name).join(", "),
             authority:
-              "Fla. R. Civ. P. 1.110(b), 1.130(a), 1.530; Fla. Stat. §§ 473.316(4), 473.318, 607.0830, 607.0832; Dinuro Invs. v. Camacho",
+              "Fla. R. Civ. P. 1.110(b), 1.130(a), 1.530; Fla. Stat. §§ 473.316(4), 473.318, 90.502(4), 607.0830, 607.0832; Dinuro Invs. v. Camacho",
             privityHook: "Multi-Tiered Contractual, Statutory & Fiduciary Privity"
           }
         : matterCounts.find((c) => c.id === memoSelectedCountId) || matterCounts[0];
 
-    const defNamesHeader = defendantsList.map((d) => d.name.toUpperCase()).join(", ");
-
+    // Build Defendant-by-Defendant Fact & Privity Section Directly from Live Intake State
     const defendantAnalysisBlock = defendantsList
       .map(
         (d, idx) =>
-          `${idx + 1}. AS TO DEFENDANT ${d.name.toUpperCase()} (${
-            PROFESSION_CONFIGS[d.profession]?.label
-          }):
+          `${idx + 1}. LIVE INTAKE RECORD — DEFENDANT ${d.name.toUpperCase()} (${
+            d.entityName || "Individual/Firm"
+          } • ${PROFESSION_CONFIGS[d.profession]?.label}):
+   • Sued Capacity: ${d.suedCapacity?.toUpperCase() || "INDIVIDUAL & CORPORATE"}
    • Governing Statutory Standard: ${PROFESSION_CONFIGS[d.profession]?.governingRules}
-   • Established Privity & Standing Hook: ${getPrivityLabelById(d.privityType)}${
-            d.customPrivityDetails ? ` — ${d.customPrivityDetails}` : ""
-          }
-   • Ultimate Facts of Breach (${d.dateLastAction}, discovered ${d.discoveryDate}): ${
-            d.specificBreach
-          }
-   • Rule 1.130 Documentary Evidence & Witnesses: ${d.evidence} (Witnesses: ${d.witnesses}; Co-Defendants: ${
-            d.otherDefendants
-          })`
+   • Pled Privity Standard: ${getPrivityLabelById(d.privityType)}
+   • Complex Privity & Standing Particulars: ${
+     d.customPrivityDetails || "Direct statutory and contractual privity established."
+   }
+   • Ultimate Facts of Breach (Last Action: ${d.dateLastAction} | Discovered: ${
+            d.discoveryDate
+          }): ${d.specificBreach}
+   • Rule 1.130 Evidence & Witnesses: ${d.evidence} | Witnesses: ${
+            d.witnesses
+          } | Co-Defendants: ${d.otherDefendants}`
       )
       .join("\n\n");
 
@@ -725,31 +785,34 @@ DIVISION: 25 (Hon. Shari Africk Olefson)
 ${plaintiff.toUpperCase()},
     Plaintiff,
 v.
-${defNamesHeader}, et al.,
+${liveDefendantsCaptionString}, et al.,
     Defendants.
 __________________________________________/
 
 PLAINTIFF'S MEMORANDUM OF LAW IN SUPPORT OF ${memoSelectedMotionType.toUpperCase()}
 • ASSIGNED COUNT SCOPE: ${targetCountObj.countNum} — ${targetCountObj.title}
+• TARGET DEFENDANTS: ${defendantsList.map((d) => d.name).join(" | ")}
 • TARGET FILING ADDRESSED: ${targetFiling.title} (${targetFiling.dateFiled})
 
 I. PRELIMINARY STATEMENT & QUESTION PRESENTED
 Plaintiff, ${plaintiff.toUpperCase()}, pro se, respectfully submits this Memorandum of Law addressing ${
       targetCountObj.countNum
-    } (${targetCountObj.title}) in connection with "${
+    } (${targetCountObj.title}) as to Defendants (${defendantsList
+      .map((d) => d.name)
+      .join(", ")}) in connection with "${
       targetFiling.title
     }" and in support of Plaintiff's ${memoSelectedMotionType}.
 
-Question Presented: Whether under Florida's strict Four Corners Rule (Fla. R. Civ. P. 1.140(b) and Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)), Plaintiff's verified ultimate facts, statutory privilege exceptions, and Rule 1.130(a) exhibits establish actionable standing and privity as to ${
-      targetCountObj.defendantName
-    }, precluding dismissal and mandating relief as a matter of Florida law.
+Question Presented: Whether under Florida's strict Four Corners Rule (Fla. R. Civ. P. 1.140(b) and Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000)), Plaintiff's verified ultimate facts, statutory privilege waivers (§ 473.316(4) & § 90.502(4)), and Rule 1.130(a) exhibits establish actionable standing and privity against ${defendantsList
+      .map((d) => d.name)
+      .join(" and ")}, precluding dismissal as a matter of Florida law.
 
 II. CONTROLLING FLORIDA STANDARD OF REVIEW
 1. Four Corners Rule: On a motion testing the legal sufficiency of a pleading, the trial court may not look beyond the four corners of the complaint and its attached exhibits, must accept all well-pled ultimate facts as true, and may not rely upon unsworn factual assertions of defense counsel. Barbado v. Green & Murphy, P.A., 758 So. 2d 1173, 1174 (Fla. 4th DCA 2000).
 2. Affirmative Defenses Barred on Motion to Dismiss: Fact-intensive affirmative defenses—including corporate director safe harbors under Fla. Stat. § 607.0832 or contested privilege claims—cannot support dismissal unless the defense appears conclusively on the face of the complaint itself. Chakra 5, Inc. v. City of Miami Beach, 254 So. 3d 1056 (Fla. 3d DCA 2018).
 3. Rule 1.530 Rehearing & Leave to Amend: Under Fla. R. Civ. P. 1.530(b) and 1.190(a), rehearing and leave to amend must be granted where a count states—or can state—a viable cause of action under Florida law. Dimick v. Ray, 774 So. 2d 830 (Fla. 4th DCA 2000).
 
-III. APPLICATION OF FLORIDA STATUTES & 4TH DCA PRECEDENT TO ${targetCountObj.countNum.toUpperCase()}
+III. APPLICATION OF FLORIDA LAW TO LIVE INTAKE DEFENDANTS & PRIVITY STANDARDS
 • Target Count Authority: ${targetCountObj.authority}
 • Pled Privity & Standing Hook: ${targetCountObj.privityHook}
 
@@ -780,7 +843,7 @@ Email: service@allegedlylegal.com`;
     const newMemoId = `memo-${Date.now()}`;
     const newMemoObj = {
       id: newMemoId,
-      title: `Memorandum of Law: ${targetCountObj.countNum} (${memoSelectedMotionType.slice(0, 32)}...)`,
+      title: `Memorandum: ${targetCountObj.countNum} (${defendantsList.map((d) => d.name).join(", ")})`,
       targetCount: `${targetCountObj.countNum}: ${targetCountObj.title}`,
       targetFiling: targetFiling.title,
       motionType: memoSelectedMotionType,
@@ -795,11 +858,11 @@ Email: service@allegedlylegal.com`;
       localStorage.setItem("fl_prose_memoranda", JSON.stringify(updatedMemos));
     } catch (e) {}
     triggerSyncBanner(
-      `✓ AI Generated Memorandum of Law for ${targetCountObj.countNum} & Saved to Library`
+      `✓ AI Built Memorandum Using Live Intake (${defendantsList.map((d) => d.name).join(", ")})`
     );
   };
 
-  // Dedicated Court Print Function (Prints 12pt Times New Roman cleanly)
+  // Dedicated Court Print Function
   const handlePrintActiveMemorandum = () => {
     const printWin = window.open("", "_blank", "width=900,height=1000");
     if (!printWin) {
@@ -817,10 +880,7 @@ Email: service@allegedlylegal.com`;
         <head>
           <title>${activeMemo.title}</title>
           <style>
-            @page {
-              size: letter;
-              margin: 1in;
-            }
+            @page { size: letter; margin: 1in; }
             body {
               font-family: "Times New Roman", Times, serif;
               font-size: 12pt;
@@ -884,8 +944,81 @@ Email: service@allegedlylegal.com`;
   };
 
   // ============================================================================
-  // OTHER CROSS-TAB SAVE & SYNC HANDLERS
+  // CROSS-TAB SAVE & SYNC HANDLERS (LIVE INTAKE PROPAGATION)
   // ============================================================================
+
+  const handleUpdateDefField = (field, val) => {
+    setDefendantsList((prev) =>
+      prev.map((d) => (d.id === selectedDef.id ? { ...d, [field]: val } : d))
+    );
+  };
+
+  const handleDeleteCurrentDefendant = () => {
+    if (defendantsList.length <= 1) return;
+    const filtered = defendantsList.filter((d) => d.id !== selectedDef.id);
+    setDefendantsList(filtered);
+    setActiveDefId(filtered[0].id);
+    try {
+      localStorage.setItem("fl_prose_defendants", JSON.stringify(filtered));
+    } catch (e) {}
+    triggerSyncBanner(`✓ Removed Defendant & Updated Intake Roster`);
+  };
+
+  // Save Intake Defendant & Dynamically Rewrite Captions/Counts Across All Tabs
+  const handleSaveIntakeDefendantAndSyncAll = () => {
+    try {
+      localStorage.setItem("fl_prose_defendants", JSON.stringify(defendantsList));
+
+      const profCfg = PROFESSION_CONFIGS[selectedDef.profession] || PROFESSION_CONFIGS.cpa;
+      const fullPrivityDescription = `${getPrivityLabelById(selectedDef.privityType)}${
+        selectedDef.customPrivityDetails ? ` — ${selectedDef.customPrivityDetails}` : ""
+      }`;
+
+      // 1. Rebuild Matter Counts to reflect current Intake Defendants accurately
+      const syncedCounts = defendantsList.map((d, idx) => {
+        const pCfg = PROFESSION_CONFIGS[d.profession] || PROFESSION_CONFIGS.cpa;
+        const pDesc = `${getPrivityLabelById(d.privityType)}${
+          d.customPrivityDetails ? ` — ${d.customPrivityDetails}` : ""
+        }`;
+        return {
+          id: `cnt-sync-${d.id}`,
+          countNum: `Count ${idx + 1}`,
+          title: `${pCfg.label} Malpractice, Breach of Duty & Record Concealment`,
+          defendantName: `${d.name}${d.entityName ? ` (${d.entityName})` : ""}`,
+          authority: pCfg.governingRules,
+          privityHook: `${pDesc} • Last Action: ${d.dateLastAction}`,
+          status: `Synced from Intake (${d.evidence})`
+        };
+      });
+      setMatterCounts(syncedCounts);
+      localStorage.setItem("fl_prose_matter_counts", JSON.stringify(syncedCounts));
+
+      // 2. Sync to Plaintiff's Playbook
+      const newPlaybookEntry = {
+        id: `pp-def-${selectedDef.id}`,
+        title: `Live Intake Strategy: ${selectedDef.name} (${selectedDef.entityName || profCfg.label})`,
+        body: `Governing Law: ${profCfg.governingRules}.\nPrivity Standard: ${fullPrivityDescription}.\nUltimate Facts of Breach (${selectedDef.dateLastAction}): ${selectedDef.specificBreach}.\nRule 1.130 Exhibit: ${selectedDef.evidence} | Witnesses: ${selectedDef.witnesses} | Co-Defendants: ${selectedDef.otherDefendants}.`
+      };
+      const filteredPb = plaintiffPlaybookCards.filter((p) => p.id !== newPlaybookEntry.id);
+      const updatedPb = [newPlaybookEntry, ...filteredPb];
+      setPlaintiffPlaybookCards(updatedPb);
+      localStorage.setItem("fl_prose_plaintiff_pb", JSON.stringify(updatedPb));
+
+      // 3. Sanitize & Update Saved Drafts Captions with Live Intake Names
+      const updatedDrafts = savedDrafts.map((dr) => ({
+        ...dr,
+        content: sanitizeRichardToApril(dr.content)
+      }));
+      setSavedDrafts(updatedDrafts);
+      localStorage.setItem("fl_prose_drafts", JSON.stringify(updatedDrafts));
+
+      triggerSyncBanner(
+        `✓ Intake Saved! AI, Matters, Playbooks & Drafts Now Synced to ${defendantsList
+          .map((d) => d.name)
+          .join(" & ")}`
+      );
+    } catch (e) {}
+  };
 
   const handleSaveHistoryAndSync = () => {
     try {
@@ -936,84 +1069,10 @@ Email: service@allegedlylegal.com`;
     triggerSyncBanner("✓ Deadlines Saved & Synced to Google Calendar & Matters");
   };
 
-  const handleUpdateDefField = (field, val) => {
-    setDefendantsList((prev) =>
-      prev.map((d) => (d.id === selectedDef.id ? { ...d, [field]: val } : d))
-    );
-  };
-
-  const handleSaveIntakeDefendantAndSyncAll = () => {
-    try {
-      localStorage.setItem("fl_prose_defendants", JSON.stringify(defendantsList));
-
-      const profCfg = PROFESSION_CONFIGS[selectedDef.profession] || PROFESSION_CONFIGS.cpa;
-      const fullPrivityDescription = `${getPrivityLabelById(selectedDef.privityType)}${
-        selectedDef.customPrivityDetails ? ` — ${selectedDef.customPrivityDetails}` : ""
-      }`;
-
-      const existingCountIdx = matterCounts.findIndex(
-        (c) => c.defendantName.toLowerCase() === selectedDef.name.toLowerCase()
-      );
-      let updatedCounts = [...matterCounts];
-      if (existingCountIdx >= 0) {
-        updatedCounts[existingCountIdx] = {
-          ...updatedCounts[existingCountIdx],
-          authority: profCfg.governingRules,
-          privityHook: `${fullPrivityDescription} • Last Action: ${selectedDef.dateLastAction}`,
-          status: `Synced from Intake (${selectedDef.evidence})`
-        };
-      } else {
-        updatedCounts.push({
-          id: `cnt-${Date.now()}`,
-          countNum: `Count ${updatedCounts.length + 1}`,
-          title: `Professional / Statutory Breach (${profCfg.label})`,
-          defendantName: selectedDef.name,
-          authority: profCfg.governingRules,
-          privityHook: `${fullPrivityDescription} • Last Action: ${selectedDef.dateLastAction}`,
-          status: `Synced from Intake (${selectedDef.evidence})`
-        });
-      }
-      setMatterCounts(updatedCounts);
-      localStorage.setItem("fl_prose_matter_counts", JSON.stringify(updatedCounts));
-
-      const newPlaybookEntry = {
-        id: `pp-def-${selectedDef.id}`,
-        title: `Synced Intake Strategy: ${selectedDef.name} (${profCfg.label})`,
-        body: `Governing Law: ${profCfg.governingRules}.\nPrivity Standard: ${fullPrivityDescription}.\nUltimate Facts of Breach (${selectedDef.dateLastAction}): ${selectedDef.specificBreach}.\nRule 1.130 Exhibit: ${selectedDef.evidence} | Witnesses: ${selectedDef.witnesses}.`
-      };
-      const filteredPb = plaintiffPlaybookCards.filter((p) => p.id !== newPlaybookEntry.id);
-      const updatedPb = [newPlaybookEntry, ...filteredPb];
-      setPlaintiffPlaybookCards(updatedPb);
-      localStorage.setItem("fl_prose_plaintiff_pb", JSON.stringify(updatedPb));
-
-      triggerSyncBanner(
-        `✓ Defendant "${selectedDef.name}" & Privity Standards Saved & Synced Across All Tabs`
-      );
-    } catch (e) {}
-  };
-
   const handleSaveMattersAndSyncToDrafts = () => {
     try {
       localStorage.setItem("fl_prose_matter_counts", JSON.stringify(matterCounts));
-      const countsBlock = matterCounts
-        .map(
-          (c) =>
-            `${c.countNum.toUpperCase()}: ${c.title.toUpperCase()} (AGAINST ${c.defendantName.toUpperCase()})\n• Governing Authority: ${c.authority}\n• Privity & Standing Hook: ${c.privityHook}\n• Status: ${c.status}`
-        )
-        .join("\n\n");
-
-      const updatedDrafts = savedDrafts.map((dr, idx) =>
-        idx === 0
-          ? {
-              ...dr,
-              updatedAt: new Date().toISOString().slice(0, 10),
-              content: `${dr.content}\n\n--- SYNCED MATTER COUNTS ---\n${countsBlock}`
-            }
-          : dr
-      );
-      setSavedDrafts(updatedDrafts);
-      localStorage.setItem("fl_prose_drafts", JSON.stringify(updatedDrafts));
-      triggerSyncBanner("✓ Matter Counts Saved & Synced into Active Complaint Draft & Memoranda");
+      triggerSyncBanner("✓ Matter Counts Saved & Synced into Drafts & Memoranda");
     } catch (e) {}
   };
 
@@ -1144,7 +1203,6 @@ Email: service@allegedlylegal.com`;
   const handleGenerateTemplateIntoDraft = (templateIdToUse) => {
     const tpl = JUDGE_TEMPLATES.find((t) => t.id === (templateIdToUse || selectedTemplateId)) || JUDGE_TEMPLATES[0];
     const refDoc = filedPleadings.find((f) => f.id === respondingToFilingId) || filedPleadings[0];
-    const defNames = defendantsList.map((d) => d.name.toUpperCase()).join(", ");
 
     const generatedContent = `IN THE CIRCUIT COURT OF THE 17TH JUDICIAL CIRCUIT
 IN AND FOR BROWARD COUNTY, FLORIDA
@@ -1155,7 +1213,7 @@ DIVISION: 25 (Hon. Shari Africk Olefson)
 ${plaintiff.toUpperCase()},
     Plaintiff,
 v.
-${defNames},
+${liveDefendantsCaptionString}, et al.,
     Defendants.
 __________________________________________/
 
@@ -1172,9 +1230,9 @@ II. SYNCED INTAKE DEFENDANTS, PRIVITY STANDARDS & ULTIMATE FACTS (FLA. R. CIV. P
 ${defendantsList
   .map(
     (d, i) =>
-      `${i + 3}. Defendant ${d.name} (${PROFESSION_CONFIGS[d.profession]?.label}):\n   • Privity Standard: ${getPrivityLabelById(d.privityType)}${
+      `${i + 3}. Defendant ${d.name} (${d.entityName || PROFESSION_CONFIGS[d.profession]?.label}):\n   • Privity Standard: ${getPrivityLabelById(d.privityType)}${
         d.customPrivityDetails ? `\n   • Complex Privity / Standing Particulars: ${d.customPrivityDetails}` : ""
-      }\n   • Ultimate Facts of Breach (${d.dateLastAction}, discovered ${d.discoveryDate}): ${d.specificBreach}\n   • Rule 1.130 Attachment: ${d.evidence} | Witnesses: ${d.witnesses}.`
+      }\n   • Ultimate Facts of Breach (${d.dateLastAction}, discovered ${d.discoveryDate}): ${d.specificBreach}\n   • Rule 1.130 Attachment: ${d.evidence} | Witnesses: ${d.witnesses} | Co-Defendants: ${d.otherDefendants}.`
   )
   .join("\n\n")}
 
@@ -1200,7 +1258,7 @@ Email: service@allegedlylegal.com`;
     const newDraftId = `draft-${Date.now()}`;
     const newDraftObj = {
       id: newDraftId,
-      title: `${tpl.name} (Re: ${refDoc.title.slice(0, 24)}...)`,
+      title: `${tpl.name} (${defendantsList.map((d) => d.name).join(", ")})`,
       updatedAt: "2026-10-17",
       caseNo: "CACE-26-XXXXXX",
       type: tpl.category,
@@ -1215,18 +1273,45 @@ Email: service@allegedlylegal.com`;
     } catch (e) {}
     setActiveDraftId(newDraftId);
     setActiveNav("editor");
-    triggerSyncBanner("✓ Template Built with Synced Intake Privity, Evidence & Playbooks");
+    triggerSyncBanner(
+      `✓ Template Built Using Live Intake (${defendantsList.map((d) => d.name).join(", ")})`
+    );
   };
 
+  // ============================================================================
+  // LIVE INTAKE-AWARE FLORIDA LEGAL AI RESPONDER
+  // ============================================================================
   const generateFloridaLegalAiResponse = (queryText) => {
     const lower = queryText.toLowerCase();
-    if (lower.includes("privity") || lower.includes("ultramares") || lower.includes("max mitchell") || lower.includes("dattoma")) {
-      return "FLORIDA PRIVITY & STANDING ANALYSIS:\n1. CPA Privity Exceptions: Under First Fla. Bank v. Max Mitchell & Co., 558 So. 2d 9 (Fla. 1990) (adopting Restatement § 552), strict privity is NOT required where the accountant knows that a specific third party or equity member will rely on the financials. Furthermore, Fla. Stat. § 473.316(4)(c) waives privilege between joint clients/equity members, and F.A.C. R. 61H1-23.002 / § 473.318 impose a direct statutory duty to furnish client records.\n2. Attorney Privity Exceptions: Under Espinosa v. Sparber, 612 So. 2d 1378, intended third-party beneficiaries have standing, and under Fla. Stat. § 90.502(4)(a)/(c), privilege is waived for joint clients or crime/fraud.";
+    const intakeSummary = defendantsList
+      .map(
+        (d) =>
+          `• ${d.name} (${d.entityName || PROFESSION_CONFIGS[d.profession]?.label}) — Privity: ${getPrivityLabelById(
+            d.privityType
+          )} | Breach (${d.dateLastAction}): ${d.specificBreach} | Exhibit: ${d.evidence}`
+      )
+      .join("\n");
+
+    if (lower.includes("halle") || lower.includes("april") || lower.includes("attorney")) {
+      const halleDef =
+        defendantsList.find((d) => d.name.toLowerCase().includes("halle")) || defendantsList[0];
+      return `LIVE INTAKE ANALYSIS FOR ${halleDef.name.toUpperCase()} (${halleDef.entityName}):\n1. Pled Privity & Privilege Waiver: ${getPrivityLabelById(
+        halleDef.privityType
+      )} (${halleDef.customPrivityDetails || "Joint representation / common interest under Fla. Stat. § 90.502(4)(c)"}).\n2. Ultimate Facts of Breach (${halleDef.dateLastAction}): ${
+        halleDef.specificBreach
+      }\n3. Co-Conspirator / Aiding & Abetting Hook: Under SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327, ${
+        halleDef.name
+      } is liable for aiding and abetting fiduciary breaches alongside ${
+        halleDef.otherDefendants || "Engleberg, CPA"
+      } based on actual knowledge and substantial assistance.\n4. Rule 1.130 Evidence: ${halleDef.evidence}.`;
+    }
+    if (lower.includes("privity") || lower.includes("ultramares") || lower.includes("max mitchell") || lower.includes("dattoma") || lower.includes("engleberg") || lower.includes("cpa")) {
+      return `FLORIDA PRIVITY & STANDING ANALYSIS (LIVE INTAKE ROSTER):\n${intakeSummary}\n\n1. CPA Privity Exceptions (Engleberg, CPA): Under First Fla. Bank v. Max Mitchell & Co., 558 So. 2d 9 (Fla. 1990) and Dattoma v. Laughlin, 183 So. 3d 465 (Fla. 4th DCA 2016), strict privity is overcome by known reliance, joint-client status under Fla. Stat. § 473.316(4)(c), crime-fraud waiver under § 473.316(4)(a), and mandatory client record duties under F.A.C. R. 61H1-23.002 & § 473.318.\n2. Attorney Privity Exceptions (April I. Halle, Esq.): Under Espinosa v. Sparber and Fla. Stat. § 90.502(4)(a)/(c), joint representation and crime/fraud waive privilege and establish direct liability.`;
     }
     if (lower.includes("count iv") || lower.includes("olefson") || lower.includes("oct 5") || lower.includes("rehearing") || lower.includes("1.530")) {
-      return "CRITICAL FLORIDA PROCEDURAL ANALYSIS (Count IV Dismissal & Rule 1.530):\n1. Jurisdictional Deadline: Under Fla. R. Civ. P. 1.530(b), a Motion for Rehearing must be served within 15 days of the Oct 5, 2026 Order (Deadline: Tuesday, October 20, 2026).\n2. Reversible Error on the Four Corners: Under Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000), a trial court may not consider unsworn factual assertions of defense counsel or resolve unpled affirmative defenses like Fla. Stat. § 607.0832 on a Motion to Dismiss.";
+      return `CRITICAL FLORIDA PROCEDURAL ANALYSIS (Count IV Dismissal & Rule 1.530):\n1. Jurisdictional Deadline: Under Fla. R. Civ. P. 1.530(b), a Motion for Rehearing must be served within 15 days of the Oct 5, 2026 Order (Deadline: Tuesday, October 20, 2026).\n2. Reversible Error on the Four Corners: Under Barbado v. Green & Murphy, P.A., 758 So. 2d 1173 (Fla. 4th DCA 2000), a trial court may not consider unsworn factual assertions of defense counsel or resolve unpled affirmative defenses like Fla. Stat. § 607.0832 on a Motion to Dismiss.\n3. Live Intake Parties Synced: ${defendantsList.map((d) => d.name).join(", ")}.`;
     }
-    return `FLORIDA CIRCUIT CIVIL ANALYSIS (17th Judicial Circuit Division 25):\nUnder Fla. R. Civ. P. 1.110(b), ensure every count separates each defendant's specific acts and privity standard. You can generate a printable Memorandum of Law for any Count or Motion in Library Tab 6.`;
+    return `FLORIDA CIRCUIT CIVIL AI (READING LIVE INTAKE ROSTER):\nCurrently Loaded Defendants from Tab 4 (Intake):\n${intakeSummary}\n\nAll generated Memoranda of Law (Library Tab 6), Templates (Library Tab 5), and Matters (Tab 5) are actively pulling these exact names, privity hooks, and ultimate facts.`;
   };
 
   const handleSendChatThreadMessage = (textToSend) => {
@@ -1286,7 +1371,9 @@ Email: service@allegedlylegal.com`;
   const createGoogleCalendarUrl = (ev) => {
     const dateClean = ev.date.replace(/-/g, "");
     const titleEnc = encodeURIComponent(`[FL 17th Cir] ${ev.title}`);
-    const detailsEnc = encodeURIComponent(`Case: CACE Lee vs Halle, Engleberg (Broward Div 25)\nCategory: ${ev.type}`);
+    const detailsEnc = encodeURIComponent(
+      `Case: CACE Lee vs April I. Halle, Esq., Engleberg, CPA (Broward Div 25)\nCategory: ${ev.type}`
+    );
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${titleEnc}&dates=${dateClean}/${dateClean}&details=${detailsEnc}`;
   };
 
@@ -1328,7 +1415,9 @@ Email: service@allegedlylegal.com`;
                     messages: [
                       {
                         sender: "assistant",
-                        text: "New Florida Legal AI session started. Ask about 17th Judicial Circuit rules, Count IV rehearing grounds, Privity exceptions, or Rule 1.110(b) fact-pleading."
+                        text: `Florida Legal AI session started. Reading Live Intake Roster: ${defendantsList
+                          .map((d) => d.name)
+                          .join(", ")}.`
                       }
                     ]
                   },
@@ -1516,7 +1605,7 @@ Email: service@allegedlylegal.com`;
             </div>
           </div>
 
-          {/* II. LIBRARY SECTION (Now includes Tab 6: Memorandum of Law) */}
+          {/* II. LIBRARY SECTION */}
           <div>
             <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-2">
               II. Library
@@ -1607,7 +1696,6 @@ Email: service@allegedlylegal.com`;
                 <span>5. Templates / Rules</span>
               </button>
 
-              {/* NEW LIBRARY TAB 6: MEMORANDUM OF LAW */}
               <button
                 onClick={() => {
                   setActiveNav("memo_of_law");
@@ -1631,18 +1719,20 @@ Email: service@allegedlylegal.com`;
           </div>
         </div>
 
+        {/* Live Intake Status Card */}
         <div className="p-3 border-t border-slate-200 space-y-2 bg-[#FAFAFA]">
           <div className="p-2.5 bg-white border border-slate-200 rounded-lg text-xs">
             <div className="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase">
-              <span>Cross-Tab Sync</span>
-              <span className="text-emerald-700">Active</span>
+              <span>Live Intake Roster</span>
+              <span className="text-emerald-700">{defendantsList.length} Active</span>
             </div>
-            <div className="w-full bg-slate-100 h-1 rounded-full mt-1.5 overflow-hidden">
-              <div className="bg-emerald-600 h-full w-full" />
+            <div className="mt-1 space-y-0.5">
+              {defendantsList.map((d) => (
+                <div key={d.id} className="text-[10px] font-semibold text-slate-800 truncate">
+                  • {d.name}
+                </div>
+              ))}
             </div>
-            <p className="text-[10px] text-slate-500 mt-1.5">
-              {defendantsList.length} Defendants • {memorandaList.length} Memoranda
-            </p>
           </div>
 
           <button
@@ -1685,7 +1775,7 @@ Email: service@allegedlylegal.com`;
                 Florida Circuit Civil Pro Se Litigation Studio
               </h1>
               <span className="text-[10px] text-slate-500 font-mono">
-                17th Judicial Circuit • Broward County Division 25
+                Live Defendants: {defendantsList.map((d) => d.name).join(" | ")}
               </span>
             </div>
           </div>
@@ -1722,12 +1812,11 @@ Email: service@allegedlylegal.com`;
         {/* ================================================================== */}
         {activeNav === "memo_of_law" && (
           <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
-            {/* Top Generator Control Bar */}
             <div className="bg-white border-b border-slate-200 p-4 sm:px-6 space-y-3 shrink-0 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
                   <span className="text-[10px] font-mono uppercase bg-indigo-50 text-indigo-800 px-2 py-0.5 rounded border border-indigo-200">
-                    Library Tab 6 • Printable 17th Cir. Division 25 Memorandum of Law Engine
+                    Library Tab 6 • Synced with Intake ({defendantsList.map((d) => d.name).join(", ")})
                   </span>
                   <h2 className="text-sm sm:text-base font-bold text-slate-900 mt-1">
                     AI Memorandum of Law Builder (Per Filing, Motion & Count)
@@ -1740,7 +1829,7 @@ Email: service@allegedlylegal.com`;
                     className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-sm transition"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    AI Fill Memorandum for Selected Count & Motion
+                    AI Fill Memorandum Using Live Intake
                   </button>
                   <button
                     onClick={handleSaveMemoAndSyncToDrafts}
@@ -1759,7 +1848,6 @@ Email: service@allegedlylegal.com`;
                 </div>
               </div>
 
-              {/* 3-Column Scope Selector: Count + Filed Doc + Motion Type */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-xs">
                 <div>
                   <label className="text-[11px] font-bold text-slate-600 block mb-1">
@@ -1825,7 +1913,6 @@ Email: service@allegedlylegal.com`;
               </div>
             </div>
 
-            {/* Split View: Left Saved Memoranda List + Right Printable Court Document */}
             <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
               <aside className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white p-4 overflow-y-auto space-y-2.5 shrink-0">
                 <div className="flex items-center justify-between">
@@ -1859,15 +1946,11 @@ Email: service@allegedlylegal.com`;
                 ))}
               </aside>
 
-              {/* Center Printable Legal Paper Canvas */}
               <main className="flex-1 bg-[#F1F3F5] p-4 sm:p-8 overflow-y-auto flex justify-center">
                 <div className="w-full max-w-3xl flex flex-col space-y-3">
                   <div className="bg-white border border-slate-200 rounded-lg px-4 py-2.5 flex items-center justify-between text-xs shadow-sm">
                     <div>
                       <span className="font-bold text-slate-900">{activeMemo.title}</span>
-                      <span className="text-slate-400 ml-2 font-mono text-[11px]">
-                        ({activeMemo.targetCount})
-                      </span>
                     </div>
                     <button
                       onClick={handlePrintActiveMemorandum}
@@ -1925,7 +2008,7 @@ Email: service@allegedlylegal.com`;
                 <div>
                   <h2 className="text-sm font-bold text-slate-900">{activeChatThread.title}</h2>
                   <p className="text-[11px] text-slate-400">
-                    Grounded in Florida Rules of Civil Procedure & 4th DCA Precedent
+                    Reading Live Intake: {defendantsList.map((d) => d.name).join(", ")}
                   </p>
                 </div>
                 <button
@@ -1966,7 +2049,7 @@ Email: service@allegedlylegal.com`;
                       setAiInput("");
                     }
                   }}
-                  placeholder="Ask follow-up question on Privity, Count IV rehearing, Dinuro, or Rule 1.130..."
+                  placeholder="Ask about April I. Halle, Esq., Engleberg, CPA, Privity, or Count IV..."
                   className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900"
                 />
                 <button
@@ -2092,7 +2175,7 @@ Email: service@allegedlylegal.com`;
           </div>
         )}
 
-        {/* TAB 3: WORK / TODAY (Google Calendar & Gmail Sync) */}
+        {/* TAB 3: WORK / TODAY */}
         {activeNav === "today" && (
           <div className="flex-1 p-6 overflow-y-auto bg-slate-50 flex flex-col lg:flex-row gap-6">
             <div className="w-full lg:w-80 bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4 shrink-0">
@@ -2223,13 +2306,15 @@ Email: service@allegedlylegal.com`;
                 </button>
               </div>
 
-              <button
-                onClick={handleSaveIntakeDefendantAndSyncAll}
-                className="flex items-center gap-1.5 px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm"
-              >
-                <Save className="w-3.5 h-3.5" />
-                Save Defendant & Sync All Tabs
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleSaveIntakeDefendantAndSyncAll}
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  Save Defendant & Sync All Tabs
+                </button>
+              </div>
             </div>
 
             {intakeSubTab !== "defendants" ? (
@@ -2244,7 +2329,7 @@ Email: service@allegedlylegal.com`;
               <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
                 <aside className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r border-slate-200 bg-[#FAFAFA] p-3 overflow-y-auto space-y-2 shrink-0">
                   <span className="text-[11px] font-bold uppercase text-slate-400 px-1 block">
-                    Named Defendants
+                    Named Defendants (Live AI Source)
                   </span>
                   {defendantsList.map((def) => (
                     <button
@@ -2301,9 +2386,20 @@ Email: service@allegedlylegal.com`;
                         <span className="text-xs font-bold uppercase text-slate-700">
                           Step 1: Select Defendant Profession
                         </span>
-                        <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                          {currentProfConfig.governingRules}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                            {currentProfConfig.governingRules}
+                          </span>
+                          {defendantsList.length > 1 && (
+                            <button
+                              onClick={handleDeleteCurrentDefendant}
+                              className="text-rose-600 hover:text-rose-800 p-1"
+                              title="Delete Defendant"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {Object.entries(PROFESSION_CONFIGS).map(([key, cfg]) => (
@@ -2325,13 +2421,13 @@ Email: service@allegedlylegal.com`;
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                       <div>
                         <label className="text-slate-600 font-semibold block mb-1">
-                          Defendant Name
+                          Defendant Name (Read Directly by AI)
                         </label>
                         <input
                           type="text"
                           value={selectedDef.name}
                           onChange={(e) => handleUpdateDefField("name", e.target.value)}
-                          className="w-full border border-slate-300 rounded-lg p-2"
+                          className="w-full border border-slate-300 rounded-lg p-2 font-semibold text-slate-900"
                         />
                       </div>
                       <div>
@@ -2399,18 +2495,16 @@ Email: service@allegedlylegal.com`;
                       </select>
 
                       <div className="space-y-1 pt-1">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-semibold text-slate-800">
-                            {selectedDef.privityType === "other_complex"
-                              ? "★ Specify Other / Complex Multi-Layered Privity Facts & Legal Hooks (Required):"
-                              : "Complex Privity / Multi-Tiered Standing Particulars (Optional Supplement):"}
-                          </label>
-                        </div>
+                        <label className="text-xs font-semibold text-slate-800 block">
+                          {selectedDef.privityType === "other_complex"
+                            ? "★ Specify Other / Complex Multi-Layered Privity Facts & Legal Hooks (Required):"
+                            : "Complex Privity / Multi-Tiered Standing Particulars (Optional Supplement):"}
+                        </label>
                         <textarea
                           rows={3}
                           value={selectedDef.customPrivityDetails || ""}
                           onChange={(e) => handleUpdateDefField("customPrivityDetails", e.target.value)}
-                          placeholder="Detail complex privity chains here (e.g., interlocking Delray Beach DBA & corporate entities, joint-client tax preparation under § 473.316(4)(c), third-party lender reliance triangle, exclusive possession of contracts under Sachse, or aiding & abetting overt acts)..."
+                          placeholder="Detail complex privity chains here (e.g., interlocking Delray Beach DBA & corporate entities, joint-client representation, third-party lender reliance triangle, exclusive possession of contracts under Sachse, or aiding & abetting overt acts)..."
                           className="w-full border border-slate-300 rounded-lg p-2.5 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
                         />
                       </div>
@@ -2468,7 +2562,7 @@ Email: service@allegedlylegal.com`;
                         className="flex items-center gap-2 px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold shadow-sm"
                       >
                         <Save className="w-4 h-4" />
-                        Save Defendant & Update Matters, Playbooks & Memoranda
+                        Save Defendant & Update AI, Matters, Playbooks & Memoranda
                       </button>
                     </div>
                   </div>
@@ -2486,38 +2580,25 @@ Email: service@allegedlylegal.com`;
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4 gap-3">
                   <div>
                     <h2 className="text-base font-bold text-slate-900">
-                      CACE Lee vs Halle, Engleberg (Count-by-Count Mapping)
+                      CACE Lee vs {defendantsList.map((d) => d.name).join(", ")}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      17th Judicial Circuit • Broward County Division 25 • Synced with Intake & Memorandum of Law
+                      17th Judicial Circuit • Broward County Division 25 • Synced with Live Intake
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => {
-                        setMatterCounts((prev) => [
-                          ...prev,
-                          {
-                            id: `cnt-${Date.now()}`,
-                            countNum: `Count ${prev.length + 1}`,
-                            title: "Civil Conspiracy & Aiding/Abetting",
-                            defendantName: defendantsList.map((d) => d.name).join(" & "),
-                            authority: "SFM Holdings, Ltd. v. Banc of Am. Sec., LLC, 764 F.3d 1327",
-                            privityHook: "Actual Knowledge + Substantial Assistance",
-                            status: "Active Count"
-                          }
-                        ]);
-                      }}
-                      className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold"
+                      onClick={handleSaveIntakeDefendantAndSyncAll}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold"
                     >
-                      + Add Count
+                      <RefreshCw className="w-3.5 h-3.5" /> Re-Sync Counts from Intake
                     </button>
                     <button
                       onClick={handleSaveMattersAndSyncToDrafts}
                       className="flex items-center gap-1.5 px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold"
                     >
                       <Save className="w-3.5 h-3.5" />
-                      Save Matter Counts & Sync
+                      Save Matter Counts
                     </button>
                   </div>
                 </div>
@@ -2644,7 +2725,7 @@ Email: service@allegedlylegal.com`;
                     type="text"
                     value={newFiledFiler}
                     onChange={(e) => setNewFiledFiler(e.target.value)}
-                    placeholder="Filed By (e.g., Defense Counsel / Court)"
+                    placeholder="Filed By (e.g., April I. Halle, Esq. / Court)"
                     className="border border-slate-300 rounded-lg p-2"
                   />
                 </div>
@@ -2736,7 +2817,7 @@ Email: service@allegedlylegal.com`;
                   Defense Playbook AI Strategist
                 </span>
                 <span className="text-[10px] text-slate-400">
-                  Ask how to defeat specific defense motions or privity objections
+                  Synced with Intake: {defendantsList.map((d) => d.name).join(", ")}
                 </span>
               </div>
               <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs max-h-96 lg:max-h-none">
@@ -2759,7 +2840,7 @@ Email: service@allegedlylegal.com`;
                   value={defenseChatInput}
                   onChange={(e) => setDefenseChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSendDefensePlaybookChat()}
-                  placeholder="Ask about § 607.0832, CPA privity, Count IV..."
+                  placeholder="Ask about April I. Halle, Esq., Engleberg, CPA..."
                   className="flex-1 border border-slate-300 rounded px-2.5 py-1.5 text-xs"
                 />
                 <button
@@ -2780,7 +2861,7 @@ Email: service@allegedlylegal.com`;
               <div className="p-5 bg-emerald-900 text-white rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono uppercase bg-emerald-800 px-2 py-0.5 rounded">
-                    AI-Synthesized Offensive Strategy • 4th DCA & Florida Statutory Precision
+                    AI-Synthesized Offensive Strategy • Live Intake: {defendantsList.map((d) => d.name).join(", ")}
                   </span>
                   <h2 className="text-base font-bold">
                     Plaintiff&apos;s Master Playbook & Standing Vulnerability Cure
@@ -2925,7 +3006,7 @@ Email: service@allegedlylegal.com`;
               <div className="p-5 bg-white rounded-xl border border-slate-200 space-y-3 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
-                    17th Judicial Circuit Division 25 (Hon. Shari Africk Olefson) Rules Engine
+                    17th Judicial Circuit Division 25 • Synced with Intake ({defendantsList.map((d) => d.name).join(", ")})
                   </span>
                   <button
                     onClick={() => handleGenerateTemplateIntoDraft(selectedTemplateId)}
@@ -2939,7 +3020,7 @@ Email: service@allegedlylegal.com`;
                   Judge Procedures & Responsive Pleading Builder
                 </h2>
                 <p className="text-xs text-slate-600">
-                  Automatically pulls your synced Defendants & Privity Standards from Intake, Bates Exhibits from the Evidence Vault, Arguments from Plaintiff&apos;s Playbook, and your Saved Signature.
+                  Automatically pulls your synced Defendants ({defendantsList.map((d) => d.name).join(", ")}) & Privity Standards from Intake, Bates Exhibits from the Evidence Vault, Arguments from Plaintiff&apos;s Playbook, and your Saved Signature.
                 </p>
 
                 <div className="pt-2">
@@ -3000,7 +3081,9 @@ Email: service@allegedlylegal.com`;
             <div className="p-3 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-white uppercase">Florida Legal AI</span>
+                <span className="text-xs font-bold text-white uppercase">
+                  Florida Legal AI (Live Intake Synced)
+                </span>
               </div>
               <button onClick={() => setAiOpen(false)} className="text-slate-400 hover:text-white">
                 <X className="w-4 h-4" />
@@ -3031,7 +3114,7 @@ Email: service@allegedlylegal.com`;
                     setAiInput("");
                   }
                 }}
-                placeholder="Ask Florida Legal AI..."
+                placeholder="Ask about April I. Halle, Esq., Engleberg, CPA..."
                 className="flex-1 bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white"
               />
               <button
